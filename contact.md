@@ -5,6 +5,8 @@ css: "/css/contact.css"
 googlefonts: Lobster
 ---
 
+---------- Pascal: This page is now unused, it's just here for example material ------------
+
 Just kidding, you can't contact me here.
 
 But this little page shows you how you can write a minimalist page if you ever want to have some page without the header and all the other bulky stuff.

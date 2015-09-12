@@ -4,6 +4,23 @@ title: About me
 subtitle: or ...
 ---
 
-My name is Pascal van Kooten. I have the following qualities:
+My name is Pascal van Kooten. I like the following topics:
 
-- I don't like to write an about page *right* now.
+- Rapid Prototyping
+- Competitive Intelligence
+- Artificial Intelligence
+- Natural Language Processing
+- Virtualization (not visualization)
+- Web Scraping
+- Statistics
+- Data Mining
+- Machine Learning
+
+Tools:
+
+- Unix
+- Python
+- R
+- C++
+- Amazon EC2
+- Docker
