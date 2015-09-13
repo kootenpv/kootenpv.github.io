@@ -1,13 +1,11 @@
 ---
 layout: post
-title: Test markdown
-subtitle: Each post also has a subtitle
+title: Grand opening
+subtitle: Website went live 13-09-2015
 ---
 
-You can write regular [markdown](http://en.wikipedia.org/wiki/Markdown) here and Jekyll will automatically convert it to a nice webpage.
+This will be the place where I will write about things that interest me.
 
-**Here is some bold text**
+Mostly, this will be projects using Python, shared on [github](https://github.com/kootenpv), but... who knows.
 
-## Here is a secondary heading
-
-Got it?
+Whenever there is a problem that took longer time to solve, I might blog about it to help others.
