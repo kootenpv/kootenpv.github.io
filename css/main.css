@@ -17,11 +17,18 @@ p a {
   /* text-decoration: underline */
   color: #008AFF;
 }
-h1,h2,h3,h4,h5,h6 {
-  font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-weight: 800;
+h1,h2 {
+  font-family: 'Existence-StencilLight', 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 500;
   color: rgb(0, 180, 161);
 }
+
+h3,h4,h5,h6 {
+  font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  color: rgb(0, 180, 161);
+}
+
 a {
   color: #008AFF;
 }
@@ -257,6 +264,7 @@ footer .theme-by {
   margin: 0;
   font-weight: 300;
   margin-bottom: 10px;
+  color:#404040;
 }
 .post-preview .post-meta,
 .post-heading .post-meta {
@@ -408,4 +416,9 @@ header.header-post .post-heading .post-subheading {
 .blog-post table tr th :last-child,
 .blog-post table tr td :last-child {
   margin-bottom: 0;
+}
+
+@font-face {
+  font-family: 'Existence-StencilLight';
+  src: url('../fonts/Existence-StencilLight.otf') format('opentype');
 }
