@@ -422,3 +422,21 @@ header.header-post .post-heading .post-subheading {
   font-family: 'Existence-StencilLight';
   src: url('../fonts/Existence-StencilLight.otf') format('opentype');
 }
+
+.canvas-container {
+    text-align:center;
+      margin: 0px auto;
+}
+canvas {
+   background-color:#fff;
+   background-image:
+     -webkit-linear-gradient(      #999 1px, transparent 1px),
+     -webkit-linear-gradient(0deg, #999 1px, transparent 1px);
+   background-image:
+     linear-gradient(       #999 1px, transparent 1px),
+     linear-gradient(90deg, #999 1px, transparent 1px);
+   background-size: 10px 10px,10px 10px;
+
+   border:1px solid #999;
+   border-width:0 1px 1px 0; /* right and bottom */
+}

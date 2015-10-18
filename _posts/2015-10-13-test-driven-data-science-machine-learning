@@ -1,0 +1,16 @@
+---
+layout: post
+title: Test Driven Machine Learning Development
+---
+I'm by no means a test guru. I hardly write tests. However, I've perhaps found a case that I should be fond of.
+
+While creating the machine intelligent scraping framework, I'm currently mapping my own knowledge about website structure in coming up with general models.
+What if we would look for a date within the years 2000-2050? Would that be a better candidate for a publication date anno 2015? Would it be closer to the title or as far away as possible when considering a news article?
+These are easily programmed, easily verified on a single domain. How awesome that whenever I see an exception it is somehow quite easy to improve without breaking anything (wrong!)?
+I've before looked at some existing datasets, but they again focus only on single pages, which is limited in my opinion. As of now, I'm considering it at a "node" level among pages within a domain, but it will be much better to consider "node networks" (or said in another way, "a collection of nodes"). Using machine learning on existing data might help come up with a good model. But even better I believe it would be to define ~100 exceptional cases that I come along first, write down the answers and have them work as unittests. Note that the goal here is twofold:
+- Guard against development errors
+- Have an error metric for a new implementation
+This is huge! I'm convinced this is what will happen more (and probably already exists a lot) in Data Science.
+Rather than only optimizing a model though, the awesome part here is that it can also facilitate development.
+Even using larger ideas of regarding a "crawl" to be concerned with scraping a domain correctly rather than some single pages.
+I made some small tools that will give me a quick overview what goes wrong with crawling a certain domain (missing out on things, not getting all the content).
