@@ -6,6 +6,7 @@ title: Projects
 Have a look at my [GitHub](https://github.com/kootenpv/)
 
 You could find for example:
+
 - yagmail: yagmail makes sending emails very easy by doing all the magic for you
 - sky: next generation web crawling using machine intelligence
 - gittyleaks: find sensitive information for a git repo
