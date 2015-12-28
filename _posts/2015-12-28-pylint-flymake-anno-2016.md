@@ -19,7 +19,7 @@ Shoutout to [elpy](https://github.com/jorgenschaefer/elpy) since elpy is just su
 
 After it was done, no more squiggly lines, distinguishable colors, and nice textual output:
 
-![]({{site.url}}/assets/pylint_flymake.jpg)
+![]({{site.url}}/assets/pylint_flymake.png)
 
 but that's getting ahead of things.
 
