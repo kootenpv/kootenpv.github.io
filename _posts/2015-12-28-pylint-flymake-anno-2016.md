@@ -13,6 +13,7 @@ This is because flymake is certainly not expecting recent PyLint output.
 Add onto this that when configuring flymake, it expects a single script (without commandline arguments).
 
 Since I want an awesome Emacs environment, and also because I want to make [the EMacs Python environment "EMP"](https://github.com/kootenpv/emp) happen, I went on to solve the situation.
+
 Shoutout to [elpy](https://github.com/jorgenschaefer/elpy) since elpy is just such a driving force for me to make this happen!
 
 #### Result
