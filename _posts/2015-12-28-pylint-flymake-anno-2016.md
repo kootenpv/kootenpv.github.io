@@ -31,9 +31,7 @@ Here I describe the process of what came a long the way.
 
 I started with an ideal format:
 
-```python
-[ERROR/WARNING/etc]: The problem description (symbollic-name)
-```
+    [ERROR/WARNING/etc]: The problem description (symbollic-name)
 
 Ideal because for me:
 
@@ -48,15 +46,13 @@ But I certainly did not want filename and linenumber to occur at the start.
 
 In the end I settled with
 
-```python
-[ERROR/WARNING/etc] The problem description (symbollic-name) | filename:linenumber
-```
+
+    [ERROR/WARNING/etc] The problem description (symbollic-name) | filename:linenumber
+
 
 that is:
 
-```python
-[CONVENTION] Missing function docstring (missing-docstring. | pyflymake.py:208
-```
+    [CONVENTION] Missing function docstring (missing-docstring. | pyflymake.py:208
 
 ### flymake-mode
 
@@ -76,18 +72,26 @@ It is very unclear which rules are existing in `flymake-err-line-patterns`, they
 
 The reason a regexp usually hits in the current state, is because out of many, one is defined with a very simple format:
 
-```
-[^:]+:[0-9]+:.+
-filename:linenumber:problem_description
-```
+
+    [^:]+:[0-9]+:.+
+
+that is:
+
+{% highlight emacs-lisp %}
+[^:]+  - matching non ':', --> filename
+:
+[0-9]+ - matching numbers, --> linenumber
+:
+.+     - matching anything, --> problem_description
+{% endhighlight emacs-lisp %}
 
 Any characters not matching `:`, a `:`, `numbers 0-9` and then anything goes `.+`.
 
 However, very crucial: it does not correctly determine error/warning. `flymake-warning-predicate` defined in `elpy-mode` is:
 
-```python
-"^[wW]arning"
-```
+
+    "^[wW]arning"
+
 
 I actually have not found any code in the python modes that have description messages starting with "warning" or "Warning", so yea...
 
@@ -95,14 +99,14 @@ And I not only wanted better output, but also need to conform to filename/linenu
 
 So I added my own regexp to the situation, and my own "error category" checking:
 
-``` emacs-lisp
+{% highlight emacs-lisp %}
 ;; Pylint pattern catcher
 (add-to-list 'flymake-err-line-patterns
              '("\\([^|]+\\)| \\([^:]+\\):\\([0-9]+\\)$"
                2 3 nil 1))
 ;; Warning checker: if not Error/Fatal
 (setq flymake-warning-predicate "^.[^EF]")
-```
+{% endhighlight emacs-lisp %}
 
 Note that the `2 3 nil 1` refer to indices for a pattern in `flymake-err-line-patterns`:
 
@@ -111,11 +115,11 @@ Note that the `2 3 nil 1` refer to indices for a pattern in `flymake-err-line-pa
 
 I could test this stuff by using this snippet:
 
-``` emacs-lisp
+{% highlight emacs-lisp %}
 (flymake-parse-line
  "[CONVENTION] Missing function docstring (missing-docstring) |
   pyflymake.py:208")
-```
+{% endhighlight emacs-lisp %}
 
 ### Other typecheckers
 
@@ -129,14 +133,14 @@ Note that the title mentions no `PEP8` checking; rather, use yapf or autopep to 
 
 I supposed the following code could be a fix for when you want to use `pylint`.
 
-- Grab `pyflymake.py` from https://github.com/kootenpv/emp
+- Grab `pyflymake.py` from [https://github.com/kootenpv/emp](https://github.com/kootenpv/emp)
 - Add the following code to your python part in `.emacs`:
 
-``` emacs-lisp
+{% highlight emacs-lisp %}
 (add-hook 'elpy-mode-hook
  '(lambda ()
    (progn
     (add-to-list 'flymake-err-line-patterns '("\\([^|]+\\)| \\([^:]+\\):\\([0-9]+\\)$"
                                               2 3 nil 1))
     (set (make-local-variable 'flymake-warning-predicate) "^.[^EF]"))))
-```
+{% endhighlight emacs-lisp %}
