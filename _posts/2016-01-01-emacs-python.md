@@ -43,7 +43,7 @@ Note that since `emp` is in an early stage, everything might be changed, but eve
 
 Depending on whether you already have Python and/or Emacs installed, this might vary.
 
-I have provided some specific example instructions:
+I have provided some specific example instructions for clean installs:
 
 - [Ubuntu 15.10](https://github.com/kootenpv/emp/blob/master/ubuntu_install.md)
 - [Fedora 23.10](https://github.com/kootenpv/emp/blob/master/fedora_install.md)
