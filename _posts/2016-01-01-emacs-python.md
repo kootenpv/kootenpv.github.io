@@ -133,3 +133,5 @@ Below a list of features.
 - Best error reporting on the sideline, flymake & pylint + showing symbollic names for easy disabling
 
 - `git-gutter` to see recent modifications in git repos
+
+Feel free to leave a comment!
