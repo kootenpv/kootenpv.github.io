@@ -6,8 +6,8 @@ subtitle: Cool subtitle
 
 **STATUS: PRE-ALPHA** -- did not check for bugs yet
 
-<img src="{{site.url}}/assets/emacs.png" width="10%"></img>
-<img src="{{site.url}}/assets/python.png" width="10%"></img>
+<img src="{{site.url}}/assets/emacs.png" width="10%"/>
+<img src="{{site.url}}/assets/python.png" width="10%"/>
 
 [emp](https://github.com/kootenpv/emp)'s goal is to be a full environment for everything Python. It builds on top of [elpy](https://github.com/jorgenschaefer/elpy), and provides even more bindings.
 It is a real attempt at convincing people to work with an Emacs environment for Python.
@@ -33,7 +33,7 @@ Note that everything in Emacs is a bit different, so you'll have to watch some v
 
 ### Screenshot
 
-<img src="{{site.url}}/assets/python-screenshot.png" width="50%"></img>
+<img src="{{site.url}}/assets/python-screenshot.png" width="50%"/>
 
 ### Installation
 
