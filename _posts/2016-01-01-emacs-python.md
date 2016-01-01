@@ -23,11 +23,17 @@ Feel free to [make feature suggestions](https://github.com/kootenpv/emp/issues)!
 
 Of course, as expected of Emacs, everything can be customized, so if you do not like a component you can exclude it.
 
-Note that everything in Emacs is a bit different, so you'll have to watch some videos to get up to speed:
+Note that everything in Emacs is a bit different than you might be used to, so you'll have to watch some videos to get up to speed:
 
-[Emacs Introduction and Demonstration by Howard Abrams](https://www.youtube.com/watch?v=B6jfrrwR10k)
+- [Emacs Introduction and Demonstration by Howard Abrams](https://www.youtube.com/watch?v=B6jfrrwR10k)
 
-Note that since this is in an early stage, everything might be changed, but everything will be made easier, and explained better eventually :-)
+- [Emacs in 10 minutes!](https://www.youtube.com/watch?v=K3_SFerNIeI)
+
+- Text: http://mally.stanford.edu/~sr/computing/emacs.html
+
+- Bonus: [Using Python to code by Voice (uses Emacs)](https://www.youtube.com/watch?v=8SkdfdXWYaI)
+
+Note that since this is in an early stage, everything might be changed, but everything will be made easier, and explained better, eventually :-)
 
 ### Screenshot
 
@@ -60,9 +66,9 @@ echo '(setq user-emacs-directory "/home/<YOURUSERNAME>/emp/")' > ~/.emacs
 echo '(load (concat user-emacs-directory ".emacs.d/init.el"))' >> ~/.emacs
 {% endhighlight bash %}
 
-Now whenever you will open Emacs, it will be fully charged!
+Now whenever you will open Emacs, it will be fully charged (after downloading packages)!
 
-Below a list of features:
+Below a list of features.
 
 #### General features (I will expand these sections)
 
