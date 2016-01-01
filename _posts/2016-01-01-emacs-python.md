@@ -29,7 +29,7 @@ Note that everything in Emacs is a bit different than you might be used to, so y
 
 - [Emacs in 10 minutes!](https://www.youtube.com/watch?v=K3_SFerNIeI)
 
-- Text: http://mally.stanford.edu/~sr/computing/emacs.html
+- Text: [http://mally.stanford.edu/~sr/computing/emacs.html](http://mally.stanford.edu/~sr/computing/emacs.html)
 
 - Bonus: [Using Python to code by Voice (uses Emacs)](https://www.youtube.com/watch?v=8SkdfdXWYaI)
 
