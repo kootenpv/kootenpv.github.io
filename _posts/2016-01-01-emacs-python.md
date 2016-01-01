@@ -23,7 +23,7 @@ Feel free to [make feature suggestions](https://github.com/kootenpv/emp/issues)!
 
 Of course, as expected of Emacs, everything can be customized, so if you do not like a component you can exclude it.
 
-Note that everything in Emacs is a bit different than you might be used to, so you'll have to watch some videos to get up to speed:
+Note that everything in Emacs is a bit different than you might be used to, so you'll have to watch some videos to get up to speed if this is your first time using Emacs:
 
 - [Emacs Introduction and Demonstration by Howard Abrams](https://www.youtube.com/watch?v=B6jfrrwR10k)
 
@@ -33,7 +33,7 @@ Note that everything in Emacs is a bit different than you might be used to, so y
 
 - Bonus: [Using Python to code by Voice (uses Emacs)](https://www.youtube.com/watch?v=8SkdfdXWYaI)
 
-Note that since this is in an early stage, everything might be changed, but everything will be made easier, and explained better, eventually :-)
+Note that since `emp` is in an early stage, everything might be changed, but everything will be made easier, and explained better, eventually :-)
 
 ### Screenshot
 
