@@ -92,6 +92,8 @@ exclude:
   - CNAME
   - LICENSE
   - README.md
+  - node_modules
+  - gulpfile.js
 
 # prose.io options
 prose:
