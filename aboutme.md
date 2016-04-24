@@ -7,6 +7,7 @@ subtitle: or ...
 My name is Pascal van Kooten. I like the following topics:
 
 - Rapid Prototyping
+- Blockchain / Ethereum / Solidity
 - Competitive Intelligence
 - Artificial Intelligence
 - Natural Language Processing
