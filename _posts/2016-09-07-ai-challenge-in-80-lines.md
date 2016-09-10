@@ -78,11 +78,7 @@ It's a fun excercise to see what happens when you change these numbers, and perh
 
 ## Scripts
 
-I have provided 3 scripts: one which contains only the neccessary 78 lines, one which contains logging on the codingame website (and timing results), and the last one contains comments for most of the lines to better understand how the current solution has been implemented.
-
-Short: <a href="https://gist.github.com/kootenpv/3d20fbc2e8cf37eaa045f8090a0216a7">tron_min.py</a>
-Logging in codingame: <a href="https://gist.github.com/kootenpv/af270c0a9f4b5c84dadbe6494b77c1c0">tron_log.py</a>
-Commented script: <a href="https://gist.github.com/kootenpv/32d1a0d97e391392dec10a83070336f8">tron_comments.py</a>
+I have provided 3 scripts: one which contains only the <a href="https://gist.github.com/kootenpv/3d20fbc2e8cf37eaa045f8090a0216a7">neccessary 78 lines</a>, one which contains <a href="https://gist.github.com/kootenpv/af270c0a9f4b5c84dadbe6494b77c1c0">logging on the codingame website</a> which provides more insight in what is going on, and the last one <a href="https://gist.github.com/kootenpv/32d1a0d97e391392dec10a83070336f8">contains comments</a> for most of the lines to better understand how the current solution has been implemented.
 
 ## Improving the current solution
 
