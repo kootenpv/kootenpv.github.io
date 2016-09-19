@@ -17,7 +17,7 @@ Also, I wanted to tell you about a light variation, purely python/OSX based, jus
 
 It can really nicely make use of [DictVectorizer and RandomForest](https://github.com/kootenpv/whereami/blob/master/whereami/pipeline.py) in sklearn :)
 
-Here's what you can expect:
+Here's what you can expect (after `pip install whereami`):
 
 ```bash
 # in your bedroom, takes 100 samples
