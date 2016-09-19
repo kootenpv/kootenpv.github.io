@@ -4,7 +4,6 @@ title: Predict where you are indoors
 subtitle: (WiFi + Machine Learning)
 ---
 
-
 I just wanted to give a shoutout to a project I think is very awesome:
 
 [https://github.com/schollz/find](https://github.com/schollz/find)
