@@ -21,10 +21,10 @@ Here's what you can expect (after `pip install whereami`):
 
 ```bash
 # in your bedroom, takes 100 samples
-whereami learn bedroom 100
+whereami learn -l bedroom -n 100
 
 # in your kitchen, takes 100 samples
-whereami learn kitchen 100
+whereami learn -l kitchen  # default is n=100
 
 # cross-validated accuracy on historic data
 whereami crossval
