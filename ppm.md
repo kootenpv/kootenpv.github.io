@@ -1,7 +1,7 @@
 ---
 layout: page
 title: PPM
-subtitle: or ...
+subtitle: Pascal Password Manager
 ---
 <!-- content! -->
 <h1>ppm
@@ -9,10 +9,15 @@ subtitle: or ...
 <span><i class="fa fa-github"></i></span>
 </a>
 </h1>
+
+This is the password manager I use. Code safely runs only in the browser.
+
+Python and Android versions available on the github link (icon).
+
 <form onsubmit="calculate(); return false">
 <p>
 <label for="password" style="width: 100px;">Password:</label>
-<input id="password" name="password" type="password" value="password" size="32">
+<input id="password" name="password" type="password" value="passwordpassword" size="32">
 </p>
 <p>
 <label for="salt" style="width: 100px;">Salt:</label>
