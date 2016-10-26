@@ -55,7 +55,7 @@ encoding: "hex"
 },
 function(res) {
 var t2 = ((new Date()).getTime()-t1);
-out.innerHTML = 'Time: <b>'+t2+' ms</b><br>Master password input length: '+password.length+'<br><span style="color:cornflowerblue; font-weight:bold">Succesfully copied password.</span> <textarea id="res">' + res + '</textarea>';
+out.innerHTML = 'Time: <b>'+t2+' ms</b><br>Master password input length: '+password.length+'<br><span style="color:cornflowerblue; font-weight:bold">Succesfully copied password to clipboard.</span> <textarea id="res">' + res + '</textarea>';
 btn.disabled = false;
 btn.value = 'Calculate';
 var copyTextarea = document.querySelector('#res');
