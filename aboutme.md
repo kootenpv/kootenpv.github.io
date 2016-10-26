@@ -1,21 +1,21 @@
 ---
 layout: page
 title: About me
-subtitle: or ...
 ---
 
 My name is Pascal van Kooten. I like the following topics:
 
-- Rapid Prototyping
-- Blockchain / Ethereum / Solidity
+- Blockchain / Eris / Ethereum / Solidity
 - Competitive Intelligence
-- Artificial Intelligence
-- Natural Language Processing
-- Virtualization (not visualization)
+- Artificial Intelligence (DeepQN, DeepQA)
+- Natural Language Processing (nltk, spacy)
+- Virtualization (not **vis**ualization)
 - Web Scraping
-- Statistics
+- Software development
+- Statistics (R)
 - Data Mining
-- Machine Learning
+- Machine Learning (scikit-learn)
+- Deep learning (tensorflow)
 
 Tools:
 
@@ -25,3 +25,4 @@ Tools:
 - C++
 - Amazon EC2
 - Docker
+- Emacs
