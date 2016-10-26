@@ -12,7 +12,11 @@ subtitle: Pascal Password Manager
 
 This is the password manager I use. Code safely runs only in the browser.
 
-Python and Android versions available on the github link (icon).
+More explaination about why this is a good idea, on the github link (icon above).
+
+Python and Android versions are also available.
+
+<h3>Generate password</h3>
 
 <form onsubmit="calculate(); return false">
 <p>
