@@ -12,8 +12,6 @@ subtitle: Pascal Password Manager
 
 This is the password manager I use. Code safely runs only in the browser.
 
-More explaination about why this is a good idea, on the github link (icon above).
-
 Python and Android versions are also available.
 
 <h3>Generate password</h3>
@@ -24,8 +22,8 @@ Python and Android versions are also available.
 <input id="password" name="password" type="password" value="passwordpassword" size="32">
 </p>
 <p>
-<label for="salt" style="width: 100px;">Salt:</label>
-<input id="salt" name="salt" type="text" value="salt" size="32">
+<label for="keyword" style="width: 100px;">Keyword:</label>
+<input id="keyword" name="keyword" type="text" value="reddit" size="32">
 </p>
 <input class="btn js-textareacopybtn" type="submit" name="btn" value="Calculate" />
 </form>
@@ -41,7 +39,7 @@ var btn = f.btn;
 var out = document.querySelector('#out');
 
 var password = f.password.value;
-var salt = f.salt.value;
+var keyword = f.keyword.value;
 
 btn.disabled = true;
 btn.value = 'Wait...';
@@ -49,7 +47,7 @@ btn.value = 'Wait...';
 window.setTimeout(function() {
 try {
 var t1 = (new Date()).getTime();
-scrypt(password, salt, {
+scrypt(password, keyword, {
 logN: 15,
 r: 8,
 p: 1,
@@ -80,4 +78,11 @@ console.log('Oops, unable to copy');
 out.innerHTML = '<span style="color:red">error: ' + ex.message + '</span>'; btn.disabled = false; btn.value = 'Calculate';
 } }); };
 </script>
+
 <!-- end content -->
+
+<p>No dependencies on any other party, this makes for a very safe password manager. Everytime the same strong password gets created based on your master password and a keyword (such as reddit or github).</p>
+
+When a website wants you to create a new password: just increment (e.g. reddit1, reddit2). Easy.
+
+<p>It will take 1 million macbook pros 1e19 years to find the password when it would be found at half of the possible time.</p>

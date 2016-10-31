@@ -31,8 +31,8 @@ common-js:
                     <input id="password" name="password" type="password" value="password" size="32">
                 </p>
                 <p>
-                    <label for="salt">Salt:</label>
-                    <input id="salt" name="salt" type="text" value="salt" size="32">
+                    <label for="keyword">Keyword:</label>
+                    <input id="keyword" name="keyword" type="text" value="reddit" size="32">
                 </p>
                 <input class="js-textareacopybtn" type="submit" name="btn" value="Calculate" />
             </form>
@@ -48,7 +48,7 @@ common-js:
                  var out = document.querySelector('#out');
 
                  var password = f.password.value;
-                 var salt = f.salt.value;
+                 var keyword = f.keyword.value;
 
                  btn.disabled = true;
                  btn.value = 'Wait...';
@@ -56,7 +56,7 @@ common-js:
                  window.setTimeout(function() {
                      try {
                          var t1 = (new Date()).getTime();
-                         scrypt(password, salt, {
+                         scrypt(password, keyword, {
                              logN: 15,
                              r: 8,
                              p: 1,
