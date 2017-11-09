@@ -39,6 +39,12 @@ common-js:
             <div id="out" style="margin-top: 10px; padding: 10px 5px; color: #444; line-height: 1.5;"></div>
             <b>Credits for Scrypt implementation: <a href="https://github.com/dchest/scrypt-async-js">dchest/scrypt-async-js</a></b>
             <script src="scrypt.js"></script>
+            <style>
+             #t { position: absolute; left: 0; z-index: -900; width: 0px; height: 0px; border: none; }
+             #t:focus {
+                 outline: none
+             }
+            </style>
             <script>
              var f = document.forms[0];
 
@@ -66,22 +72,10 @@ common-js:
                          },
                                 function(res) {
                                     var t2 = ((new Date()).getTime()-t1);
-                                    out.innerHTML = 'Time: <b>'+t2+' ms</b><br>Master password input length: '+password.length+'<br><span style="color:cornflowerblue; font-weight:bold">Succesfully copied password.</span> <textarea id="res">' + res + '</textarea>';
+                                    out.innerHTML = 'Time: <b>'+t2+' ms</b><br>Master password input length: '+password.length+'<br><span style="color:cornflowerblue; font-weight:bold">Succesfully copied password.</span> <textarea id="t">' + res + '</textarea>';
                                     btn.disabled = false;
                                     btn.value = 'Calculate';
-                                    var copyTextarea = document.querySelector('#res');
-                                    copyTextarea.select();
-
-                                    try {
-                                        var successful = document.execCommand('copy');
-                                        var msg = successful ? 'successful' : 'unsuccessful';
-                                        console.log('Copying text command was ' + msg);
-                                        copyTextarea.innerHTML = '';
-                                        copyTextarea.style.display = 'none';
-                                    } catch (err) {
-                                        console.log('Oops, unable to copy');
-                                    }
-
+                                    copy(res);
                                 });
                      } catch(ex) {
                          out.innerHTML = '<span style="color:red">error: ' + ex.message + '</span>'; btn.disabled = false; btn.value = 'Calculate';

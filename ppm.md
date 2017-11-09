@@ -44,39 +44,41 @@ var keyword = f.keyword.value;
 btn.disabled = true;
 btn.value = 'Wait...';
 
+  function copy(text) {
+      var t = document.getElementById('t')
+      t.innerHTML = text
+      t.select()
+      try {
+        var successful = document.execCommand('copy')
+        var msg = successful ? 'successfully' : 'unsuccessfully'
+        console.log('text coppied ' + msg)
+      } catch (err) {
+        console.log('Unable to copy text')
+      }
+      t.innerHTML = ''
+  }
+
 window.setTimeout(function() {
-try {
-var t1 = (new Date()).getTime();
-scrypt(password, keyword, {
-logN: 15,
-r: 8,
-p: 1,
-dkLen: 32,
-interruptStep: 0,
-encoding: "hex"
-},
-function(res) {
-var t2 = ((new Date()).getTime()-t1);
-out.innerHTML = 'Time: <b>'+t2+' ms</b><br>Master password input length: '+password.length+'<br><span style="color:cornflowerblue; font-weight:bold">Succesfully copied password to clipboard.</span> <textarea id="res">' + res + '</textarea>';
-btn.disabled = false;
-btn.value = 'Calculate';
-var copyTextarea = document.querySelector('#res');
-copyTextarea.select();
-
-try {
-var successful = document.execCommand('copy');
-var msg = successful ? 'successful' : 'unsuccessful';
-console.log('Copying text command was ' + msg);
-copyTextarea.innerHTML = '';
-copyTextarea.style.display = 'none';
-} catch (err) {
-console.log('Oops, unable to copy');
-}
-
-});
-} catch(ex) {
-out.innerHTML = '<span style="color:red">error: ' + ex.message + '</span>'; btn.disabled = false; btn.value = 'Calculate';
-} }); };
+                     try {
+                         var t1 = (new Date()).getTime();
+                         scrypt(password, keyword, {
+                             logN: 15,
+                             r: 8,
+                             p: 1,
+                             dkLen: 32,
+                             interruptStep: 0,
+                             encoding: "hex"
+                         },
+                                function(res) {
+                                    var t2 = ((new Date()).getTime()-t1);
+                                    out.innerHTML = 'Times: <b>'+t2+' ms</b><br>Master password input length: '+password.length+'<br><span style="color:cornflowerblue; font-weight:bold">Succesfully copied password.</span> <textarea id="t" style="position: absolute; left: 0; z-index: -900; width: 0px; height: 0px; border: none; opacity: 0">' + res + '</textarea>';
+                                    btn.disabled = false;
+                                    btn.value = 'Calculate';
+                                    copy(res);
+                                });
+                     } catch(ex) {
+                         out.innerHTML = '<span style="color:red">error: ' + ex.message + '</span>'; btn.disabled = false; btn.value = 'Calculate';
+                     } }); };
 </script>
 
 <!-- end content -->
