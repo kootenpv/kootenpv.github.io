@@ -44,19 +44,67 @@ var keyword = f.keyword.value;
 btn.disabled = true;
 btn.value = 'Wait...';
 
-  function copy(text) {
-      var t = document.getElementById('t')
-      t.innerHTML = text
-      t.select()
-      try {
-        var successful = document.execCommand('copy')
-        var msg = successful ? 'successfully' : 'unsuccessfully'
-        console.log('text coppied ' + msg)
-      } catch (err) {
-        console.log('Unable to copy text')
-      }
-      t.innerHTML = ''
+const copyToClipboard = (function initClipboardText() {
+  const id = 'copy-to-clipboard-helper';
+  const element = document.getElementById(id);
+  const textarea = element || document.createElement('textarea');
+
+  if (!element) {
+    textarea.id = id;
+    // Place in top-left corner of screen regardless of scroll position.
+    textarea.style.position = 'fixed';
+    textarea.style.top = 0;
+    textarea.style.left = 0;
+
+    // Ensure it has a small width and height. Setting to 1px / 1em
+    // doesn't work as this gives a negative w/h on some browsers.
+    textarea.style.width = '1px';
+    textarea.style.height = '1px';
+
+    // We don't need padding, reducing the size if it does flash render.
+    textarea.style.padding = 0;
+
+    // Clean up any borders.
+    textarea.style.border = 'none';
+    textarea.style.outline = 'none';
+    textarea.style.boxShadow = 'none';
+
+    // Avoid flash of white box if rendered for any reason.
+    textarea.style.background = 'transparent';
+
+    // Set to readonly to prevent mobile devices opening a keyboard when
+    // text is .select()'ed.
+    textarea.setAttribute('readonly', true);
+
+    document.body.appendChild(textarea);
   }
+
+  return function setClipboardText(text) {
+    textarea.value = text;
+
+    // iOS Safari blocks programmtic execCommand copying normally, without this hack.
+    // https://stackoverflow.com/questions/34045777/copy-to-clipboard-using-javascript-in-ios
+    if (navigator.userAgent.match(/ipad|ipod|iphone/i)) {
+      const editable = textarea.contentEditable;
+      textarea.contentEditable = true;
+      const range = document.createRange();
+      range.selectNodeContents(textarea);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      textarea.setSelectionRange(0, 999999);
+      textarea.contentEditable = editable;
+    } else {
+      textarea.select();
+    }
+
+    try {
+      return document.execCommand('copy');
+    } catch (err) {
+      return false;
+    }
+  };
+}());
 
 window.setTimeout(function() {
                      try {
@@ -71,10 +119,10 @@ window.setTimeout(function() {
                          },
                                 function(res) {
                                     var t2 = ((new Date()).getTime()-t1);
-                                    out.innerHTML = 'Times: <b>'+t2+' ms</b><br>Master password input length: '+password.length+'<br><span style="color:cornflowerblue; font-weight:bold">Succesfully copied password.</span> <textarea id="t" style="position: absolute; left: 0; z-index: -900; width: 0px; height: 0px; border: none; opacity: 0">' + res + '</textarea>';
+                                    out.innerHTML = 'Time: <b>'+t2+' ms</b><br>Master password input length: '+password.length+'<br><span style="color:cornflowerblue; font-weight:bold">Succesfully copied password.</span>';
                                     btn.disabled = false;
                                     btn.value = 'Calculate';
-                                    copy(res);
+                                    copyToClipboard(res);
                                 });
                      } catch(ex) {
                          out.innerHTML = '<span style="color:red">error: ' + ex.message + '</span>'; btn.disabled = false; btn.value = 'Calculate';
