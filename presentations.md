@@ -3,7 +3,7 @@ layout: page
 title: Presentations
 ---
 
-In case you are interested for me to speak at an event, reach out to me at: [kootenpv@gmail.com](kootenpv@gmail.com)
+In case you are interested in me speaking at an event, reach out to me at: [kootenpv@gmail.com](kootenpv@gmail.com)
 
 These are the talks I've **done**:
 
