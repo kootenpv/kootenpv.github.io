@@ -30,6 +30,7 @@ navbar-links:
   Home: ""
   Projects: "projects"
   About Me: "aboutme"
+  Presentations: "presentations"
   PPM: "ppm"
 
 # --- Footer options --- #
