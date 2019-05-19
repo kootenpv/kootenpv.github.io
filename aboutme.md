@@ -3,7 +3,9 @@ layout: page
 title: About me
 ---
 
-My name is Pascal van Kooten. I like the following topics:
+My name is Pascal van Kooten. To contact me, look at the footer of this website for your preferred method.
+
+I like the following topics:
 
 - Blockchain / Eris / Ethereum / Solidity
 - Competitive Intelligence
