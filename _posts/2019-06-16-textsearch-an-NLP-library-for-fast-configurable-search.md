@@ -1,6 +1,7 @@
 ---
 layout: post
 title: textsearch: an NLP library for fast and configurable search
+subtitle:
 ---
 
 Speed and accuracy is everything in Natural Language Processing (NLP).
@@ -10,15 +11,16 @@ Sometimes you just are looking for, say, 10000 words in [bm]illions of texts.
 One of the libraries existing for that is [flashtext](https://github.com/vi3k6i5/flashtext). I suggest you read the article written by my friend [Vikash Singh](https://github.com/vi3k6i5) called "[Regex was taking 5 days to run. So I built a tool that did it in 15 minutes](https://www.freecodecamp.org/news/regex-was-taking-5-days-flashtext-does-it-in-15-minutes-55f04411025f/)".
 I'm proud to have raised issues to his library, and he was very patient and he kept making it the awesome package that it is.
 
-That said, I wanted to take the lessons learned there, and make a library more configurable and having more options.
-At the same time, I realized that he did adapted the popular aho-corasick algorithm (historically what `grep` was built on).
-Instead, I found out someone had written an aho-corasick implementation in C with a python wrapper on top (called [pyahocorasick](https://github.com/WojciechMula/pyahocorasick)), and I went from there.
+That said, I wanted to take the lessons learned there, and make a library having more options.
+At the same time, I realized that he adapted the popular aho-corasick algorithm (historically what `grep` was built on!).
+Instead, I found out someone had written an aho-corasick implementation in C with a python wrapper on top (called [pyahocorasick](https://github.com/WojciechMula/pyahocorasick)) - I went from there.
 
 [textsearch](https://github.com/kootenpv/textsearch) was born.
 
 ### Introducing `textsearch`
 
-The goal of [textsearch](https://github.com/kootenpv/textsearch) is to be the fastest when you need to quickly search and find strings (and sometimes still some regex).
+The goal of [textsearch](https://github.com/kootenpv/textsearch) is to be the fastest when you need to quickly search and find multiple strings (and sometimes still some regex).
+The trick to these algorithms is that regardless of how many words you are looking for, you only loop once over the text you are searching. This is what makes it efficient.
 
 I am currently in the process of rewriting many packages to use this instead of regex (all having roughly a 30x speedup over the current code that's regex based):
 
