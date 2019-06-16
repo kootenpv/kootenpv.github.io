@@ -6,7 +6,7 @@ subtitle:
 
 Speed and accuracy is everything in Natural Language Processing (NLP).
 Some decide to go a "pure" Deep Learning route, but even when going in that direction, there are many situations in which you need a fast text searcher.
-Sometimes you just are looking for, say, 10000 words in [bm]illions of texts.
+Sometimes you just are looking for, say, 10000 words in [bm]illions of texts (the more, the higher the relative gain compared to regex).
 
 One of the libraries existing for that is [flashtext](https://github.com/vi3k6i5/flashtext). I suggest you read the article written by my friend [Vikash Singh](https://github.com/vi3k6i5) called "[Regex was taking 5 days to run. So I built a tool that did it in 15 minutes](https://www.freecodecamp.org/news/regex-was-taking-5-days-flashtext-does-it-in-15-minutes-55f04411025f/)".
 I'm proud to have raised issues to his library, and he was very patient and he kept making it the awesome package that it is.
@@ -21,8 +21,9 @@ Instead, I found out someone had written an aho-corasick implementation in C wit
 
 The goal of [textsearch](https://github.com/kootenpv/textsearch) is to be the fastest when you need to quickly search and find multiple strings (and sometimes still some regex).
 The trick to these algorithms is that regardless of how many words you are looking for, you only loop once over the text you are searching. This is what makes it efficient.
+In case you're interested, read about trie data structures and the aho-corasick algorithm in particular.
 
-I am currently in the process of rewriting many packages to use this instead of regex (all having roughly a 30x speedup over the current code that's regex based):
+Currently I am in the process of rewriting many packages to use this instead of regex (all having roughly a 30x speedup over the current code that's regex based):
 
 - [contractions](https://github.com/kootenpv/contractions): Fixes contractions such as `you're` to you `are`
 - [metadate](https://pypi.org/project/metadate): Finding dates in natural text
