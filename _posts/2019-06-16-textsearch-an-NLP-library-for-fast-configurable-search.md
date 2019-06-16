@@ -1,6 +1,6 @@
 ---
 layout: post
-title: textsearch: an NLP library for fast and configurable search
+title: textsearch - an NLP library for fast and configurable search
 subtitle:
 ---
 
