@@ -92,23 +92,23 @@ from shrynk import show_benchmark
 show_benchmark("toy_data.csv") # takes either a(n un)compressed filename, or DataFrame/object
 
 # Output (sorted on size)
-                                               kwargs  size    write_time     read_time
-              {"engine": "csv", "compression": "bz2"}    87  0.1356501579  0.1386144161
-               {"engine": "csv", "compression": null}    89  0.1361474991  0.1394183636
-             {"engine": "csv", "compression": "gzip"}    97  0.1374096870  0.1404459476
-               {"engine": "csv", "compression": "xz"}   112  0.1405427456  0.1435179710
-              {"engine": "csv", "compression": "zip"}   218  0.1334178448  0.1370120049
-      {"engine": "fastparquet", "compression": "LZ4"}   515  0.2775182724  0.2795000076
-     {"engine": "fastparquet", "compression": "GZIP"}   518  0.2845211029  0.2868402004
-    {"engine": "fastparquet", "compression": "SNA.."}   520  0.2953915596  0.2983992100
-     {"engine": "fastparquet", "compression": "ZSTD"}   522  0.2734167576  0.2757453918
-      {"engine": "fastparquet", "compression": "LZO"}   526  0.2819433212  0.2844066620
-    {"engine": "fastparquet", "compression": "UNC.."}   556  0.4385104179  0.6755955219
-       {"engine": "pyarrow", "compression": "brotli"}  1146  0.0169641972  0.0230734348
-          {"engine": "pyarrow", "compression": "lz4"}  1152  0.0151193142  0.0188922882
-       {"engine": "pyarrow", "compression": "snappy"}  1171  0.0124835968  0.0166921616
-         {"engine": "pyarrow", "compression": "zstd"}  1180  0.0132200718  0.0181930065
-         {"engine": "pyarrow", "compression": "gzip"}  1209  0.0177638531  0.0231583118
+           kwargs  size  write   read
+          csv+bz2    87  0.135  0.138
+              csv    89  0.136  0.139
+         csv+gzip    97  0.137  0.140
+           csv+xz   112  0.140  0.143
+          csv+zip   218  0.133  0.137
+  fastparquet+LZ4   515  0.277  0.279
+ fastparquet+GZIP   518  0.284  0.286
+fastparquet+SNA..   520  0.295  0.298
+ fastparquet+ZSTD   522  0.273  0.275
+  fastparquet+LZO   526  0.281  0.284
+fastparquet+UNC..   556  0.438  0.675
+   pyarrow+brotli  1146  0.016  0.023
+      pyarrow+lz4  1152  0.015  0.018
+   pyarrow+snappy  1171  0.012  0.016
+     pyarrow+zstd  1180  0.013  0.018
+     pyarrow+gzip  1209  0.017  0.023
 ```
 
 You can see that in the case of this file, it is recommend to store the data as `csv+bz2`, as it yields a very small file on disk (and it uses the default settings).
@@ -165,25 +165,34 @@ array([-1.22474487,  0.        ,  1.22474487])
 array([-1.22474487,  0.        ,  1.22474487])
 ```
 
-You can see that the scale does not matter but the relative difference does: (1, 2, 3) and (100, 200, 300) get the same scores even though they are 100x larger.
+You can see that the scale does not matter but the relative difference does: (1, 2, 3) and (100, 200, 300) get the same scores even though they are 100x larger. Also note that here we are ignoring the unit (bytes vs seconds).
 
 Here a fake example to show the compression scores of a single imaginary file:
 
+Benchmark:
 ```
-Benchmark:                 |       Z-scores:
-          size    write    |                z-size  z-write
-compr A    100kb     2s    |       comp A    -1.22        0
-compr B    200kb     1s    |       comp B        0    -1.22
-compr C    300kb     3s    |       comp C     1.22     1.22
+          size    write
+compr A    100kb     2s
+compr B    200kb     1s
+compr C    300kb     3s
 ```
 
-Then to combine the results with [u]ser weights (size=1, write=2):
+Z-scores:
 
 ```
-         z-size    z-write   |     u-s    u-w     |   user-z-sum
-compr A   -1.22          0   |   -1.22      0     |        -1.22
-compr B       0      -1.22   |       0  -2.44     |        -2.44
-compr C    1.22       1.22   |    1.22   2.44     |         3.66
+         z-size  z-write
+comp A    -1.22        0
+comp B        0    -1.22
+comp C     1.22     1.22
+```
+
+Then to combine the results with [u]ser weights (size=1, write=2), and sum them per row:
+
+```
+   u-s    u-w     |   user-z-sum
+ -1.22      0     |        -1.22
+     0  -2.44     |        -2.44
+  1.22   2.44     |         3.66
 ```
 
 In the last column you can see the sum over the user weights multiplied by the size and weight z-scores.
@@ -195,11 +204,11 @@ In the end, the input will be this result for each file (so the sample size is `
 A sample data set might look like (completely made up numbers):
 
 ```
-number_of_cols     number_of_rows      missing_proportion        |                 label
-     19                 1000                  0.1                |                csv+bz
-     5                 10000                    0                |      fastparquet+GZIP
-     55                 2333                  0.2                |        pyarrow+brotli
-     190                 500                 0.05                |              csv+gzip
+number_of_cols number_of_rows missing_prop |            label
+     19             1000             0.1   |           csv+bz
+     5             10000               0   | fastparquet+GZIP
+     55             2333             0.2   |   pyarrow+brotli
+     190             500            0.05   |         csv+gzip
                               ...  and so on ....
 ```
 
@@ -289,32 +298,32 @@ Note that shrynk is in this example not only 30% better in size (check the arrow
 ```
 [shrynk] s=1 w=0 r=0
 ----------------
-it 0/5: equal class weights, uniform chance: 16.67% | accuracy shrynk prediction 82.49%
-it 1/5: equal class weights, uniform chance: 16.67% | accuracy shrynk prediction 100.0%
-it 2/5: equal class weights, uniform chance: 14.29% | accuracy shrynk prediction 78.88%
-it 3/5: equal class weights, uniform chance: 16.67% | accuracy shrynk prediction 83.33%
-it 4/5: equal class weights, uniform chance: 20.0%  | accuracy shrynk prediction 99.95%
+it 0/5: accuracy shrynk prediction 82.49%
+it 1/5: accuracy shrynk prediction 100.0%
+it 2/5: accuracy shrynk prediction 78.88%
+it 3/5: accuracy shrynk prediction 83.33%
+it 4/5: accuracy shrynk prediction 99.95%
 Avg Accuracy: 0.889
 
 results sorted on SIZE, shown in proportion increase vs ground truth best
-                                                         size  read_time write_time
-shrynk_prediction                            --->    1.001250   6.653294   7.443299
-{"engine": "csv", "compression": "xz"}       --->    1.311760  25.180387  31.659424
-{"engine": "csv", "compression": "bz2"}              1.370586  12.698399  14.549698
-{"engine": "csv", "compression": "zip"}              2.163256  11.646812  13.701429
-{"engine": "fastparquet", "compression": "ZSTD"}     4.845283   5.069663   6.625700
-{"engine": "fastparquet", "compression": "GZIP"}     4.958472   6.866515   8.805251
-{"engine": "fastparquet", "compression": "LZO"}      5.666314   4.959511   6.446396
-{"engine": "fastparquet", "compression": "LZ4"}      5.858856   4.874114   6.395383
-{"engine": "fastparquet", "compression": "SNAPPY"}   6.008465   5.105504   6.611646
-{"engine": "csv", "compression": null}               7.454774   9.214528  10.663383
-{"engine": "csv", "compression": "gzip"}             7.455390   9.114544  10.543070
-{"engine": "pyarrow", "compression": "brotli"}       8.418158   2.163926   3.045107
-{"engine": "pyarrow", "compression": "zstd"}         8.715944   1.219127   1.495811
-{"engine": "pyarrow", "compression": "gzip"}         9.044588   2.038678   2.864825
-{"engine": "pyarrow", "compression": "lz4"}          9.320719   1.126909   1.366586
-{"engine": "pyarrow", "compression": "snappy"}       9.356005   1.165785   1.433641
-{"engine": "fastparquet", "compression": "UNCOM...  16.360611   5.851307   6.870321
+                         size  read   write
+shrynk_prediction--> 1.001    6.653   7.443
+csv+xz          ---> 1.311   25.180  31.659
+csv+bz2              1.370   12.698  14.549
+csv+zip              2.163   11.646  13.701
+fastparquet+ZSTD     4.845    5.069   6.625
+fastparquet+GZIP     4.958    6.866   8.805
+fastparquet+LZO      5.666    4.959   6.446
+fastparquet+LZ4      5.858    4.874   6.395
+fastparquet+SNAPPY   6.008    5.105   6.611
+csv                  7.454    9.214  10.663
+csv+gzip             7.455    9.114  10.543
+pyarrow+brotli       8.418    2.163   3.045
+pyarrow+zstd         8.715    1.219   1.495
+pyarrow+gzip         9.044    2.038   2.864
+pyarrow+lz4          9.320    1.126   1.366
+pyarrow+snappy       9.356    1.165   1.433
+fastparquet+UNCOM.. 16.360    5.851   6.870
 ```
 
 ### Conclusion
