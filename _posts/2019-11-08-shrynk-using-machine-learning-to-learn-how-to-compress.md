@@ -14,7 +14,20 @@ You can try it for yourself (by uploading a CSV file) at [https://shrynk.ai](htt
 
 Bonus: If the algorithm has it wrong, the features of the data (not the data itself) will be added to the python package on the next release!
 
-Next, I will explain Compression, Machine Learning and the library I've built in Python.
+Next, I will explain Compression, Machine Learning and the library I've built in Python. You can also jump to a section using the links below.
+
+- [Compression](#compression)
+- [Compressing tabular data](#compressing-tabular-data)
+- [Tabular data in Python](#tabular-data-in-python)
+- [Running benchmarks](#running-benchmarks)
+- [Where the idea came from](#where-the-idea-came-from)
+- [Machine Learning](#machine-learning)
+- [Machine Learning in Shrynk](#machine-learning-in-shrynk)
+- [Usage](#usage)
+- [Data comes packaged](#data-comes-packaged)
+- [How well does it work? Cross-validation](#how-well-does-it-work-cross-validation)
+- [Conclusion](#conclusion)
+- [What's next](#whats-next)
 
 ### Compression
 
@@ -50,7 +63,7 @@ Another optimization of Parquet is to use [Run-length encoding](https://en.wikip
 
 Note that at the same time, you might be able to imagine that the Parquet schema is not necessarily better for floating-point values (like pi), as mostly these values will be unique, we cannot use these tricks.
 
-### Compression of tabular data in Python
+### Tabular data in Python
 
 In the case of tabular data, we often use `pandas.read_csv` to read in data from disk and produce a [DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html).
 
@@ -148,7 +161,7 @@ It could be that, based on some data of let's say 5000 rows and 10 columns of pr
 
 To give more example features, currently it will consider `percentage of null values`, `average string length`, and how distinct variables are (`cardinality`), and even a few more. These are all used to figure out which compression to apply in a similar context. Check [here](https://github.com/kootenpv/shrynk/blob/de670b72d5c1ba17323ddd5c6915217623c2a7e3/shrynk/pandas_.py#L203) for an overview of features used.
 
-### So how does the machine learning work?
+### Machine Learning in Shrynk
 
 Note that there are other attempts at using machine learning to do compression... most notably in compressing images. Shrynk uses a meta approach instead, as it only uses already existing compression methods.
 
@@ -157,12 +170,12 @@ For each file, it will apply the compression and gather the values for each comp
 First to see how converting to z-scores works:
 
 ```python
->>> from sklearn.preprocessing import scale
->>>
->>> scale([1, 2, 3])
-array([-1.22474487,  0.        ,  1.22474487])
->>> scale([100, 200, 300])
-array([-1.22474487,  0.        ,  1.22474487])
+from sklearn.preprocessing import scale
+
+scale([1, 2, 3])
+# array([-1.224,  0. , 1.224])
+scale([100, 200, 300])
+# array([-1.224,  0. , 1.224])
 ```
 
 You can see that the scale does not matter but the relative difference does: (1, 2, 3) and (100, 200, 300) get the same scores even though they are 100x larger. Also note that here we are ignoring the unit (bytes vs seconds).
@@ -186,7 +199,7 @@ comp B        0    -1.22
 comp C     1.22     1.22
 ```
 
-Then to combine the results with [u]ser weights (size=1, write=2), and sum them per row:
+Then to combine the results with [u]ser weights (size=1, write=2):
 
 ```
    u-s    u-w     |   user-z-sum
@@ -195,21 +208,21 @@ Then to combine the results with [u]ser weights (size=1, write=2), and sum them 
   1.22   2.44     |         3.66
 ```
 
-In the last column you can see the sum over the user weights multiplied by the size and weight z-scores.
+In the last column you can see the sum over the user weights multiplied by the size and weight z-scores per row.
 
 Given the example data and s=1 and w=2, `compression B` would have the lowest summed z-score and thus be best! This means that the characteristics of this data and the label `compression B` will be used to train the model.
 
-In the end, the input will be this result for each file (so the sample size is `number_of_files`, not `number_of_files * number_of_compression`).
+In the end, the input will be this result for each file (so the sample size is `number_of_files`; not `number_of_files * number_of_compression`).
 
 A sample data set might look like (completely made up numbers):
 
 ```
-number_of_cols number_of_rows missing_prop |            label
-     19             1000             0.1   |           csv+bz
-     5             10000               0   | fastparquet+GZIP
-     55             2333             0.2   |   pyarrow+brotli
-     190             500            0.05   |         csv+gzip
-                              ...  and so on ....
+num_cols num_rows  missing |            label
+      19     1000      0.1 |           csv+bz
+       5    10000        0 | fastparquet+GZIP
+      55     2333      0.2 |   pyarrow+brotli
+     190      500     0.05 |         csv+gzip
+     ...  and so on   ....
 ```
 
 A simple [RandomForestClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html) is trained on this.
@@ -298,32 +311,33 @@ Note that shrynk is in this example not only 30% better in size (check the arrow
 ```
 [shrynk] s=1 w=0 r=0
 ----------------
-it 0/5: accuracy shrynk prediction 82.49%
-it 1/5: accuracy shrynk prediction 100.0%
-it 2/5: accuracy shrynk prediction 78.88%
-it 3/5: accuracy shrynk prediction 83.33%
-it 4/5: accuracy shrynk prediction 99.95%
+it 0/5: accuracy shrynk 82.49%
+it 1/5: accuracy shrynk 100.0%
+it 2/5: accuracy shrynk 78.88%
+it 3/5: accuracy shrynk 83.33%
+it 4/5: accuracy shrynk 99.95%
 Avg Accuracy: 0.889
 
 results sorted on SIZE, shown in proportion increase vs ground truth best
-                         size  read   write
-shrynk_prediction--> 1.001    6.653   7.443
-csv+xz          ---> 1.311   25.180  31.659
-csv+bz2              1.370   12.698  14.549
-csv+zip              2.163   11.646  13.701
-fastparquet+ZSTD     4.845    5.069   6.625
-fastparquet+GZIP     4.958    6.866   8.805
-fastparquet+LZO      5.666    4.959   6.446
-fastparquet+LZ4      5.858    4.874   6.395
-fastparquet+SNAPPY   6.008    5.105   6.611
-csv                  7.454    9.214  10.663
-csv+gzip             7.455    9.114  10.543
-pyarrow+brotli       8.418    2.163   3.045
-pyarrow+zstd         8.715    1.219   1.495
-pyarrow+gzip         9.044    2.038   2.864
-pyarrow+lz4          9.320    1.126   1.366
-pyarrow+snappy       9.356    1.165   1.433
-fastparquet+UNCOM.. 16.360    5.851   6.870
+
+                  size    read   write
+shrynk      ---> 1.001   6.653   7.443
+csv+xz      ---> 1.311  25.180  31.659
+csv+bz2          1.370  12.698  14.549
+csv+zip          2.163  11.646  13.701
+fastparquet+ZSTD 4.845   5.069   6.625
+fastparquet+GZIP 4.958   6.866   8.805
+fastparquet+LZO  5.666   4.959   6.446
+fastparquet+LZ4  5.858   4.874   6.395
+fastparquet+SNA. 6.008   5.105   6.611
+csv              7.454   9.214  10.663
+csv+gzip         7.455   9.114  10.543
+pyarrow+brotli   8.418   2.163   3.045
+pyarrow+zstd     8.715   1.219   1.495
+pyarrow+gzip     9.044   2.038   2.864
+pyarrow+lz4      9.320   1.126   1.366
+pyarrow+snappy   9.356   1.165   1.433
+fastparquet+UNC 16.360   5.851   6.870
 ```
 
 ### Conclusion
