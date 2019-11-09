@@ -173,9 +173,9 @@ First to see how converting to z-scores works:
 from sklearn.preprocessing import scale
 
 scale([1, 2, 3])
-# array([-1.224,  0. , 1.224])
+# array([-1.224, 0, 1.224])
 scale([100, 200, 300])
-# array([-1.224,  0. , 1.224])
+# array([-1.224, 0, 1.224])
 ```
 
 You can see that the scale does not matter but the relative difference does: (1, 2, 3) and (100, 200, 300) get the same scores even though they are 100x larger. Also note that here we are ignoring the unit (bytes vs seconds).
@@ -232,6 +232,8 @@ Knowing that, let's look at some usage examples.
 ### Usage
 
 <center><img src="https://uvreatio.sirv.com/Images/Shrynk.png" width="300rem"></center>
+
+Basic example of saving (which predicts the best type) and loading:
 
 ```python
 import pandas as pd
@@ -361,4 +363,5 @@ And please help out if you're interested, as any attempts at Pull Requests will 
 - Further investigation of which variables are most predictive (and cheap to compute)
 - The stats computation could probably be sped up as well once we further investigate which features are most succesful.
 - Add other data types to the framework (JSON and Bytes have recently been added)
+- I've been working on a package to generate artificial data. Imagine creating slight variations based off requirements, or existing dataframes to have data evolve in the direction we want to learn better boundaries!
 - Other improvements?
