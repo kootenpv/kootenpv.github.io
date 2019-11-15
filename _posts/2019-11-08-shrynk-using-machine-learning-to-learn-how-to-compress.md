@@ -6,7 +6,7 @@ subtitle: 30% less disk required compared to using the single best strategy
 
 I made the package [shrynk](https://github.com/kootenpv/shrynk) for compression using machine learning! It helps you by choosing (and applying) the format to compress your dataframes, JSON, or actually, files in general.
 
-Given example data, it was able to compress using 30% overall less disk space compared to the best single compression algorithm (meaning: choosing any other single compression algorithm will be even worse).
+Given example data, it was able to compress using 30% overall less disk space using a mixed strategy compared to the best single compression algorithm (meaning: choosing any other single compression algorithm will be even worse).
 
 You can try it for yourself (by uploading a CSV file) at [https://shrynk.ai](https://shrynk.ai).
 
@@ -293,9 +293,11 @@ You can also use it for validating improvements to the algorithm, or generically
 
 ### How well does it work? Cross-validation
 
-I have builtin a `validate` function that is available to all shrynk classes.
+I have builtin a `validate` function that is available to all shrynk classes so you can test your own strategies or train and verify results on your own data.
 
 It uses the available data for the given class, and produces results for cross-validation; taking into account the user defined weights.
+
+Validation was a tough one, mostly because it took me a while to figure out how to express the results in a meaningful way when allowing the use of weights. In the end I chose to keep the dimensions of interest, `size`, `read`, `write`, and show how the aggregate of shrynk's predictions per object compare (in proportions) against choosing to always use a single strategy. I hope the example makes it clear.
 
 See the code below:
 
@@ -308,7 +310,8 @@ weights = (1, 0, 0)
 acc, result = pdc.validate(*weights)
 ```
 
-Note that shrynk is in this example not only 30% better in size (check the arrows), but also much better in terms of read- and write time compared to the single best strategy `csv+xz`.
+Note that shrynk is in this example not only 31% better in size (check the arrows), but also much better in terms of read- and write time compared to always applying the single best strategy, `csv+xz`.
+The `1.001` value indicates it is only 0.1% away from what would be achievable in terms of size if it would always choose the best compression per file in the validation set. At the same time, it is 6.653 times slower in terms of reading time compared to always chosing the best. It was after all optimizing for size.
 
 ```
 [shrynk] s=1 w=0 r=0
