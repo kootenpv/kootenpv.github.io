@@ -16,7 +16,8 @@ Bonus: If the algorithm has it wrong, the features of the data (not the data its
 
 Next, I will explain Compression, Machine Learning and the library I've built in Python. You can also jump to a section using the links below.
 
-<ul style="float: right">
+<div style="float: right; list-style-type: none;"><span style="padding-left: 40px">Quick links</span>
+<ul>
 <li><small><a href="#compression">Compression</a></small></li>
 <li><small><a href="#compressing-tabular-data">Compressing tabular data</a></small></li>
 <li><small><a href="#tabular-data-in-python">Tabular data in Python</a></small></li>
@@ -30,6 +31,7 @@ Next, I will explain Compression, Machine Learning and the library I've built in
 <li><small><a href="#conclusion">Conclusion</a></small></li>
 <li><small><a href="#whats-next">What's next</a></small></li>
 </ul>
+</div>
 
 ### Compression
 
