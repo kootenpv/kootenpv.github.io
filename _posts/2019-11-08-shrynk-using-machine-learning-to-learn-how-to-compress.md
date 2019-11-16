@@ -16,18 +16,20 @@ Bonus: If the algorithm has it wrong, the features of the data (not the data its
 
 Next, I will explain Compression, Machine Learning and the library I've built in Python. You can also jump to a section using the links below.
 
-- [Compression](#compression)
-- [Compressing tabular data](#compressing-tabular-data)
-- [Tabular data in Python](#tabular-data-in-python)
-- [Running benchmarks](#running-benchmarks)
-- [Where the idea came from](#where-the-idea-came-from)
-- [Machine Learning](#machine-learning)
-- [Machine Learning in Shrynk](#machine-learning-in-shrynk)
-- [Usage](#usage)
-- [Data comes packaged](#data-comes-packaged)
-- [How well does it work? Cross-validation](#how-well-does-it-work-cross-validation)
-- [Conclusion](#conclusion)
-- [What's next](#whats-next)
+<ul style="float: right">
+<li><small><a href="#compression">Compression</a></small></li>
+<li><small><a href="#compressing-tabular-data">Compressing tabular data</a></small></li>
+<li><small><a href="#tabular-data-in-python">Tabular data in Python</a></small></li>
+<li><small><a href="#running-benchmarks">Running benchmarks</a></small></li>
+<li><small><a href="#where-the-idea-came-from">Where the idea came from</a></small></li>
+<li><small><a href="#machine-learning">Machine Learning</a></small></li>
+<li><small><a href="#machine-learning-in-shrynk">Machine Learning in Shrynk</a></small></li>
+<li><small><a href="#usage">Usage</a></small></li>
+<li><small><a href="#data-comes-packaged">Data comes packaged</a></small></li>
+<li><small><a href="#how-well-does-it-work-cross-validation">How well does it work? Cross-validation</a></small></li>
+<li><small><a href="#conclusion">Conclusion</a></small></li>
+<li><small><a href="#whats-next">What's next</a></small></li>
+</ul>
 
 ### Compression
 
@@ -57,9 +59,9 @@ female, 40
   male, 60
 ```
 
-Let's concern ourselves with the gender variable only. For each row, storing `female` or `male` is not optimal given that we know these are the only values in this column. One improvement could be to take all the values in the column, and doing a replacement: `F` for `female`, and `M` for `male`. The shorter the string, the better, right? This is a part of what is called [dictionary encoding](https://en.wikipedia.org/wiki/Apache_Parquet#Compression_and_encoding) and is used in the [Parquet](https://en.wikipedia.org/wiki/Apache_Parquet) format.
+Let's concern ourselves with the gender variable only. For each row, storing `female` or `male` is not optimal given that we know these are the only values in this column. One improvement could be to take all the values in the column, and doing a replacement: `F` for `female`, and `M` for `male`. The shorter the string, the better, right? Of course, to decompress you need to add the extra data that `F` means `female`, and `M` means `male`, but like this you only have to store the "longer" string once. This is a part of what is called [dictionary encoding](https://en.wikipedia.org/wiki/Apache_Parquet#Compression_and_encoding) and is used in the [Parquet](https://en.wikipedia.org/wiki/Apache_Parquet) format.
 
-Another optimization of Parquet is to use [Run-length encoding](https://en.wikipedia.org/wiki/Apache_Parquet#Run-length_encoding_\(RLE\)), which makes use of the observation that very often the same value occurs in sequence. Oversimplifying a bit, we could encode the column gender as `3F2M`. Decompressing this would expand it back into the original data.
+Another optimization of Parquet is to use [Run-length encoding](https://en.wikipedia.org/wiki/Apache_Parquet#Run-length_encoding_(RLE)), which makes use of the observation that very often the same value occurs in sequence. Oversimplifying a bit, we could encode the column gender as `3F2M`. Decompressing this would expand it back into the original data.
 
 Note that at the same time, you might be able to imagine that the Parquet schema is not necessarily better for floating-point values (like pi), as mostly these values will be unique, we cannot use these tricks.
 
@@ -126,7 +128,7 @@ fastparquet+UNC..   556  0.438  0.675
 
 You can see that in the case of this file, it is recommend to store the data as `csv+bz2`, as it yields a very small file on disk (and it uses the default settings).
 
-Running the benchmarks only took 3 seconds on my laptop, which makes you wonder why we wouldn't just always run the benchmarks? Well, for any sizeable dataframe, you do not want to have to run the benchmarks as this can take a very long time - especially for an unfortunate compression algorithm taking a long time for the particular data at hand. At the same time, why run the benchmarks when we can predict?
+Running all the compression benchmarks only took 3 seconds on my laptop, which might make you wonder why we wouldn't just always run the benchmarks? Well, for any sizeable dataframe, you do not want to have to run the benchmarks as this can take a very long time - especially for an unfortunate compression algorithm taking a long time for the particular data at hand. At the same time, why run the benchmarks when we can predict?
 
 ### Where the idea came from
 
@@ -147,7 +149,7 @@ For example, Machine Learning helps in deciding whether a new email is spam base
 
 The usual downside of machine learning is that it is very costly to gather the correct decisions - it is often manual labor by people.
 
-The cool thing about machine learning for compression is that we can have try all compressions for a file to find out what the optimal decision would be, without much cost (except time).
+The cool thing about machine learning for compression is that we can try all compressions for a file to find out what the optimal decision would be, without much cost (except time).
 
 In this case, ~3000 files have been used to allow the modelling of the compression. Their characteristics have been recorded and the things we would like to learn to minimize:
 
@@ -210,14 +212,14 @@ Then to combine the results with [u]ser weights (size=1, write=2):
 
 In the last column you can see the sum over the user weights multiplied by the size and weight z-scores per row.
 
-Given the example data and s=1 and w=2, `compression B` would have the lowest summed z-score and thus be best! This means that the characteristics of this data and the label `compression B` will be used to train the model.
+Given the example data and s=1 and w=2, `compression B` would have the lowest summed z-score and thus be best! This means that the characteristics of this data (such as `num_rows` etc) and the label `compression B` will be used to train the model.
 
 In the end, the input will be this result for each file (so the sample size is `number_of_files`; not `number_of_files * number_of_compression`).
 
-A sample data set might look like (completely made up numbers):
+A sample data set might look like (completely made up):
 
 ```
-num_cols num_rows  missing |            label
+num_cols num_rows  missing |       best_label
       19     1000      0.1 |           csv+bz
        5    10000        0 | fastparquet+GZIP
       55     2333      0.2 |   pyarrow+brotli
@@ -311,7 +313,7 @@ acc, result = pdc.validate(*weights)
 ```
 
 Note that shrynk is in this example not only 31% better in size (check the arrows), but also much better in terms of read- and write time compared to always applying the single best strategy, `csv+xz`.
-The `1.001` value indicates it is only 0.1% away from what would be achievable in terms of size if it would always choose the best compression per file in the validation set. At the same time, it is 6.653 times slower in terms of reading time compared to always chosing the best. It was after all optimizing for size.
+The `1.001` value indicates it is only 0.1% away from what would be achievable in terms of size if it would always choose the best compression per file in the validation set. At the same time, it is 6.653 times slower in terms of reading time compared to always choosing the best. It was after all optimizing for size.
 
 ```
 [shrynk] s=1 w=0 r=0
@@ -343,6 +345,29 @@ pyarrow+gzip     9.044   2.038   2.864
 pyarrow+lz4      9.320   1.126   1.366
 pyarrow+snappy   9.356   1.165   1.433
 fastparquet+UNC 16.360   5.851   6.870
+```
+
+Lastly, let's look at user weights of `size=3` and `write=1` to see a mixed approach:
+
+```
+                   size   write      z
+shrynk            1.422   4.069 -4.258
+csv+bz2           1.330   9.621 -3.139
+csv+zip           2.148   7.857 -3.063
+fastparquet+ZSTD  6.149   6.379 -1.183
+fastparquet+GZIP  6.239   7.307 -0.939
+fastparquet+LZO   6.968   6.470 -0.716
+fastparquet+LZ4   7.035   6.424 -0.689
+csv+xz            1.272  22.527 -0.452
+fastparquet+SNA.  7.564   6.481 -0.387
+pyarrow+zstd     10.790   1.453  0.320
+pyarrow+brotli   10.400   2.806  0.391
+pyarrow+lz4      11.323   1.307  0.581
+pyarrow+snappy   11.365   1.338  0.610
+pyarrow+gzip     11.147   2.469  0.729
+csv+gzip         11.243   6.598  1.652
+csv              11.263   6.564  1.655
+fastparquet+UNC  24.420   6.694  8.887
 ```
 
 ### Conclusion
