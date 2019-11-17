@@ -4,9 +4,11 @@ title: shrynk - Using Machine Learning to learn how to Compress
 subtitle: 30% less disk required compared to using the single best strategy
 ---
 
-I made the package [shrynk](https://github.com/kootenpv/shrynk) for compression using machine learning! It helps you by choosing (and applying) the format to compress your dataframes, JSON, or actually, files in general.
+My server storing cryptocurrency data started to overflow as I was storing compressed CSV files. Trying to come up with a quick solution, I figured I should just switch to a more effective compression algorithm (it was stored using gzip). But how to quickly figure out which will be better?
 
-Given example data, it was able to compress using 30% overall less disk space using a mixed strategy compared to the best single compression algorithm (meaning: choosing any other single compression algorithm will be even worse).
+Fast forward: I made the package [shrynk](https://github.com/kootenpv/shrynk) for compression using machine learning! It helps you by choosing (and applying) the format to compress your dataframes, JSON, or actually, files in general.
+
+Given example data, it is able to compress using 30% overall less disk space using a mixed strategy compared to the best single compression algorithm (meaning: choosing any other single compression algorithm will be even worse).
 
 You can try it for yourself (by uploading a CSV file) at [https://shrynk.ai](https://shrynk.ai).
 
@@ -22,7 +24,6 @@ Next, I will explain Compression, Machine Learning and the library I've built in
 <li><small><a href="#compressing-tabular-data">Compressing tabular data</a></small></li>
 <li><small><a href="#tabular-data-in-python">Tabular data in Python</a></small></li>
 <li><small><a href="#running-benchmarks">Running benchmarks</a></small></li>
-<li><small><a href="#where-the-idea-came-from">Where the idea came from</a></small></li>
 <li><small><a href="#machine-learning">Machine Learning</a></small></li>
 <li><small><a href="#machine-learning-in-shrynk">Machine Learning in Shrynk</a></small></li>
 <li><small><a href="#usage">Usage</a></small></li>
@@ -130,18 +131,7 @@ fastparquet+UNC..   556  0.438  0.675
 
 You can see that in the case of this file, it is recommend to store the data as `csv+bz2`, as it yields a very small file on disk (and it uses the default settings).
 
-Running all the compression benchmarks only took 3 seconds on my laptop, which might make you wonder why we wouldn't just always run the benchmarks? Well, for any sizeable dataframe, you do not want to have to run the benchmarks as this can take a very long time - especially for an unfortunate compression algorithm taking a long time for the particular data at hand. At the same time, why run the benchmarks when we can predict?
-
-### Where the idea came from
-
-Initially I was storing cryptocurrency prices as a `.csv.gz` files as this was the smallest of the options I could write my pandas dataframe.
-Later, I realized there's also the Parquet format, even offering multiple compression options (mentioned above).
-
-I had another look at how I could compress my data even further, and then I realized:
-
-> What if, based on the characteristics of the data, we could automatically choose the best format?
-
-Rather than having to run the benchmarks for each file *all the time*, we can do something better. Enter Machine Learning.
+Running all the compression benchmarks only took 3 seconds on my laptop, which might make you wonder why we wouldn't just always run the benchmarks? Well, for any sizeable dataframe, you do not want to have to run the benchmarks as this can take a very long time - especially for an unfortunate compression algorithm taking a long time for the particular data at hand. At the same time, why run the benchmarks when we can predict? Enter Machine Learning.
 
 ### Machine Learning
 
