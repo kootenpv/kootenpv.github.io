@@ -4,13 +4,15 @@ title: shrynk - Using Machine Learning to learn how to Compress
 subtitle: 30% less disk required compared to using the single best strategy
 ---
 
+<center><img src="https://uvreatio.sirv.com/Images/Shrynk.png" width="300rem"></center>
+
 My server storing cryptocurrency data started to overflow as I was storing compressed CSV files. Trying to come up with a quick solution, I figured I should just switch to a more effective compression algorithm (it was stored using gzip). But how to quickly figure out which will be better?
 
 Fast forward: I made the package [shrynk](https://github.com/kootenpv/shrynk) for compression using machine learning! It helps you by choosing (and applying) the format to compress your dataframes, JSON, or actually, files in general.
 
-Given example data, it is able to compress using 30% overall less disk space using a mixed strategy compared to the best single compression algorithm (meaning: choosing any other single compression algorithm will be even worse).
+Given example data, it is able to compress using 30% overall less disk space using a mixed strategy by machine learning compared to the best single compression algorithm (meaning: choosing any other single compression algorithm to compress everything will be worse).
 
-You can try it for yourself (by uploading a CSV file) at [https://shrynk.ai](https://shrynk.ai).
+You can try it for yourself at [https://shrynk.ai](https://shrynk.ai).
 
 <a href="https://shrynk.ai"><center><img src="/img/shrynkpage.png" width="200px" style="border: 1px solid #ee6e73;" /></center></a>
 
@@ -174,9 +176,8 @@ scale([100, 200, 300])
 
 You can see that the scale does not matter but the relative difference does: (1, 2, 3) and (100, 200, 300) get the same scores even though they are 100x larger. Also note that here we are ignoring the unit (bytes vs seconds).
 
-Here a fake example to show the compression scores of a single imaginary file:
+Here a fake example to show 3 compression scores of a single imaginary file, and only considering size and write:
 
-Benchmark:
 ```
           size    write
 compr A    100kb     2s
@@ -184,7 +185,7 @@ compr B    200kb     1s
 compr C    300kb     3s
 ```
 
-Z-scores:
+Converting per column to Z-scores:
 
 ```
          z-size  z-write
@@ -193,7 +194,7 @@ comp B        0    -1.22
 comp C     1.22     1.22
 ```
 
-Then to combine the results with [u]ser weights (size=1, write=2):
+Then to multiply the z-scores with User weights (Size=1, Write=2):
 
 ```
    u-s    u-w     |   user-z-sum
@@ -202,9 +203,9 @@ Then to combine the results with [u]ser weights (size=1, write=2):
   1.22   2.44     |         3.66
 ```
 
-In the last column you can see the sum over the user weights multiplied by the size and weight z-scores per row.
+In the last column you can see the sum over the rows to get a weighted z-score for each compression.
 
-Given the example data and s=1 and w=2, `compression B` would have the lowest summed z-score and thus be best! This means that the characteristics of this data (such as `num_rows` etc) and the label `compression B` will be used to train the model.
+Given the example data and s=1 and w=2, `compression B` would have the lowest summed z-score and thus be best! This means that the characteristics of this data (such as `num_rows` etc) and the label `compression B` will be used to train a classification model.
 
 In the end, the input will be this result for each file (so the sample size is `number_of_files`; not `number_of_files * number_of_compression`).
 
@@ -219,13 +220,11 @@ num_cols num_rows  missing |       best_label
      ...  and so on   ....
 ```
 
-A simple [RandomForestClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html) is trained on this.
+A simple [RandomForestClassifier](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html) will be trained on the included benchmark data for 3000 files, based on the user weights.
 
 Knowing that, let's look at some usage examples.
 
 ### Usage
-
-<center><img src="https://uvreatio.sirv.com/Images/Shrynk.png" width="300rem"></center>
 
 Basic example of saving (which predicts the best type) and loading:
 
@@ -304,7 +303,7 @@ weights = (1, 0, 0)
 acc, result = pdc.validate(*weights)
 ```
 
-Note that shrynk is in this example not only 31% better in size (check the arrows), but also much better in terms of read- and write time compared to always applying the single best strategy, `csv+xz`.
+Note that shrynk in the example below is not only 31% better in size (check the arrows), but also much better in terms of read- and write time compared to always applying the single best strategy, `csv+xz`.
 The `1.001` value indicates it is only 0.1% away from what would be achievable in terms of size if it would always choose the best compression per file in the validation set. At the same time, it is 6.653 times slower in terms of reading time compared to always choosing the best. It was after all optimizing for size.
 
 ```
