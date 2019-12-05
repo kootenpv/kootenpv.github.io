@@ -19,10 +19,10 @@ Presentations:
 
 - [SQL Injection](/injectable_presentation/) processed 1.8 billion links searched for vulnerability
 
-| | | |
-|:-------------------------:|:-------------------------:|:-------------------------:|
-|<img width="1604" alt="screen shot 2017-08-07 at 12 18 15 pm" src="https://uvreatio.sirv.com/Images/Shrynk.png">  <hr>Using Machine Learning to learn how to Compress :zap: |  <img width="1604" alt="screen shot 2017-08-07 at 12 18 15 pm" src="https://uvreatio.sirv.com/Images/Shrynk.png">|<img width="1604" alt="screen shot 2017-08-07 at 12 18 15 pm" src="https://uvreatio.sirv.com/Images/Shrynk.png">|
-||||
-|<img width="1604" alt="screen shot 2017-08-07 at 12 18 15 pm" src="https://github.com/kootenpv/yagmail/raw/master/docs/_static/icon.png"> <hr> yagmail makes sending emails very easy by doing all the magic for you |  <img height="300" alt="screen shot 2017-08-07 at 12 18 15 pm" src="https://github.com/kootenpv/gittyleaks/raw/master/resources/gittyleaks.png">|<img width="1604" alt="screen shot 2017-08-07 at 12 18 15 pm" src="https://uvreatio.sirv.com/Images/Shrynk.png">|
-||||
-|<img width="1604" alt="screen shot 2017-08-07 at 12 18 15 pm" src="https://github.com/kootenpv/brightml/raw/master/resources/logo.png"> <hr> Machine-Learned Auto brightness |  <img width="1604" alt="screen shot 2017-08-07 at 12 18 15 pm" src="https://raw.githubusercontent.com/kootenpv/sky/master/resources/skylogo.png"> <hr> :sunrise: next generation web crawling using machine intelligence|<img width="1604" alt="screen shot 2017-08-07 at 12 18 15 pm" src="https://github.com/kootenpv/neural_complete/raw/master/images/demo.gif"> |
+<!-- | | | | -->
+<!-- |:-------------------------:|:-------------------------:|:-------------------------:| -->
+<!-- |<img width="1604" alt="screen shot 2017-08-07 at 12 18 15 pm" src="https://uvreatio.sirv.com/Images/Shrynk.png">  <hr>Using Machine Learning to learn how to Compress :zap: |  <img width="1604" alt="screen shot 2017-08-07 at 12 18 15 pm" src="https://uvreatio.sirv.com/Images/Shrynk.png">|<img width="1604" alt="screen shot 2017-08-07 at 12 18 15 pm" src="https://uvreatio.sirv.com/Images/Shrynk.png">| -->
+<!-- |||| -->
+<!-- |<img width="1604" alt="screen shot 2017-08-07 at 12 18 15 pm" src="https://github.com/kootenpv/yagmail/raw/master/docs/_static/icon.png"> <hr> yagmail makes sending emails very easy by doing all the magic for you |  <img height="300" alt="screen shot 2017-08-07 at 12 18 15 pm" src="https://github.com/kootenpv/gittyleaks/raw/master/resources/gittyleaks.png">|<img width="1604" alt="screen shot 2017-08-07 at 12 18 15 pm" src="https://uvreatio.sirv.com/Images/Shrynk.png">| -->
+<!-- |||| -->
+<!-- |<img width="1604" alt="screen shot 2017-08-07 at 12 18 15 pm" src="https://github.com/kootenpv/brightml/raw/master/resources/logo.png"> <hr> Machine-Learned Auto brightness |  <img width="1604" alt="screen shot 2017-08-07 at 12 18 15 pm" src="https://raw.githubusercontent.com/kootenpv/sky/master/resources/skylogo.png"> <hr> :sunrise: next generation web crawling using machine intelligence|<img width="1604" alt="screen shot 2017-08-07 at 12 18 15 pm" src="https://github.com/kootenpv/neural_complete/raw/master/images/demo.gif"> | -->
