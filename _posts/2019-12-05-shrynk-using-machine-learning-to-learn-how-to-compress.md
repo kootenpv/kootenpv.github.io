@@ -16,7 +16,7 @@ You can try it for yourself at [https://shrynk.ai](https://shrynk.ai).
 
 <a href="https://shrynk.ai"><center><img src="/img/shrynkpage.png" width="200px" style="border: 1px solid #ee6e73;" /></center></a>
 
-Bonus: If the algorithm has it wrong, the features of the data (not the data itself) will be added to the python package on the next release!
+Bonus: If the algorithm has it wrong, the features of the data (such as number of rows, number of columns, but not the data itself) will be added to the python package on the next release! This allows the algorithm to learn when to apply which compression algorithm.
 
 Next, I will explain Compression, Machine Learning and the library I've built in Python. You can also jump to a section using the links below.
 
