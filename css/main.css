@@ -440,3 +440,14 @@ canvas {
    border:1px solid #999;
    border-width:0 1px 1px 0; /* right and bottom */
 }
+
+.repo-description, .repo-description:hover {
+   text-decoration: inherit;
+   color: inherit;
+}
+
+table#repo-table > tbody > tr > td {
+   padding: 1rem;
+   border-bottom: 1px dashed #0085a1;
+border-top: 1px dashed #0085a1;
+}
