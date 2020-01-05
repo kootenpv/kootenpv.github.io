@@ -446,8 +446,13 @@ canvas {
    color: inherit;
 }
 
+table#repo-table > tbody > tr {
+   display: block;
+   width: 90%
+}
+
 table#repo-table > tbody > tr > td {
    padding: 1rem;
    border-bottom: 1px dashed #0085a1;
-border-top: 1px dashed #0085a1;
+   border-top: 1px dashed #0085a1;
 }

@@ -28,7 +28,7 @@ if (window.location.href.includes("projects")) {
         var center = $("#" + repo.name + " > center");
         if (center.length) {
           center.find("div > .stars").text(repo.stargazers_count);
-          center.find("a.repo-description").text(repo.description);
+          center.find("a.repo-description").text(repo.description.replace(/:[^ :]+: ?/, ""));
           center.find("a").attr("href", repo.html_url);
         }
       })
