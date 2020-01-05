@@ -21,21 +21,6 @@ it comes to empowering humans with machine capabilities. Proud of: he
 presented an innovative solution to C-level at one of Europe’s largest
 insurance companies.
 
-### Interests
-
-Tech (not a complete list):
-
-- Blockchain
-- Competitive Intelligence
-- Artificial Intelligence (DeepQN, DeepQA)
-- Natural Language Processing (NLTK, spaCy)
-- Web Scraping
-- Software development
-- Statistics
-- Data Mining
-- Machine Learning (scikit-learn)
-- Deep learning (tensorflow)
-
 ### Popular posts
 
 - (Reddit, 542 upvotes)  [Automated brightness on a laptop using Machine Learning!](https://www.reddit.com/r/Python/comments/dfdtbs/automated_brightness_on_a_laptop_using_machine/)
@@ -43,3 +28,7 @@ Tech (not a complete list):
 - (Reddit, 230 upvotes) [Finally it is now even easier to send emails in Python!](https://www.reddit.com/r/Python/comments/3gtps6/finally_it_is_now_even_easier_to_send_emails_in)
 - (Reddit, 200 upvotes) [AI challenge in 78 lines of Python (top 5% on Codingame)](https://www.reddit.com/r/Python/comments/52f50j/ai_challenge_in_78_lines_of_python_top_5_on/)
 - (Hackernews, 170 upvotes) [Neural complete](https://news.ycombinator.com/item?id=14119848)
+
+### Portfolio
+
+You can check out the [projects I have worked on](/projects)
