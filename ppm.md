@@ -23,7 +23,7 @@ Python and Android versions are also available.
 </p>
 <p>
 <label for="keyword" style="width: 100px;">Keyword:</label>
-<input id="keyword" name="keyword" type="text" value="reddit" size="32">
+<input id="keyword" name="keyword" type="text" value="reddit" size="32" onchange="this.value = this.value.toLowerCase();">
 </p>
 <input class="btn js-textareacopybtn" type="submit" name="btn" value="Calculate" />
 </form>
