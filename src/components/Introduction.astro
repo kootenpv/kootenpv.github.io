@@ -1,0 +1,742 @@
+---
+const introText = [
+  "I hold an MSc in Methods & Statistics. My early days were two years on",
+  "blockchain, then eight years across data science and software engineering,",
+  "a chapter building chatbots just before LLMs landed, and finally several",
+  "years as a quant developer in HFT — which means everything I wrote",
+  "during that stretch was proprietary, and open source took a back seat.",
+  "I left the industry at the worst possible time, right as GPTs came to",
+  "be. I am back at it now, with renewed energy and sharper tools.",
+  "",
+  "I am highly competitive and used to pour that into online machine",
+  "learning and AI competitions. Around the same time I became an active",
+  "open source contributor and spoke publicly about machine learning —",
+  "and innovation more broadly — on a number of occasions.",
+  "",
+  "What I love most is empowering humans with machine capabilities. I am",
+  "currently running my own company.",
+  "",
+  "I no longer take on freelance work. These days I am open to whatever",
+  "interesting projects happen to cross my path, and pick them up on",
+  "their own merits.",
+  "",
+  "I primarily write Python and Rust, and let LLMs handle the occasional",
+  "foray into C, HTML, or JavaScript. I enjoy vibe coding, but care just",
+  "as much about using AI to ship genuinely high-quality output.",
+  "",
+  "My editor is Emacs — although, who really uses an editor anymore for",
+  "coding?",
+  "",
+  "Ironically, I was a generative-AI skeptic for a long time — I simply",
+  "could not imagine anyone breaking copyright law at the scale required",
+  "to train these models. Reality had other plans.",
+].join("\n");
+
+const lineCount = introText.split("\n").length;
+---
+
+<div class="editor not-prose" id="intro-editor">
+  <div class="tabs">
+    <div class="tab active">
+      <span class="tab-dot"></span>
+      <span class="tab-name" id="intro-tabname">introduction.md</span>
+      <span class="tab-close" id="intro-tabclose" role="button" tabindex="0" aria-label="Reset to original" title="reset to original">×</span>
+    </div>
+    <div class="tabs-fill"></div>
+  </div>
+  <div class="body">
+    <div class="gutter" id="intro-gutter">
+      {Array.from({ length: lineCount }, (_, i) => <div>{i + 1}</div>)}
+    </div>
+    <div class="code">
+      <pre class="highlight" id="intro-highlight" aria-hidden="true"></pre>
+      <textarea
+        class="input"
+        id="intro-input"
+        spellcheck="false"
+        data-gramm-editor="false"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        wrap="off"
+        aria-label="Introduction (editable)"
+      >{introText}</textarea>
+    </div>
+  </div>
+  <div class="statusbar">
+    <span class="status-left">
+      <span class="badge"><span class="branch-icon">⎇</span> main</span>
+      <span class="status-item">UTF-8</span>
+      <span class="status-item">LF</span>
+    </span>
+    <span class="status-right">
+      <span id="intro-pos" class="status-item">Ln 1, Col 1</span>
+      <span class="status-item">Spaces: 2</span>
+      <span class="lang-badge" id="intro-lang-badge">Markdown</span>
+    </span>
+  </div>
+</div>
+
+<style>
+  .editor {
+    margin: 1.25rem 0;
+    background: #1e1e1e;
+    border: 1px solid #2d2d2d;
+    border-radius: 6px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    overflow: hidden;
+    color: #d4d4d4;
+  }
+  .editor .tabs {
+    display: flex;
+    background: #252526;
+    border-bottom: 1px solid #1a1a1a;
+    height: 36px;
+    align-items: stretch;
+  }
+  .editor .tab {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0 0.85rem;
+    background: #1e1e1e;
+    border-right: 1px solid #2d2d2d;
+    border-top: 2px solid #ff7a18;
+    height: 100%;
+    font-size: 13px;
+    color: #d4d4d4;
+    user-select: none;
+  }
+  .editor .tab-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ff7a18;
+    box-shadow: 0 0 6px rgba(255, 122, 24, 0.55);
+  }
+  .editor .tab-name { color: #d4d4d4; }
+  .editor .tab-close {
+    color: #858585;
+    padding: 0 0.3rem;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: 3px;
+  }
+  .editor .tab-close:hover { background: #3a3a3a; color: #ffffff; }
+  .editor .tabs-fill { flex: 1 1 auto; }
+
+  .editor .body {
+    display: flex;
+    background: #1e1e1e;
+    min-height: 360px;
+    align-items: stretch;
+  }
+  .editor .gutter {
+    flex: 0 0 auto;
+    padding: 0.7rem 0.6rem 0.7rem 0.85rem;
+    color: #6e6e6e;
+    font-size: 13px;
+    line-height: 1.55;
+    text-align: right;
+    user-select: none;
+    background: #1e1e1e;
+    border-right: 1px solid #2d2d2d;
+    overflow: hidden;
+    min-width: 2.6em;
+  }
+  .editor .gutter > div { padding-right: 4px; }
+
+  .editor .code {
+    position: relative;
+    flex: 1 1 auto;
+    overflow: hidden;
+    min-height: inherit;
+  }
+  .editor .highlight,
+  .editor .input {
+    margin: 0;
+    padding: 0.7rem 0.85rem;
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 1.55;
+    white-space: pre;
+    border: 0;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    tab-size: 2;
+  }
+  .editor .highlight {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    color: #d4d4d4;
+    background: transparent;
+    overflow: hidden;
+  }
+  .editor .input {
+    position: relative;
+    z-index: 1;
+    display: block;
+    color: transparent;
+    caret-color: #ffffff;
+    background: transparent;
+    resize: none;
+    outline: none;
+    overflow: auto;
+    -webkit-text-fill-color: transparent;
+  }
+  .editor .input::selection {
+    background: rgba(173, 214, 255, 0.35);
+    -webkit-text-fill-color: transparent;
+  }
+
+  .editor :global(.kw)    { color: #569cd6; font-weight: 600; }
+  .editor :global(.ty)    { color: #4ec9b0; }
+  .editor :global(.num)   { color: #b5cea8; }
+  .editor :global(.punct) { color: #ff7a18; }
+  .editor :global(.kw.lang) {
+    pointer-events: auto;
+    cursor: pointer;
+    text-decoration: underline dotted;
+    text-decoration-color: rgba(86, 156, 214, 0.55);
+    text-underline-offset: 2px;
+  }
+  .editor :global(.kw.lang:hover),
+  .editor :global(.kw.lang:focus) {
+    color: #9cdcfe;
+    text-decoration-color: rgba(156, 220, 254, 0.95);
+    outline: none;
+  }
+
+  .editor .statusbar {
+    display: flex;
+    justify-content: space-between;
+    background: #ff7a18;
+    color: #0a0a0c;
+    font-size: 12px;
+    padding: 0.3rem 0.85rem;
+    font-weight: 500;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .editor .status-left,
+  .editor .status-right {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+  .editor .badge {
+    background: rgba(0, 0, 0, 0.18);
+    padding: 0 0.5rem;
+    border-radius: 3px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  .editor .branch-icon { font-size: 13px; line-height: 1; }
+  .editor .lang-badge { font-weight: 700; }
+
+  @media (max-width: 600px) {
+    .editor .body { min-height: 280px; }
+    .editor .highlight,
+    .editor .input {
+      font-size: 12px;
+      padding: 0.6rem 0.6rem;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .editor .gutter { display: none; }
+    .editor .status-right { gap: 0.6rem; }
+    .editor .status-item:not(#intro-pos) { display: none; }
+  }
+</style>
+
+<style is:global>
+  /* This targets the container Grammarly often injects */
+  grammarly-extension,
+  grammarly-popups,
+  [data-grammarly-part="button"] {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    const textarea = document.getElementById("intro-input");
+    const highlight = document.getElementById("intro-highlight");
+    const gutter = document.getElementById("intro-gutter");
+    const pos = document.getElementById("intro-pos");
+    const tabName = document.getElementById("intro-tabname");
+    const tabClose = document.getElementById("intro-tabclose");
+    const langBadge = document.getElementById("intro-lang-badge");
+    if (!textarea || !highlight || !gutter || !pos) return;
+
+    const KEYWORDS = ["Python", "Rust", "JavaScript", "HTML", "LLMs", "LLM", "HFT", "Emacs", "C"];
+    const TYPES = ["MSc", "AI"];
+    const NUMS = /\b(?:mid-)?\d{3,4}s?\b/g;
+    const LANG_MAP = { Python: "py", Rust: "rs", JavaScript: "js", HTML: "html", C: "c", LLM: "llm", LLMs: "llm", HFT: "hft", Emacs: "emacs" };
+
+    const escapeHtml = (s) =>
+      s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+    const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const kwPattern = new RegExp("\\b(" + KEYWORDS.map(escapeRegex).join("|") + ")\\b", "g");
+    const tyPattern = new RegExp("\\b(" + TYPES.map(escapeRegex).join("|") + ")\\b", "g");
+
+    const highlightCode = (text) => {
+      let out = escapeHtml(text);
+      out = out.replace(kwPattern, (_m, kw) => {
+        const lang = LANG_MAP[kw];
+        return lang
+          ? '<span class="kw lang" data-lang="' + lang + '" role="button" tabindex="0" title="rewrite in ' + kw + '">' + kw + '</span>'
+          : '<span class="kw">' + kw + '</span>';
+      });
+      out = out.replace(tyPattern, '<span class="ty">$1</span>');
+      out = out.replace(NUMS, (m) => '<span class="num">' + m + '</span>');
+      out = out.replace(/—/g, '<span class="punct">—</span>');
+      return out;
+    };
+
+    const VARIANTS = {
+      base: {
+        name: "introduction.md",
+        lang: "Markdown",
+        text: textarea.value,
+      },
+      py: {
+        name: "introduction.py",
+        lang: "Python",
+        text: [
+          "# introduction.py — readability counts.",
+          "",
+          "# I hold an MSc in Methods & Statistics. Career stack:",
+          "# 2y blockchain -> 8y data science + software engineering",
+          "# -> chatbots (pre-LLM) -> several years as a quant",
+          "# developer in HFT. Explicit is better than implicit, but",
+          "# my contract said otherwise — open source took a back",
+          "# seat. Logged off the day GPT walked in. Back at it now.",
+          "",
+          "# Competitive by default: ML and AI competitions absorbed",
+          "# that energy in the mid-2010s. Same era: active OSS",
+          "# contributor, public talks on machine learning and broader",
+          "# innovation. Current process: running my own company,",
+          "# optimizing for humans amplified by machines.",
+          "",
+          "if interesting_project and not freelance:",
+          "    take(it, on=its_own_merits)",
+          "",
+          "# Primary stack: Python and Rust. For C, HTML, JavaScript",
+          "# I just `from llm import generate`. Vibe coding is fine,",
+          "# but if the implementation is hard to explain it is a",
+          "# bad idea.",
+          "",
+          "# I was a generative-AI skeptic — special cases are not",
+          "# special enough to break copyright. Reality decided",
+          "# scraping the whole internet was the one obvious way.",
+        ].join("\n"),
+      },
+      rs: {
+        name: "introduction.rs",
+        lang: "Rust",
+        text: [
+          "// introduction.rs — fearless. memory-safe. zero-cost.",
+          "",
+          "// I hold an MSc<'a> in Methods & Statistics, then a",
+          "// career stack: 2y blockchain -> 8y data science + software",
+          "// engineering -> chatbots (pre-LLM) -> a multi-year &mut",
+          "// borrow into HFT. Everything I wrote in that scope stayed",
+          "// proprietary — it could not outlive the employer's",
+          "// lifetime. I dropped the borrow the moment GPT compiled.",
+          "// The borrow checker has now approved my return to open",
+          "// source.",
+          "",
+          "// Trait bounds: Competitive + OpenSource + PublicSpeaker.",
+          "// ML competitions consumed the energy; machine-learning",
+          "// and innovation talks borrowed the microphone. These days",
+          "// I run my own company and optimize for humans empowered",
+          "// by machine capabilities.",
+          "",
+          "let freelance: Option<Job> = None;",
+          "// interesting projects only. match on merit.",
+          "",
+          "// Stack: Python + Rust by hand. C, HTML, JavaScript get",
+          "// delegated to LLMs — &str slices the borrow checker",
+          "// does not care about. Vibe coding is fine if it still",
+          "// compiles. Quality is the only output we ship.",
+          "",
+          "// I was a generative-AI skeptic — could not",
+          "// Result<imagine, _> anyone scraping the web at training",
+          "// scale. Reality returned Err(_). We continue, blazingly fast.",
+        ].join("\n"),
+      },
+      c: {
+        name: "introduction.c",
+        lang: "C",
+        text: [
+          "/* introduction.c — small, fast, no surprises. */",
+          "",
+          "#include <bio.h>",
+          "",
+          "int main(void) {",
+          "    /* MSc, Methods & Statistics. Stack trace: 2y on",
+          "       blockchain, 8y across data science + software",
+          "       engineering, a chatbot stint just before LLMs",
+          "       shipped, then years on an HFT desk — everything",
+          "       proprietary. malloc()'d a career, never freed the",
+          "       open source habit. exit(0) the same week GPT",
+          "       loaded. Back at it now. */",
+          "",
+          "    /* Competitive mode used to point at ML and AI",
+          "       competitions. Around then: open source contributor,",
+          "       public talks on machine learning and innovation.",
+          "       Current process owns a company and keeps humans",
+          "       in the loop with machine capabilities. */",
+          "",
+          "    if (freelance) return EXIT_FAILURE;",
+          "    /* interesting work only. judge each on its merits. */",
+          "",
+          "    /* Primary: Python and Rust. C, HTML, JavaScript I",
+          "       delegate to LLMs. Vibe coding compiles. Quality is",
+          "       non-negotiable: -Wall -Werror, no warnings. */",
+          "",
+          "    /* Was a generative-AI skeptic — could not believe",
+          "       anyone would dereference the entire web for training",
+          "       data. SIGSEGV from reality. core dumped. */",
+          "",
+          "    return 0;",
+          "}",
+        ].join("\n"),
+      },
+      html: {
+        name: "introduction.html",
+        lang: "HTML",
+        text: [
+          "<!-- introduction.html — Tailwind, semantic, lint-clean. -->",
+          "",
+          "<section id=\"bio\" lang=\"en\" class=\"prose max-w-none space-y-4\">",
+          "  <p class=\"leading-relaxed\">I hold an",
+          "  <abbr title=\"Master of Science\" class=\"font-semibold\">MSc",
+          "  </abbr> in Methods &amp; Statistics, with a career stack of",
+          "  <span class=\"font-semibold\">2y blockchain</span>,",
+          "  <span class=\"font-semibold\">8y data science &amp; software",
+          "  engineering</span>, a chatbot stint just before LLMs, then",
+          "  years as a quant developer in <abbr",
+          "  title=\"High-Frequency Trading\" class=\"font-semibold\">HFT",
+          "  </abbr> &mdash; everything proprietary, no public commits.",
+          "  Logged off right as <abbr title=\"Generative Pre-trained",
+          "  Transformer\" class=\"font-semibold\">GPT</abbr> shipped.",
+          "  <strong class=\"text-orange-500\">I am back.</strong></p>",
+          "",
+          "  <p>Highly competitive by nature, I poured that into ML and",
+          "  AI competitions, open source, and public talks on machine",
+          "  learning and innovation. Today I run my own company, with",
+          "  the same core interest: empowering humans with machine",
+          "  capabilities.</p>",
+          "",
+          "  <p>No <s class=\"opacity-60\">freelance</s>. Open to",
+          "  interesting projects, judged on their own merits.</p>",
+          "",
+          "  <p>I write <code class=\"rounded bg-zinc-800 px-1\">Python",
+          "  </code> and <code class=\"rounded bg-zinc-800 px-1\">Rust",
+          "  </code>; I outsource <code class=\"rounded bg-zinc-800",
+          "  px-1\">C</code>, <code class=\"rounded bg-zinc-800 px-1\">",
+          "  HTML</code>, and <code class=\"rounded bg-zinc-800 px-1\">",
+          "  JavaScript</code> to LLMs. Vibe coding is fine — the",
+          "  markup must still validate, and Tailwind keeps the",
+          "  stylesheet at zero hand-written rules.</p>",
+          "",
+          "  <p>Long-time generative-AI skeptic &mdash; could not picture",
+          "  anyone scraping the web at training scale. Reality shipped",
+          "  a different document.</p>",
+          "</section>",
+        ].join("\n"),
+      },
+      emacs: {
+        name: "introduction.el",
+        lang: "Emacs Lisp",
+        text: [
+          ";;; introduction.el --- about Pascal -*- lexical-binding: t -*-",
+          "",
+          ";; M-x bio RET",
+          "",
+          "(defun pascal/intro ()",
+          "  \"Return a brief autobiography. Customize via M-x customize-group.\"",
+          "  (interactive)",
+          "  (let ((education     \"MSc, Methods & Statistics\")",
+          "        (early-stack   '(2y-blockchain",
+          "                         8y-data-science+software-engineering",
+          "                         chatbots-pre-llm))",
+          "        (years-on-hft  'several)",
+          "        (left-on       'GPT-launch-day)",
+          "        (open-source   'recovering)))",
+          "  ;; The buffer was wide; the disclosure was narrow.",
+          "  ;; Back to public commits now.)",
+          "",
+          ";; Highly competitive: formerly routed through ML and AI",
+          ";; competitions. Also: open source contributor, public talks",
+          ";; on machine learning and innovation. Currently running my",
+          ";; own company; mission statement: empower humans with",
+          ";; machine capabilities.",
+          "",
+          "(setq pascal/freelance nil)            ;; no longer accepting.",
+          "(add-hook 'interesting-project-hook    ;; pick up on merit.",
+          "          (lambda (proj) (when (good-p proj) (take proj))))",
+          "",
+          ";; Stack: Python and Rust by hand. C, HTML, JavaScript get",
+          ";; outsourced to LLMs (M-x llm-generate). Vibe coding is",
+          ";; fine provided byte-compile-warnings stays clean.",
+          "",
+          ";; I was a generative-AI skeptic — could not",
+          ";; (require 'imagination) that anyone would scrape the entire",
+          ";; internet for training. (signal 'wrong-prediction nil).",
+          ";; package-refresh-contents.",
+          "",
+          "(provide 'pascal-intro)",
+          ";;; introduction.el ends here",
+        ].join("\n"),
+      },
+      hft: {
+        name: "introduction.hft.rs",
+        lang: "HFT (Rust)",
+        text: [
+          "// introduction.hft.rs — every nanosecond counts.",
+          "",
+          "#![no_std]",
+          "#![deny(latency)]",
+          "",
+          "// MSc, Methods & Statistics. Career stack: 2y on",
+          "// blockchain, 8y across data science + software",
+          "// engineering, a few years on chatbots pre-LLM, then",
+          "// several years on a quant desk. Latency budget: tight.",
+          "// Disclosure budget: zero. Everything I shipped lived",
+          "// behind compliance, the firewall, and a thick NDA. Open",
+          "// source got starved of cycles. Closed the book the same",
+          "// week GPT printed through the spread. Back on the",
+          "// public tape now.",
+          "",
+          "// Competitive flow used to clear through ML and AI",
+          "// competitions. Same period: active open source contributor",
+          "// and public speaker on machine learning and innovation.",
+          "// Current venue: my own company. Objective function:",
+          "// empower humans with machine capabilities.",
+          "",
+          "const FREELANCE_PNL: i64 = 0;   // book closed, no fills.",
+          "",
+          "fn new_project(edge: f64, fun: f64) -> Decision {",
+          "    match (edge > 0.0, fun > 0.0) {",
+          "        (true, true) => Decision::Take,",
+          "        _            => Decision::Pass,",
+          "    }",
+          "}",
+          "",
+          "// Hot-path stack used to be C++. Now: Python and Rust",
+          "// by hand; LLMs cover C, HTML, JavaScript — &str slices",
+          "// the borrow checker does not audit. Vibe coding is",
+          "// fine until the spread tightens. Quality is",
+          "// non-negotiable: no allocations on the hot path,",
+          "// #[inline(always)], no panics.",
+          "",
+          "// Network: kernel-bypass NICs, busy-polled rx rings.",
+          "// Cross-connect in the colo cage; multicast feed with",
+          "// hardware timestamps. Microwave shaves the milliseconds",
+          "// the fiber cannot.",
+          "",
+          "// I was a generative-AI skeptic — the implied vol on",
+          "// Result<scrape_the_internet, _> looked too rich. Reality",
+          "// returned Err(_) and printed through the bid. Reset risk,",
+          "// re-rack, ship.",
+          "",
+          "unsafe { pin_to_core(); mlock(); spinlock(); ship(); }",
+        ].join("\n"),
+      },
+      llm: {
+        name: "introduction.llm",
+        lang: "LLM",
+        text: [
+          "# Introduction",
+          "",
+          "Hello! I would be happy to walk you through Pascal's",
+          "professional journey.",
+          "",
+          "Pascal van Kooten is a multifaceted professional whose",
+          "career sits at the dynamic intersection of statistics,",
+          "software engineering, and cutting-edge AI. Holding an",
+          "MSc in Methods & Statistics, his journey has spanned",
+          "two formative years in blockchain, eight rich years",
+          "across data science and software engineering, a chatbot",
+          "chapter just before the LLM era, and several years as",
+          "a quant developer in the fast-paced world of HFT —",
+          "where, understandably, his contributions remained",
+          "proprietary. In a remarkable twist of timing, he",
+          "stepped away from the industry right as GPTs were",
+          "emerging.",
+          "",
+          "He is highly competitive and used to channel that drive",
+          "into online machine learning and AI competitions. Around",
+          "the same period, he became an active open source contributor",
+          "and spoke publicly about machine learning and innovation on",
+          "several occasions. Today he runs his own company, focused",
+          "on empowering humans with machine capabilities.",
+          "",
+          "It is important to note that he is no longer accepting",
+          "freelance engagements. That said, he remains genuinely",
+          "open to a wide variety of interesting projects, which",
+          "he carefully evaluates on their own unique merits.",
+          "",
+          "Pascal primarily leverages Python and Rust, while",
+          "seamlessly delegating C, HTML, and JavaScript to LLMs.",
+          "He embraces vibe coding while remaining deeply",
+          "committed to shipping robust, high-quality output.",
+          "",
+          "In summary, Pascal brings a unique blend of technical",
+          "expertise and intellectual curiosity to every endeavor.",
+          "",
+          "I hope this helps! Let me know if you would like me to",
+          "expand on any particular aspect.",
+        ].join("\n"),
+      },
+      js: {
+        name: "introduction.js",
+        lang: "JavaScript",
+        text: [
+          "// introduction.js — async, opinionated, framework-of-the-week.",
+          "",
+          "const me = await import(\"./pascal.js\");",
+          "",
+          "// MSc in Methods & Statistics. `npm ls career`: 2y blockchain,",
+          "// 8y data-science + software-engineering, a chatbot side quest",
+          "// right before LLMs, then years in HFT. Everything I wrote was",
+          "// `\"private\": true` in package.json. process.exit(0) shipped",
+          "// the same release as GPT. Back to OSS now — this time with",
+          "// semver and a lockfile.",
+          "",
+          "// Competitive mode: previously ML/AI competitions. Also:",
+          "// open source contributor, conference/talk circuit for",
+          "// machine learning and innovation. Current runtime: own",
+          "// company, humans + machine capabilities as the product",
+          "// philosophy.",
+          "",
+          "if (req.body.freelance) return res.status(410).end(); // gone",
+          "// PRs for interesting projects: welcome on their own merits.",
+          "",
+          "// Stack: Python + Rust ftw. C / HTML / JavaScript? I just",
+          "// `await llm.generate(...)`. Works on my machine. Vibe",
+          "// coding is fine — the bundle must not weigh 14 MB.",
+          "",
+          "// I was the kind of generative-AI skeptic who said \"lol",
+          "// nobody is going to `npm install the-entire-internet",
+          "// --save`\". Turns out they totally would. `npm audit`",
+          "// reports 1337 vulnerabilities.",
+        ].join("\n"),
+      },
+    };
+
+    const updateGutter = (n) => {
+      let cur = gutter.children.length;
+      while (cur < n) {
+        const d = document.createElement("div");
+        d.textContent = String(cur + 1);
+        gutter.appendChild(d);
+        cur++;
+      }
+      while (cur > n) {
+        gutter.removeChild(gutter.lastChild);
+        cur--;
+      }
+    };
+
+    const updatePos = () => {
+      const sel = textarea.selectionStart;
+      const before = textarea.value.slice(0, sel);
+      const lastNl = before.lastIndexOf("\n");
+      const ln = (before.match(/\n/g) || []).length + 1;
+      const col = before.length - (lastNl < 0 ? -1 : lastNl);
+      pos.textContent = "Ln " + ln + ", Col " + col;
+    };
+
+    const update = () => {
+      const text = textarea.value;
+      highlight.innerHTML = highlightCode(text) + "\n";
+      updateGutter(text.split("\n").length);
+      updatePos();
+    };
+
+    const syncScroll = () => {
+      highlight.scrollTop = textarea.scrollTop;
+      highlight.scrollLeft = textarea.scrollLeft;
+      gutter.scrollTop = textarea.scrollTop;
+    };
+
+    const switchVariant = (key) => {
+      const v = VARIANTS[key];
+      if (!v) return;
+      textarea.value = v.text;
+      if (tabName) tabName.textContent = v.name;
+      if (langBadge) langBadge.textContent = v.lang;
+      textarea.scrollTop = 0;
+      textarea.scrollLeft = 0;
+      textarea.selectionStart = textarea.selectionEnd = 0;
+      update();
+      syncScroll();
+    };
+
+    textarea.addEventListener("input", () => {
+      update();
+      syncScroll();
+    });
+    textarea.addEventListener("keyup", updatePos);
+    textarea.addEventListener("click", updatePos);
+    textarea.addEventListener("scroll", syncScroll);
+    textarea.addEventListener("keydown", (e) => {
+      if (e.key === "Tab") {
+        e.preventDefault();
+        const s = textarea.selectionStart;
+        const en = textarea.selectionEnd;
+        textarea.value =
+          textarea.value.slice(0, s) + "  " + textarea.value.slice(en);
+        textarea.selectionStart = textarea.selectionEnd = s + 2;
+        update();
+        syncScroll();
+      }
+    });
+
+    highlight.addEventListener("click", (e) => {
+      const t = e.target.closest && e.target.closest(".kw.lang");
+      if (!t) return;
+      e.preventDefault();
+      switchVariant(t.dataset.lang);
+    });
+    highlight.addEventListener("keydown", (e) => {
+      const t = e.target.closest && e.target.closest(".kw.lang");
+      if (!t) return;
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        switchVariant(t.dataset.lang);
+      }
+    });
+
+    if (tabClose) {
+      const reset = (e) => { e.preventDefault(); switchVariant("base"); };
+      tabClose.addEventListener("click", reset);
+      tabClose.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") reset(e);
+      });
+    }
+
+    const narrow = window.matchMedia("(max-width: 600px)");
+    const applyWrap = () => {
+      textarea.setAttribute("wrap", narrow.matches ? "soft" : "off");
+    };
+    applyWrap();
+    narrow.addEventListener("change", applyWrap);
+
+    update();
+  })();
+</script>

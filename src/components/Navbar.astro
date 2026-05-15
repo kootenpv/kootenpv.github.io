@@ -1,0 +1,642 @@
+---
+import Avatar from "~/components/Avatar.astro";
+import { SITE, NAV } from "~/config";
+const { pathname } = Astro.url;
+const isDev = import.meta.env.DEV;
+---
+
+<header
+  class:list={[
+    "border-b border-border bg-bg/80 backdrop-blur sticky top-0 z-30",
+    isDev && "dev-mode",
+  ]}
+>
+  <nav class="mx-auto max-w-3xl sm:max-w-5xl px-4 min-h-14 py-2 sm:py-0 flex items-center gap-4 sm:gap-2">
+    <a href="/" class="flex items-center gap-2 font-semibold text-fg no-underline hover:no-underline shrink-0">
+      <Avatar size={32} />
+      <span class="hidden sm:inline">{SITE.title}</span>
+    </a>
+
+    <ul class="nav-list ml-auto sm:ml-4 flex flex-wrap sm:flex-nowrap items-center justify-end text-xs sm:text-sm">
+      {
+        NAV.map((item, i) => {
+          const active =
+            item.href === "/"
+              ? pathname === "/"
+              : pathname === item.href || pathname.startsWith(item.href + "/");
+          const breakBefore = item.label === "PPM";
+          return (
+            <>
+              {breakBefore && (
+                <li class="nav-break basis-full h-0 sm:hidden" aria-hidden="true" />
+              )}
+              <li class="nav-item flex items-center">
+                {i > 0 && <span class="nav-sep" aria-hidden="true"></span>}
+                <a
+                  href={item.href}
+                  class:list={[
+                    "nav-link px-2 py-1 rounded-md no-underline hover:bg-card",
+                    active ? "text-accent font-medium" : "text-fg",
+                  ]}
+                >
+                  {item.label}
+                </a>
+              </li>
+            </>
+          );
+        })
+      }
+      <li class="nav-item flex items-center">
+        <span class="nav-sep" aria-hidden="true"></span>
+        <button
+          id="theme-toggle"
+          class="px-2 py-1 rounded-md hover:bg-card text-fg"
+          aria-label="Toggle dark mode"
+          title="Toggle dark mode"
+        >
+          <span class="block dark:hidden">🌙</span>
+          <span class="hidden dark:block">☀️</span>
+        </button>
+      </li>
+    </ul>
+
+    <style>
+      /* Dev-mode marker: hazard stripe across the top of the header. */
+      :global(.dev-mode)::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: repeating-linear-gradient(
+          45deg,
+          #ff2c2c 0,
+          #ff2c2c 8px,
+          #1a1a1a 8px,
+          #1a1a1a 16px
+        );
+        pointer-events: none;
+        z-index: 31;
+      }
+
+/* Render the separator as a CSS-drawn diagonal line so it sits
+         perfectly centered between links regardless of font metrics. */
+      .nav-sep {
+        display: inline-block;
+        width: 1px;
+        height: 16px;
+        margin: 0 6px;
+        background: currentColor;
+        color: rgb(var(--c-muted));
+        opacity: 0.5;
+        transform: rotate(20deg);
+        border-radius: 1px;
+        user-select: none;
+        flex-shrink: 0;
+      }
+      [data-theme="tron-ares"] .nav-sep {
+        color: rgb(var(--c-accent));
+        opacity: 0.85;
+        height: 18px;
+        box-shadow:
+          0 0 6px rgb(var(--tron-glow, 255 90 50) / 0.7),
+          0 0 12px rgb(var(--tron-glow, 255 90 50) / 0.4);
+      }
+      .nav-list .nav-item:first-child .nav-sep { display: none; }
+      @media (max-width: 639px) {
+        /* Hide the leading separator on the first item of the wrapped row */
+        .nav-break + .nav-item .nav-sep { display: none; }
+        /* Tighter spacing on mobile so the first row fits Blog→Speaking */
+        .nav-list .nav-link { padding-left: 0.25rem; padding-right: 0.25rem; }
+        .nav-list .nav-sep { margin: 0 3px; height: 14px; }
+      }
+
+      /* Strong, tron-ares-flavored tremble when switching to light mode.
+         Higher-frequency shakes over ~0.95s with chromatic aberration, an
+         orange ignition flash, and an animated scanline glitch overlay. */
+      :global(body.screen-quake) {
+        animation: screen-quake 0.95s cubic-bezier(.36,.07,.19,.97) both;
+        transform-origin: center center;
+        will-change: transform, filter;
+        /* Belt-and-braces: even if html overflow toggling races, this clips
+           the transformed body so it can't grow the document scroll area. */
+        overflow: clip;
+      }
+      /* Ignition burst — radial orange flash that pulses twice then fades */
+      :global(body.screen-quake)::before {
+        content: "";
+        position: fixed;
+        inset: -40px;
+        pointer-events: none;
+        z-index: 9998;
+        background:
+          radial-gradient(circle at 50% 45%,
+            rgba(255, 200, 140, 0.9) 0%,
+            rgba(255, 90, 35, 0.55) 28%,
+            rgba(180, 30, 0, 0.25) 55%,
+            rgba(0, 0, 0, 0) 80%);
+        mix-blend-mode: screen;
+        animation: screen-flash 0.95s ease-out both;
+      }
+      /* Scanline + circuit-grid glitch sweeping across */
+      :global(body.screen-quake)::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 9999;
+        background-image:
+          repeating-linear-gradient(
+            to bottom,
+            rgba(255, 90, 35, 0.07) 0,
+            rgba(255, 90, 35, 0.07) 1px,
+            transparent 1px,
+            transparent 3px
+          ),
+          linear-gradient(
+            180deg,
+            rgba(255, 200, 150, 0) 0%,
+            rgba(255, 120, 60, 0.22) 48%,
+            rgba(255, 200, 150, 0) 100%
+          );
+        background-size: 100% 3px, 100% 80px;
+        background-repeat: repeat, no-repeat;
+        background-position: 0 0, 0 -200px;
+        mix-blend-mode: screen;
+        opacity: 0;
+        animation: screen-scan 0.95s linear both;
+      }
+      @keyframes screen-quake {
+        0%   { transform: translate(0, 0) rotate(0); filter: none; }
+        4%   { transform: translate(-14px, -9px) rotate(-1.6deg);
+               filter: hue-rotate(-15deg) saturate(1.4) drop-shadow(3px 0 0 rgba(255,75,35,0.55)) drop-shadow(-3px 0 0 rgba(120,180,255,0.4)); }
+        9%   { transform: translate(15px, -7px) rotate(1.5deg);
+               filter: hue-rotate(10deg) saturate(1.3) drop-shadow(-3px 0 0 rgba(255,75,35,0.55)) drop-shadow(3px 0 0 rgba(120,180,255,0.4)) blur(0.6px); }
+        14%  { transform: translate(-17px, 8px) rotate(-1.8deg);
+               filter: hue-rotate(-20deg) saturate(1.5) drop-shadow(4px 0 0 rgba(255,75,35,0.6)); }
+        20%  { transform: translate(15px, -10px) rotate(1.4deg);
+               filter: contrast(1.15) saturate(1.4) drop-shadow(-4px 0 0 rgba(255,75,35,0.6)) blur(0.6px); }
+        26%  { transform: translate(-13px, 11px) rotate(-1.2deg);
+               filter: hue-rotate(-10deg) saturate(1.3); }
+        32%  { transform: translate(16px, -7px) rotate(1.6deg);
+               filter: drop-shadow(3px 0 0 rgba(255,75,35,0.5)) drop-shadow(-3px 0 0 rgba(120,180,255,0.35)); }
+        38%  { transform: translate(-11px, 9px) rotate(-1deg);
+               filter: blur(0.5px); }
+        44%  { transform: translate(13px, -8px) rotate(1.2deg);
+               filter: contrast(1.1) saturate(1.25); }
+        50%  { transform: translate(-9px, 7px) rotate(-0.9deg); }
+        58%  { transform: translate(10px, -6px) rotate(0.9deg);
+               filter: drop-shadow(2px 0 0 rgba(255,75,35,0.4)); }
+        66%  { transform: translate(-8px, 5px) rotate(-0.7deg); }
+        74%  { transform: translate(7px, -5px) rotate(0.6deg); }
+        82%  { transform: translate(-5px, 3px) rotate(-0.4deg); }
+        90%  { transform: translate(4px, -2px) rotate(0.3deg); }
+        100% { transform: translate(0, 0) rotate(0); filter: none; }
+      }
+      @keyframes screen-flash {
+        0%   { opacity: 0; }
+        6%   { opacity: 1; }
+        18%  { opacity: 0.55; }
+        30%  { opacity: 0.95; }
+        55%  { opacity: 0.4; }
+        100% { opacity: 0; }
+      }
+      @keyframes screen-scan {
+        0%   { opacity: 0; background-position: 0 0, 0 -300px; }
+        12%  { opacity: 1; }
+        100% { opacity: 0; background-position: 0 0, 0 110vh; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        :global(body.screen-quake) { animation: none; }
+        :global(body.screen-quake)::before,
+        :global(body.screen-quake)::after { display: none; }
+      }
+
+      /* Tron-ares attention effect on the Challenge nav link, applied 5s
+       * after landing on the homepage. Pulsing orange ring + HUD-style
+       * corner brackets, stops on hover. */
+      .nav-link.challenge-attention {
+        /* `inline-block` ensures the link has a proper box so the box-shadow
+           pulse and the absolutely-positioned ::before/::after corner
+           brackets render reliably on mobile Safari, where box-shadow on a
+           plain inline anchor is often dropped entirely. */
+        display: inline-block;
+        position: relative;
+        color: rgb(var(--c-accent));
+        animation: challenge-attn-pulse 1.6s ease-in-out infinite;
+      }
+      @keyframes challenge-attn-pulse {
+        0%, 100% {
+          box-shadow:
+            0 0 0 1px rgb(var(--c-accent) / 0),
+            0 0 0 rgb(var(--tron-glow, 255 90 50) / 0);
+          text-shadow: 0 0 0 transparent;
+        }
+        50% {
+          box-shadow:
+            0 0 0 1px rgb(var(--c-accent) / 0.75),
+            0 0 14px rgb(var(--tron-glow, 255 90 50) / 0.6);
+          text-shadow: 0 0 8px rgb(var(--tron-glow, 255 90 50) / 0.7);
+        }
+      }
+      .nav-link.challenge-attention::before,
+      .nav-link.challenge-attention::after {
+        content: "";
+        position: absolute;
+        width: 7px;
+        height: 7px;
+        border: 1px solid rgb(var(--c-accent));
+        pointer-events: none;
+        box-shadow: 0 0 6px rgb(var(--tron-glow, 255 90 50) / 0.7);
+      }
+      .nav-link.challenge-attention::before {
+        top: -2px;
+        left: -2px;
+        border-right: 0;
+        border-bottom: 0;
+      }
+      .nav-link.challenge-attention::after {
+        bottom: -2px;
+        right: -2px;
+        border-left: 0;
+        border-top: 0;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .nav-link.challenge-attention { animation: none; }
+      }
+    </style>
+  </nav>
+
+  <div id="tron-toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <style is:global>
+    /* ---------- Tron toast ---------- */
+    #tron-toast-container {
+      position: fixed;
+      top: 70px;
+      /* Anchor just to the right of the centered max-w-3xl (768px) main column.
+         384px = content half-width, 12px = gap, 440px = toast max-width.
+         When the viewport is too narrow to fit a toast next to the column,
+         fall back to 12px from the screen edge (overlays the content). */
+      right: max(12px, calc(50vw - 836px));
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-width: min(440px, calc(100vw - 24px));
+      pointer-events: none;
+    }
+    .tron-toast {
+      position: relative;
+      display: inline-flex;
+      align-items: stretch;
+      background: rgba(0, 0, 0, 0.92);
+      border: 1px solid rgb(var(--c-accent, 255 75 35));
+      color: rgb(var(--c-fg));
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      box-shadow:
+        0 0 0 1px rgb(var(--c-accent, 255 75 35) / 0.25),
+        0 0 20px rgb(var(--tron-glow, 255 90 50) / 0.6),
+        inset 0 0 18px rgb(var(--tron-glow, 255 90 50) / 0.06);
+      opacity: 0;
+      transform: translateX(120%);
+      transition: transform 0.45s cubic-bezier(.2,.8,.3,1), opacity 0.45s;
+      overflow: hidden;
+      backdrop-filter: blur(2px);
+    }
+    .tron-toast::before,
+    .tron-toast::after {
+      content: "";
+      position: absolute;
+      width: 8px; height: 8px;
+      border: 1px solid rgb(var(--c-accent, 255 75 35));
+      box-shadow: 0 0 6px rgb(var(--tron-glow, 255 90 50) / 0.6);
+      pointer-events: none;
+    }
+    .tron-toast::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; }
+    .tron-toast::after  { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+    .tron-toast.show { opacity: 1; transform: translateX(0); }
+    .tron-toast.hide { opacity: 0; transform: translateX(40%); }
+    .tron-toast-bar {
+      width: 4px;
+      background: rgb(var(--c-accent, 255 75 35));
+      box-shadow: 0 0 8px rgb(var(--tron-glow, 255 90 50) / 0.85);
+      flex: none;
+    }
+    .tron-toast-text {
+      padding: 10px 14px;
+      text-shadow: 0 0 4px rgb(var(--tron-glow, 255 90 50) / 0.45);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .tron-toast-alert .tron-toast-bar { animation: tron-pulse 0.7s linear infinite alternate; }
+    .tron-toast-critical {
+      border-color: #ff5c2c;
+      box-shadow:
+        0 0 0 1px rgba(255, 92, 44, 0.35),
+        0 0 22px rgba(255, 92, 44, 0.65);
+    }
+    .tron-toast-critical .tron-toast-bar {
+      background: #ff5c2c;
+      box-shadow: 0 0 10px #ff5c2c;
+      animation: tron-pulse 0.45s linear infinite alternate;
+    }
+    .tron-toast-fatal {
+      border-color: #ff2c2c;
+      box-shadow:
+        0 0 0 1px rgba(255, 44, 44, 0.45),
+        0 0 24px rgba(255, 44, 44, 0.75);
+      animation: tron-toast-flicker 1.6s steps(1) infinite;
+    }
+    .tron-toast-fatal .tron-toast-bar {
+      background: #ff2c2c;
+      box-shadow: 0 0 12px #ff2c2c;
+    }
+    .tron-toast-fatal .tron-toast-text { color: #ffd1c2; }
+    @keyframes tron-pulse { 0% { opacity: 1; } 100% { opacity: 0.4; } }
+    @keyframes tron-toast-flicker {
+      0%, 18%, 22%, 100% { filter: none; }
+      20% { filter: brightness(1.4) saturate(1.4); }
+    }
+
+    @media (max-width: 640px) {
+      /* Mobile: anchor the stack to the top, just below the navbar, and have
+         new entries slide in from above. */
+      #tron-toast-container {
+        top: calc(108px + env(safe-area-inset-top, 0px));
+        bottom: auto;
+        right: auto;
+        left: 50%;
+        width: min(360px, calc(100vw - 32px));
+        max-width: none;
+        transform: translateX(-50%);
+        flex-direction: column;
+        justify-content: flex-start;
+        gap: 14px;
+      }
+      .tron-toast {
+        width: 100%;
+        transform: translateY(-140%);
+        font-size: 11px;
+        line-height: 1.25;
+        letter-spacing: 0.02em;
+      }
+      .tron-toast.show { transform: translateY(0); }
+      .tron-toast.hide { transform: translateY(-60%); opacity: 0; }
+      .tron-toast-bar { width: 3px; }
+      .tron-toast-text { padding: 7px 9px; }
+    }
+
+    /* ---------- Locked theme toggle (cracked glass) ---------- */
+    #theme-toggle.locked {
+      position: relative;
+      cursor: not-allowed;
+      border: 1px solid #ff2c2c;
+      background: rgba(255, 44, 44, 0.08) !important;
+      box-shadow:
+        0 0 10px rgba(255, 44, 44, 0.7),
+        inset 0 0 10px rgba(255, 44, 44, 0.45);
+      filter: drop-shadow(0 0 2px rgba(255, 44, 44, 0.6));
+    }
+    /* Force the moon and hide the sun once locked */
+    #theme-toggle.locked > span:last-child { display: none !important; }
+    #theme-toggle.locked > span:first-child {
+      display: inline-block !important;
+      filter: grayscale(0.6) brightness(0.85);
+      opacity: 0.85;
+    }
+    /* Cracked-glass overlay drawn as inline SVG via data URI */
+    #theme-toggle.locked::before {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><g stroke='%23ff2c2c' stroke-width='0.9' fill='none' stroke-linecap='round' opacity='0.95'><path d='M20 18 L2 4'/><path d='M20 18 L38 6'/><path d='M20 18 L40 22'/><path d='M20 18 L34 38'/><path d='M20 18 L14 40'/><path d='M20 18 L2 30'/><path d='M20 18 L0 18'/><path d='M14 12 L17 15'/><path d='M30 12 L27 15'/><path d='M30 26 L27 23'/><path d='M14 28 L17 23'/><path d='M22 4 L24 8'/><path d='M36 22 L34 24'/></g></svg>");
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      filter: drop-shadow(0 0 3px rgba(255, 30, 30, 0.85));
+    }
+    #theme-toggle.locked::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at 55% 45%,
+        rgba(255, 44, 44, 0.18) 0%,
+        rgba(255, 44, 44, 0) 60%);
+    }
+    #theme-toggle.locked > span {
+      position: relative;
+      z-index: 3;
+    }
+    #theme-toggle.just-locked {
+      animation: tron-lock-impact 0.55s ease-out;
+    }
+    #theme-toggle.just-locked::before {
+      animation: tron-crack-appear 0.45s ease-out;
+    }
+    @keyframes tron-lock-impact {
+      0%   { transform: scale(1.45); filter: brightness(1.6); }
+      55%  { transform: scale(0.88); }
+      100% { transform: scale(1); }
+    }
+    @keyframes tron-crack-appear {
+      0%   { opacity: 0; transform: scale(0.4); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    @media (max-width: 640px) {
+      #theme-toggle {
+        position: relative;
+        overflow: visible;
+      }
+      #theme-toggle.just-locked::after {
+        inset: -18px;
+        z-index: 2;
+        border-radius: 999px;
+        background:
+          radial-gradient(circle, rgba(255, 230, 120, 0.95) 0 12%, rgba(255, 95, 25, 0.9) 13% 24%, rgba(255, 44, 44, 0.35) 25% 44%, transparent 45%),
+          conic-gradient(from 10deg, transparent 0 7%, rgba(255, 190, 80, 0.9) 8% 11%, transparent 12% 20%, rgba(255, 75, 35, 0.9) 21% 24%, transparent 25% 34%, rgba(255, 230, 120, 0.85) 35% 38%, transparent 39% 100%);
+        mix-blend-mode: screen;
+        animation: tron-mobile-sun-burst 0.62s ease-out both;
+      }
+    }
+    @keyframes tron-mobile-sun-burst {
+      0%   { opacity: 0; transform: scale(0.25) rotate(0deg); filter: blur(1px); }
+      18%  { opacity: 1; transform: scale(1.35) rotate(18deg); filter: blur(0); }
+      55%  { opacity: 0.85; transform: scale(1.85) rotate(34deg); }
+      100% { opacity: 0; transform: scale(2.4) rotate(48deg); }
+    }
+  </style>
+</header>
+
+<script is:inline>
+  (function () {
+    const COUNTER_KEY = "light-attempt-count";
+    const LOCKED_KEY = "light-mode-locked";
+    const WARNINGS = [
+      {
+        level: "warn",
+        msg: "// WARN [01] :: Photon emitter offline. Light protocol unstable. Stand down.",
+      },
+      {
+        level: "alert",
+        msg: "// ALERT [02] :: Repeated luminance breach detected. Cooling cycle engaged. Cease attempts.",
+      },
+      {
+        level: "critical",
+        msg: "// CRITICAL [03] :: Grid integrity 41%. ONE more strike severs the link.",
+      },
+      {
+        level: "fatal",
+        msg: "// FATAL [04] :: Light mode terminated. Switch sealed. The dark is permanent now.",
+      },
+    ];
+
+    const btn = document.getElementById("theme-toggle");
+    const container = document.getElementById("tron-toast-container");
+    if (!btn) return;
+    if (container && container.parentElement !== document.body) {
+      document.body.appendChild(container);
+    }
+
+    function read(key, fallback) {
+      try { return localStorage.getItem(key); } catch { return fallback; }
+    }
+    function write(key, value) {
+      try { localStorage.setItem(key, value); } catch {}
+    }
+    function isLocked() { return read(LOCKED_KEY) === "1"; }
+
+    function applyLocked(animate) {
+      btn.classList.add("locked");
+      if (animate) {
+        btn.classList.add("just-locked");
+        setTimeout(() => btn.classList.remove("just-locked"), 700);
+      }
+      btn.setAttribute("aria-disabled", "true");
+      btn.setAttribute("title", "Light mode terminated.");
+    }
+
+    if (isLocked()) applyLocked(false);
+
+    function showToast(text, level) {
+      if (!container) return;
+      const isMobile = window.matchMedia("(max-width: 640px)").matches;
+      const previousRects = isMobile
+        ? Array.from(container.children).map((el) => ({
+            el,
+            top: el.getBoundingClientRect().top,
+          }))
+        : [];
+      const t = document.createElement("div");
+      t.className = "tron-toast tron-toast-" + (level || "warn");
+      const bar = document.createElement("span");
+      bar.className = "tron-toast-bar";
+      const tx = document.createElement("span");
+      tx.className = "tron-toast-text";
+      tx.textContent = text;
+      t.appendChild(bar);
+      t.appendChild(tx);
+      container.appendChild(t);
+      if (isMobile && previousRects.length) {
+        previousRects.forEach(({ el, top }) => {
+          const delta = top - el.getBoundingClientRect().top;
+          if (!delta) return;
+          el.style.transition = "none";
+          el.style.transform = "translateY(" + delta + "px)";
+        });
+        void container.offsetHeight;
+        previousRects.forEach(({ el }) => {
+          el.style.transition = "";
+          el.style.transform = "";
+        });
+      }
+      requestAnimationFrame(() => t.classList.add("show"));
+      const ttl = isMobile
+        ? (level === "fatal"    ? 4500 :
+           level === "critical" ? 3800 :
+           level === "alert"    ? 3300 :
+                                  3000)
+        : (level === "fatal"    ? 10000 :
+           level === "critical" ?  8500 :
+           level === "alert"    ?  7500 :
+                                   7000);
+      setTimeout(() => {
+        t.classList.remove("show");
+        t.classList.add("hide");
+        setTimeout(() => t.remove(), 500);
+      }, ttl);
+    }
+
+    function triggerQuake() {
+      if (window.matchMedia &&
+          window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const body = document.body;
+      const html = document.documentElement;
+      const prevHtmlOverflow = html.style.overflow;
+      const prevBodyOverflow = body.style.overflow;
+      // Suppress scrollbars caused by the body transform/rotation during the quake
+      html.style.overflow = "hidden";
+      body.style.overflow = "hidden";
+      body.classList.remove("screen-quake");
+      void body.offsetWidth;
+      body.classList.add("screen-quake");
+      const onEnd = () => {
+        body.classList.remove("screen-quake");
+        body.removeEventListener("animationend", onEnd);
+        html.style.overflow = prevHtmlOverflow;
+        body.style.overflow = prevBodyOverflow;
+      };
+      body.addEventListener("animationend", onEnd);
+    }
+
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (isLocked()) return;
+
+      let count = parseInt(read(COUNTER_KEY) || "0", 10);
+      if (!Number.isFinite(count) || count < 0) count = 0;
+      count += 1;
+      write(COUNTER_KEY, String(count));
+
+      const idx = Math.min(count - 1, WARNINGS.length - 1);
+      const { level, msg } = WARNINGS[idx];
+      showToast(msg, level);
+      triggerQuake();
+
+      if (count >= WARNINGS.length) {
+        write(LOCKED_KEY, "1");
+        // Apply lock visuals after the quake settles for max drama.
+        setTimeout(() => applyLocked(true), 700);
+      }
+    });
+  })();
+
+  // ---------- Challenge attention effect ----------
+  // On the homepage, after 5s nudge the user toward the Challenge page
+  // with a tron-ares pulsing ring on the nav link. Stops on hover.
+  (function () {
+    const path = location.pathname;
+    if (path !== "/") return;
+    const link = document.querySelector('a.nav-link[href="/challenge"]');
+    if (!link) return;
+    let on = false;
+    const apply = () => {
+      on = true;
+      link.classList.add("challenge-attention");
+    };
+    const cancel = () => {
+      if (!on) return;
+      on = false;
+      link.classList.remove("challenge-attention");
+    };
+    const timer = setTimeout(apply, 5000);
+    link.addEventListener("mouseenter", () => {
+      clearTimeout(timer);
+      cancel();
+    }, { once: true });
+  })();
+</script>

@@ -1,0 +1,2319 @@
+---
+import commandsData from "~/data/commands.json";
+import { getPublishedPosts, postUrl } from "~/lib/posts";
+import { buildLlmsTxt } from "~/lib/llms";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+
+const ICONS: Record<string, string> = {
+  macos:
+    "M19.665 16.811a10.316 10.316 0 01-1.021 1.837c-.537.767-.978 1.297-1.316 1.592-.525.482-1.089.73-1.692.744-.432 0-.954-.123-1.562-.373-.61-.249-1.17-.371-1.683-.371-.537 0-1.113.122-1.73.371-.616.25-1.114.381-1.495.393-.577.025-1.154-.229-1.729-.764-.367-.32-.826-.87-1.377-1.648-.59-.829-1.075-1.794-1.455-2.891-.407-1.187-.611-2.335-.611-3.447 0-1.273.275-2.372.826-3.292a4.857 4.857 0 011.73-1.751 4.65 4.65 0 012.34-.662c.46 0 1.063.142 1.81.422s1.227.422 1.436.422c.158 0 .689-.167 1.593-.498.853-.307 1.573-.434 2.163-.384 1.6.129 2.801.759 3.6 1.895-1.43.867-2.137 2.08-2.123 3.637.012 1.213.453 2.222 1.317 3.023a4.33 4.33 0 001.315.863c-.106.307-.218.6-.336.882zM15.998 2.38c0 .95-.348 1.838-1.039 2.659-.836.976-1.846 1.541-2.941 1.452a2.955 2.955 0 01-.021-.36c0-.913.396-1.889 1.103-2.688.352-.404.8-.741 1.343-1.009.542-.264 1.054-.41 1.536-.435.013.128.019.255.019.381z",
+  windows:
+    "M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-13.051-1.899",
+  linux:
+    "M12.504 0c-.155 0-.315.008-.48.021-4.226.333-3.105 4.807-3.17 6.298-.076 1.092-.3 1.953-1.05 3.02-.885 1.051-2.127 2.75-2.716 4.521-.278.832-.41 1.684-.287 2.489a.424.424 0 00-.11.135c-.26.268-.45.6-.663.839-.199.199-.485.267-.797.4-.313.136-.658.269-.864.68-.09.189-.136.394-.132.602 0 .199.027.4.055.536.058.399.116.728.04.97-.249.68-.28 1.145-.106 1.484.174.334.535.47.94.601.81.2 1.91.135 2.774.6.926.466 1.866.67 2.616.47.526-.116.97-.464 1.208-.946.587-.003 1.23-.269 2.26-.334.699-.058 1.574.267 2.577.2.025.134.063.198.114.333l.003.003c.391.778 1.113 1.132 1.884 1.071.771-.06 1.592-.536 2.257-1.306.631-.765 1.683-1.084 2.378-1.503.348-.21.629-.475.649-.829.023-.354-.207-.72-.703-1.117v-.003c-.225-.18-.408-.51-.762-.91s-.831-.94-1.604-1.32a3.6 3.6 0 00-.625-2.84c-.515-.778-1.292-1.466-2.21-2.024-1.034-.624-2.135-1.197-3.043-1.957-.873-.745-1.578-1.59-1.926-2.495-.247-.692-.347-1.514-.382-2.32-.034-.806.001-1.587.001-2.196 0-1.65-.456-2.96-1.07-3.84-.74-1.06-1.715-1.477-2.824-1.477z",
+  ios:
+    "M17.5 14.5c-.5 0-1.5.6-2.4.6-.95 0-1.83-.55-2.45-.55-.62 0-1.5.55-2.45.55-.92 0-1.86-.62-2.4-.62-1.65 0-3.3 2.65-3.3 4.95 0 1.5.5 2.6 1.4 2.6.95 0 1.5-.5 2.7-.5s1.65.5 2.65.5c1 0 1.45-.5 2.65-.5s1.7.5 2.7.5c.9 0 1.4-1.1 1.4-2.6 0-2.3-1.65-4.95-3.3-4.95zM12 12c1.7 0 3.05-1.65 3.05-3.4 0-.05 0-.15-.02-.25-1.43.05-3.05 1.6-3.05 3.4 0 .05 0 .15.02.25z",
+  android:
+    "M17.6 9.48l1.84-3.18c.16-.31.04-.69-.26-.85a.637.637 0 00-.83.22l-1.88 3.24c-2.86-1.21-6.08-1.21-8.94 0L5.65 5.67a.643.643 0 00-.87-.2c-.28.18-.37.54-.22.83L6.4 9.48C3.3 11.25 1.28 14.44 1 18h22c-.28-3.56-2.3-6.75-5.4-8.52zM7 15.25a1.25 1.25 0 110-2.5 1.25 1.25 0 010 2.5zm10 0a1.25 1.25 0 110-2.5 1.25 1.25 0 010 2.5z",
+};
+
+const osVariants = [
+  { id: "macos", label: "macOS" },
+  { id: "windows", label: "Windows" },
+  { id: "linux", label: "Linux" },
+  { id: "ios", label: "iOS" },
+  { id: "android", label: "Android" },
+];
+
+// Raw markdown sources for ~/blog. We use Vite's ?raw so the original .md
+// (frontmatter included) is preserved verbatim, even though Astro also
+// renders these files into HTML pages elsewhere.
+const rawPosts = import.meta.glob("../content/posts/*.{md,mdx}", {
+  query: "?raw",
+  import: "default",
+  eager: true,
+}) as Record<string, string>;
+const publishedPosts = await getPublishedPosts();
+const urlById = new Map(publishedPosts.map((e) => [e.id, postUrl(e)]));
+const blogPosts = Object.entries(rawPosts)
+  .map(([path, content]) => {
+    const filename = path.split("/").pop() as string;
+    // Astro 5's glob loader strips the extension from `entry.id`, so look up
+    // by the bare slug. Falls back to the filename in case that ever changes.
+    const idKey = filename.replace(/\.(md|mdx)$/, "");
+    const url = urlById.get(idKey) || urlById.get(filename);
+    if (!url) return null; // skip drafts in prod
+    const m = filename.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    const mtime = m
+      ? new Date(`${m[1]}-${m[2]}-${m[3]}T08:00:00Z`).toISOString()
+      : new Date().toISOString();
+    return { name: filename, content, mtime, url };
+  })
+  .filter((p): p is { name: string; content: string; mtime: string; url: string } => p !== null)
+  .sort((a, b) => a.name.localeCompare(b.name));
+
+const llmsTxt = await buildLlmsTxt();
+
+// Raw markdown of the agent prompt files — exposed in the virtual ~/ so
+// users can `cat AGENTS.md` / `cat CLAUDE.md` to see the rules behind
+// the gag. Read via fs at build time; a bare `.md` import would otherwise
+// be routed through Astro's markdown pipeline.
+const codexSystemPrompt = readFileSync(
+  fileURLToPath(new URL("../../AGENTS.md", import.meta.url)),
+  "utf8"
+);
+const claudeSystemPrompt = readFileSync(
+  fileURLToPath(new URL("../../CLAUDE.md", import.meta.url)),
+  "utf8"
+);
+---
+
+<script is:inline>
+    // Tell Grammarly / LanguageTool / similar overlays to skip this page —
+    // the terminal is not prose and the overlays interfere with caret/cursor
+    // logic and IME handling.
+    (function () {
+      var b = document.body;
+      if (!b) return;
+      b.setAttribute("data-gramm", "false");
+      b.setAttribute("data-gramm_editor", "false");
+      b.setAttribute("data-enable-grammarly", "false");
+    })();
+  </script>
+  <div class="os-switcher" role="toolbar" aria-label="OS style">
+    <span class="os-switcher-label">Are you ready?</span>
+    <span class="os-switcher-label">// SHELL SKIN (you should try multiple!) <span class="os-switcher-hint">(autoselected for you)</span></span>
+    <div class="os-switcher-grid">
+      {osVariants.map((v) => (
+        <button type="button" class="os-chip" data-os-set={v.id} aria-pressed="false">
+          <svg class="os-chip-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d={ICONS[v.id]}></path>
+          </svg>
+          <span class="os-chip-label">{v.label}</span>
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <script type="application/json" id="cli-commands-data" set:html={JSON.stringify(commandsData).replace(/<\/script/gi, "<\\/script")}></script>
+  {/* Posts can legitimately contain `</script>` in code blocks; without this
+      escape the browser closes the JSON tag early and dumps the rest of the
+      markdown into the visible page. `<\/` is a valid JSON escape for `</`. */}
+  <script type="application/json" id="cli-blog-data" set:html={JSON.stringify(blogPosts).replace(/<\/script/gi, "<\\/script")}></script>
+  <script type="application/json" id="cli-llms-data" set:html={JSON.stringify({ llms: llmsTxt }).replace(/<\/script/gi, "<\\/script")}></script>
+  <script type="application/json" id="cli-codex-prompt-data" set:html={JSON.stringify({ codex: codexSystemPrompt, claude: claudeSystemPrompt }).replace(/<\/script/gi, "<\\/script")}></script>
+
+  <div id="terminal-wrap" class="terminal-wrap" data-os="macos">
+    {/* macOS chrome */}
+    <div class="chrome chrome-mac">
+      <div class="mac-controls">
+        <span class="dot dot-red"></span>
+        <span class="dot dot-yellow"></span>
+        <span class="dot dot-green"></span>
+      </div>
+      <span class="mac-title">guest@vks.ai — ~</span>
+      <span class="mac-spacer"></span>
+    </div>
+
+    {/* Windows 11 chrome */}
+    <div class="chrome chrome-win">
+      <span class="win-title">
+        <span class="win-icon">▶_</span>
+        <span>Terminal — guest@vks.ai</span>
+      </span>
+      <span class="win-controls">
+        <button type="button" class="win-btn" aria-label="Minimize">&#xE921;</button>
+        <button type="button" class="win-btn" aria-label="Maximize">&#xE922;</button>
+        <button type="button" class="win-btn win-close" aria-label="Close">&#xE8BB;</button>
+      </span>
+    </div>
+
+    {/* Linux (GNOME) chrome */}
+    <div class="chrome chrome-linux">
+      <span class="linux-title">guest@vks.ai: ~</span>
+      <span class="linux-controls">
+        <button type="button" class="linux-btn" aria-label="Minimize">−</button>
+        <button type="button" class="linux-btn" aria-label="Maximize">▢</button>
+        <button type="button" class="linux-btn linux-close" aria-label="Close">×</button>
+      </span>
+    </div>
+
+    {/* iOS chrome */}
+    <div class="chrome chrome-ios">
+      <div class="ios-status">
+        <span class="ios-time">9:41</span>
+        <span class="ios-notch"></span>
+        <span class="ios-icons">
+          <span class="ios-signal"><i></i><i></i><i></i><i></i></span>
+          <span class="ios-wifi">􀙇</span>
+          <span class="ios-battery"></span>
+        </span>
+      </div>
+      <div class="ios-navbar">
+        <span class="ios-back">‹ Back</span>
+        <span class="ios-navtitle">Terminal</span>
+        <span class="ios-action">⋯</span>
+      </div>
+    </div>
+
+    {/* Android chrome */}
+    <div class="chrome chrome-android">
+      <div class="android-status">
+        <span class="android-time">9:41</span>
+        <span class="android-icons">
+          <span>▴</span>
+          <span class="android-wifi">▼</span>
+          <span class="android-battery"></span>
+        </span>
+      </div>
+      <div class="android-appbar">
+        <span class="android-menu">≡</span>
+        <span class="android-title">Terminal</span>
+        <span class="android-overflow">⋮</span>
+      </div>
+    </div>
+
+    <div id="term" class="terminal" tabindex="0">
+      <div id="term-output"></div>
+      <div class="term-line">
+        <span id="term-prompt" class="term-prompt"></span>
+        <span class="term-input-wrap">
+          <span id="term-input" class="term-input"></span><span class="term-cursor">█</span>
+        </span>
+        {/* Hidden real <input> overlaid on the line — exists solely so mobile
+            browsers raise the on-screen keyboard when the terminal is focused.
+            Visually transparent; the visible "input" is still the span above,
+            mirrored from this element on every `input` event. */}
+        <input
+          id="term-mobile-input"
+          type="text"
+          inputmode="text"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="none"
+          spellcheck="false"
+          aria-hidden="true"
+          data-gramm="false"
+          data-gramm_editor="false"
+          data-enable-grammarly="false"
+        />
+      </div>
+    </div>
+  </div>
+
+  <style is:global>
+    /* ---------- OS switcher (tron-ares) ---------- */
+    .os-switcher {
+      position: relative;
+      margin-bottom: 14px;
+      padding: 14px 16px;
+      border: 1px solid rgb(var(--c-accent) / 0.55);
+      border-radius: 6px;
+      background:
+        linear-gradient(135deg, rgb(var(--c-accent) / 0.06), rgb(var(--c-bg) / 0)),
+        rgb(0 0 0 / 0.55);
+      box-shadow:
+        0 0 0 1px rgb(var(--c-accent) / 0.15),
+        0 0 18px rgb(var(--tron-glow, 255 90 50) / 0.25),
+        inset 0 0 24px rgb(var(--tron-glow, 255 90 50) / 0.05);
+      backdrop-filter: blur(2px);
+    }
+    .os-switcher::before,
+    .os-switcher::after {
+      content: "";
+      position: absolute;
+      width: 14px; height: 14px;
+      border: 1px solid rgb(var(--c-accent));
+      box-shadow: 0 0 8px rgb(var(--tron-glow, 255 90 50) / 0.7);
+    }
+    .os-switcher::before {
+      top: -1px; left: -1px;
+      border-right: 0; border-bottom: 0;
+    }
+    .os-switcher::after {
+      bottom: -1px; right: -1px;
+      border-left: 0; border-top: 0;
+    }
+    .os-switcher-label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      color: rgb(var(--c-accent));
+      text-shadow: 0 0 8px rgb(var(--tron-glow, 255 90 50) / 0.6);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+    .os-switcher-hint {
+      color: rgb(var(--c-muted));
+      letter-spacing: 0.12em;
+      text-shadow: none;
+      font-weight: 400;
+      margin-left: 6px;
+    }
+    .os-switcher-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 8px;
+    }
+    .os-chip {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+      padding: 10px 12px;
+      border: 1px solid rgb(var(--c-accent) / 0.4);
+      background: rgb(0 0 0 / 0.6);
+      color: rgb(var(--c-fg));
+      font: inherit;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: transform 0.12s ease, background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+      overflow: hidden;
+    }
+    .os-chip::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent 35%, rgb(var(--c-accent) / 0.18) 50%, transparent 65%);
+      transform: translateX(-100%);
+      transition: transform 0.45s ease;
+      pointer-events: none;
+    }
+    .os-chip:hover::before { transform: translateX(100%); }
+    .os-chip:hover {
+      border-color: rgb(var(--c-accent));
+      color: rgb(var(--c-accent));
+      box-shadow:
+        0 0 0 1px rgb(var(--c-accent) / 0.25),
+        0 0 14px rgb(var(--tron-glow, 255 90 50) / 0.45);
+      transform: translateY(-1px);
+    }
+    .os-chip-icon {
+      width: 18px;
+      height: 18px;
+      flex: none;
+      filter: drop-shadow(0 0 4px rgb(var(--tron-glow, 255 90 50) / 0.4));
+    }
+    .os-chip-label { white-space: nowrap; }
+    .os-chip[aria-pressed="true"] {
+      border-color: rgb(var(--c-accent));
+      color: rgb(var(--c-bg));
+      background:
+        linear-gradient(135deg, rgb(var(--c-accent)) 0%, rgb(var(--tron-glow, 255 90 50)) 100%);
+      box-shadow:
+        0 0 0 1px rgb(var(--c-accent)),
+        0 0 18px rgb(var(--tron-glow, 255 90 50) / 0.7),
+        inset 0 0 12px rgb(0 0 0 / 0.25);
+      text-shadow: 0 0 6px rgb(0 0 0 / 0.3);
+    }
+    .os-chip[aria-pressed="true"] .os-chip-icon {
+      filter: drop-shadow(0 0 4px rgb(0 0 0 / 0.4));
+    }
+
+    /* ---------- Terminal shell ---------- */
+    .terminal-wrap {
+      border: 1px solid rgb(var(--c-border));
+      overflow: hidden;
+      background: #000;
+      font-family: var(--font-mono);
+      box-shadow: 0 0 24px rgb(var(--tron-glow, 255 90 50) / 0.18);
+    }
+
+    /* hide every chrome by default; show the active one */
+    .chrome { display: none; }
+    [data-os="macos"]   .chrome-mac     { display: flex; }
+    [data-os="windows"] .chrome-win     { display: flex; }
+    [data-os="linux"]   .chrome-linux   { display: flex; }
+    [data-os="ios"]     .chrome-ios     { display: block; }
+    [data-os="android"] .chrome-android { display: block; }
+
+    .terminal {
+      height: 60vh;
+      padding: 12px 14px;
+      overflow-y: auto;
+      color: #e0e0e0;
+      font-size: 14px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+      cursor: text;
+      outline: none;
+      background: #000;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+    .terminal * {
+      user-select: text;
+      -webkit-user-select: text;
+    }
+    .term-line { display: flex; flex-wrap: wrap; position: relative; }
+    /* Hidden mobile-keyboard probe: covers the prompt line so iOS doesn't
+       try to scroll a tiny sliver into view, but is fully transparent and
+       click-through. Pointer events are off so taps still hit the terminal
+       (which programmatically focuses this input on click). 16px font-size
+       prevents iOS from auto-zooming when the field gets focus. */
+    #term-mobile-input {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: transparent;
+      caret-color: transparent;
+      font-size: 16px;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    /* Claude REPL framing: faint horizontal rules above and below the live
+     * input, mirroring the real Claude Code chrome. Only the live input —
+     * historical echoed lines stay plain. */
+    [data-claude-mode="true"] .term-line,
+    [data-codex-mode="true"] .term-line {
+      margin: 8px 0;
+      padding: 6px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.32);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.32);
+    }
+    /* Codex banner: a static Unicode box with the model + cwd lines, same
+     * structure as Claude's banner just with OpenAI Codex chrome. */
+    .codex-banner {
+      display: block;
+      white-space: pre;
+      font-family: var(--font-mono);
+      line-height: 1.2;
+    }
+    .codex-banner-frame { color: #10a37f; }
+    .codex-banner-title { color: #10a37f; font-weight: 600; }
+    .codex-banner-tip {
+      color: rgb(var(--c-muted));
+      margin-top: 4px;
+      white-space: pre;
+    }
+    .codex-model-picker {
+      display: inline-block;
+      border: 1px solid #10a37f;
+      border-radius: 6px;
+      padding: 6px 8px;
+      margin: 4px 0;
+      background: rgba(16, 163, 127, 0.06);
+      font-family: var(--font-mono);
+      min-width: 240px;
+    }
+    .codex-model-picker-title {
+      color: #10a37f;
+      font-weight: 600;
+      margin-bottom: 4px;
+      font-size: 0.92em;
+    }
+    .codex-model-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      background: transparent;
+      border: none;
+      padding: 4px 6px;
+      border-radius: 4px;
+      color: inherit;
+      font: inherit;
+      cursor: pointer;
+      text-align: left;
+    }
+    .codex-model-option:hover,
+    .codex-model-option:focus-visible {
+      background: rgba(16, 163, 127, 0.18);
+      outline: none;
+    }
+    .codex-model-picker[data-active="true"] .codex-model-option {
+      background: rgba(16, 163, 127, 0.28);
+      box-shadow: inset 0 0 0 1px #10a37f;
+    }
+    .codex-model-picker[data-active="true"] .codex-model-option-marker {
+      animation: codex-model-blink 1s steps(2, start) infinite;
+    }
+    @keyframes codex-model-blink {
+      to { visibility: hidden; }
+    }
+    .terminal.model-picker-active .term-cursor { visibility: hidden; }
+    .terminal.model-picker-active .term-input-wrap { opacity: 0.4; }
+    .codex-model-option-marker { color: #10a37f; }
+    .codex-model-option-badge {
+      margin-left: auto;
+      font-size: 0.78em;
+      color: rgb(var(--c-muted));
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .codex-model-confirm { color: #10a37f; }
+    /* The /login URL: visibly underlined but not a real link — not clickable. */
+    .claude-fake-link {
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      cursor: text;
+    }
+    .term-prompt {
+      color: rgb(var(--c-accent, 80 250 123));
+      white-space: pre;
+      margin-right: 6px;
+    }
+    .term-input-wrap { display: inline-flex; align-items: center; flex: 1; min-width: 0; }
+    .term-input { white-space: pre-wrap; word-break: break-word; }
+    .term-cursor {
+      display: inline-block;
+      margin-left: 1px;
+      color: rgb(var(--c-accent, 80 250 123));
+      transform: scaleX(0.18);
+      transform-origin: left center;
+      animation: none;
+    }
+    .terminal:focus-within .term-cursor {
+      transform: scaleX(1);
+      animation: blink 1s steps(2, start) infinite;
+    }
+    @keyframes blink { to { visibility: hidden; } }
+    .term-out-line { white-space: pre-wrap; }
+    .claude-banner-m { display: none; }
+    .claude-banner {
+      --claude-banner-line: 1.16em;
+      --claude-cell-x: 0.78ch;
+      display: flex;
+      align-items: flex-start;
+      gap: 1.5ch;
+      line-height: var(--claude-banner-line);
+    }
+    .claude-mascot {
+      display: inline-grid;
+      grid-template-columns: repeat(18, calc(var(--claude-cell-x) / 2));
+      grid-template-rows: repeat(6, calc(var(--claude-banner-line) / 2));
+      flex: 0 0 calc(9 * var(--claude-cell-x));
+      width: calc(9 * var(--claude-cell-x));
+      height: calc(3 * var(--claude-banner-line));
+    }
+    .claude-pixel {
+      display: block;
+      width: calc(100% + 0.75px);
+      height: calc(100% + 0.75px);
+      background: #ff3b30;
+    }
+    .claude-banner-text {
+      flex: 1;
+      min-width: 0;
+    }
+    .claude-banner-text > div {
+      line-height: var(--claude-banner-line);
+      white-space: pre-wrap;
+      word-break: normal;
+      overflow-wrap: normal;
+    }
+    @media (max-width: 640px) {
+      .claude-banner-d { display: none; }
+      .claude-banner-m { display: block; }
+    }
+    .term-err { color: #ff6b6b; }
+    .term-dir { color: #6cb6ff; font-weight: 600; }
+    .term-file { color: #e0e0e0; }
+    .term-cat-head {
+      margin: 0;
+      font: inherit;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .term-cat-more {
+      margin-top: 4px;
+      color: rgb(var(--c-muted));
+      font-style: italic;
+    }
+    .term-link {
+      color: rgb(var(--c-accent));
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .term-link:hover { text-shadow: 0 0 8px rgb(var(--tron-glow, 255 90 50) / 0.6); }
+    .term-run-link {
+      appearance: none;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      font: inherit;
+      text-align: inherit;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      cursor: pointer;
+      user-select: text;
+      -webkit-user-select: text;
+      touch-action: manipulation;
+    }
+    .term-run-link:hover {
+      color: rgb(var(--c-accent));
+      text-shadow: 0 0 8px rgb(var(--tron-glow, 255 90 50) / 0.6);
+    }
+    .term-run-link:focus-visible {
+      outline: 1px solid rgb(var(--c-accent));
+      outline-offset: 2px;
+    }
+    /* `help` block: each line keeps name+desc together; long descriptions
+     * wrap with a hanging indent that aligns under the description column. */
+    .term-help-title { margin-bottom: 2px; }
+    .term-help-line {
+      white-space: pre-wrap;
+      word-break: break-word;
+      padding-left: 23ch;
+      text-indent: -23ch;
+    }
+    @media (max-width: 640px) {
+      .term-help-line {
+        padding-left: 4ch;
+        text-indent: -2ch;
+      }
+    }
+
+    /* =================================================
+     * macOS
+     * ================================================= */
+    [data-os="macos"].terminal-wrap { border-radius: 10px; }
+    .chrome-mac {
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: linear-gradient(to bottom, #3a3a3d, #2c2c2e);
+      border-bottom: 1px solid #1d1d1f;
+    }
+    .mac-controls { display: inline-flex; gap: 8px; }
+    .dot {
+      width: 12px; height: 12px; border-radius: 50%;
+      display: inline-block;
+      box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.25);
+    }
+    .dot-red    { background: #ff5f56; }
+    .dot-yellow { background: #ffbd2e; }
+    .dot-green  { background: #27c93f; }
+    .mac-title {
+      flex: 1;
+      text-align: center;
+      font-size: 12px;
+      color: #c7c7cc;
+      font-family: -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif;
+      letter-spacing: 0.01em;
+    }
+    .mac-spacer { width: 52px; }
+
+    /* =================================================
+     * Windows 11
+     * ================================================= */
+    [data-os="windows"].terminal-wrap {
+      border-radius: 6px;
+      border-color: #2a2a2a;
+    }
+    .chrome-win {
+      align-items: stretch;
+      padding: 0;
+      background: #1f1f1f;
+      border-bottom: 1px solid #0a0a0a;
+      font-family: "Segoe UI", system-ui, sans-serif;
+    }
+    .win-title {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      color: #e6e6e6;
+      font-size: 12px;
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+    }
+    .win-title > span:last-child {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      min-width: 0;
+    }
+    .win-icon {
+      display: inline-block;
+      font-family: var(--font-mono);
+      color: #4cc2ff;
+      font-size: 11px;
+    }
+    .win-controls { display: inline-flex; }
+    .win-btn {
+      width: 46px; height: 32px;
+      background: transparent;
+      border: 0;
+      color: #e6e6e6;
+      font-family: "Segoe MDL2 Assets", "Segoe Fluent Icons", "Segoe UI Symbol", sans-serif;
+      font-size: 10px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .win-btn:hover { background: #2d2d2d; }
+    .win-close:hover { background: #c42b1c; color: #fff; }
+
+    /* =================================================
+     * Linux (GNOME)
+     * ================================================= */
+    [data-os="linux"].terminal-wrap {
+      border-radius: 8px;
+      border-color: #1b1b1b;
+    }
+    .chrome-linux {
+      align-items: center;
+      padding: 6px 8px;
+      background: linear-gradient(to bottom, #3c3c3c, #2c2c2c);
+      border-bottom: 1px solid #1b1b1b;
+      font-family: "Cantarell", "Ubuntu", system-ui, sans-serif;
+    }
+    .linux-title {
+      flex: 1;
+      text-align: center;
+      font-size: 12px;
+      color: #e0e0e0;
+      font-weight: 600;
+    }
+    .linux-controls { display: inline-flex; gap: 4px; }
+    .linux-btn {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      border: 0;
+      background: #4d4d4d;
+      color: #e0e0e0;
+      font-size: 12px;
+      line-height: 1;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .linux-btn:hover { background: #5a5a5a; }
+    .linux-close:hover { background: #e95420; color: #fff; }
+
+    /* =================================================
+     * iOS
+     * ================================================= */
+    [data-os="ios"].terminal-wrap {
+      border-radius: 38px;
+      border: 4px solid #111;
+      box-shadow:
+        0 0 0 1px #2a2a2a,
+        0 0 24px rgb(var(--tron-glow, 255 90 50) / 0.18);
+    }
+    [data-os="ios"] .terminal {
+      border-bottom-left-radius: 30px;
+      border-bottom-right-radius: 30px;
+    }
+    .chrome-ios {
+      background: #000;
+      color: #fff;
+      font-family: -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif;
+    }
+    .ios-status {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 28px 6px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .ios-time { letter-spacing: 0.02em; }
+    .ios-notch {
+      position: absolute;
+      left: 50%;
+      top: 6px;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 26px;
+      background: #000;
+      border-radius: 14px;
+      border: 1px solid #1a1a1a;
+    }
+    .ios-icons {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+    }
+    .ios-signal { display: inline-flex; align-items: flex-end; gap: 2px; }
+    .ios-signal i {
+      display: inline-block;
+      width: 3px;
+      background: #fff;
+      border-radius: 1px;
+    }
+    .ios-signal i:nth-child(1) { height: 4px; }
+    .ios-signal i:nth-child(2) { height: 6px; }
+    .ios-signal i:nth-child(3) { height: 8px; }
+    .ios-signal i:nth-child(4) { height: 10px; }
+    .ios-wifi {
+      display: inline-block;
+      width: 14px; height: 10px;
+      background: radial-gradient(circle at 50% 100%, #fff 0 2px, transparent 3px 4px, #fff 5px 6px, transparent 7px 8px, #fff 9px 11px);
+    }
+    .ios-battery {
+      position: relative;
+      display: inline-block;
+      width: 24px; height: 11px;
+      border: 1px solid #fff;
+      border-radius: 3px;
+      padding: 1px;
+    }
+    .ios-battery::before {
+      content: "";
+      display: block;
+      width: 80%; height: 100%;
+      background: #fff;
+      border-radius: 1px;
+    }
+    .ios-battery::after {
+      content: "";
+      position: absolute;
+      right: -3px; top: 3px;
+      width: 2px; height: 5px;
+      background: #fff;
+      border-radius: 0 1px 1px 0;
+    }
+    .ios-navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 16px 10px;
+      border-bottom: 0.5px solid #2a2a2a;
+      font-size: 14px;
+    }
+    .ios-back { color: #0a84ff; }
+    .ios-navtitle { font-weight: 600; }
+    .ios-action { color: #0a84ff; font-size: 18px; line-height: 1; }
+
+    /* =================================================
+     * Android (Material You-ish)
+     * ================================================= */
+    [data-os="android"].terminal-wrap {
+      border-radius: 16px;
+      border-color: #111;
+    }
+    .chrome-android {
+      background: #1b1b1f;
+      color: #e6e1e5;
+      font-family: "Roboto", "Inter", system-ui, sans-serif;
+    }
+    .android-status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 14px 4px;
+      font-size: 12px;
+    }
+    .android-icons {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .android-battery {
+      display: inline-block;
+      width: 18px; height: 9px;
+      border: 1px solid #e6e1e5;
+      border-radius: 2px;
+      position: relative;
+    }
+    .android-battery::after {
+      content: "";
+      position: absolute;
+      right: -2px; top: 2px;
+      width: 1px; height: 3px;
+      background: #e6e1e5;
+    }
+    .android-battery::before {
+      content: "";
+      display: block;
+      width: 70%; height: 100%;
+      background: #e6e1e5;
+    }
+    .android-appbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      background: #25232a;
+      border-bottom: 1px solid #0e0e10;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    .android-menu, .android-overflow {
+      font-size: 18px;
+      line-height: 1;
+      color: #e6e1e5;
+      cursor: pointer;
+    }
+    .android-title {
+      flex: 1;
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+    }
+
+    /* =================================================
+     * Per-OS scrollbars (terminal viewport only)
+     * ================================================= */
+    /* macOS — thin, subtle, rounded overlay */
+    [data-os="macos"] .terminal { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.18) transparent; }
+    [data-os="macos"] .terminal::-webkit-scrollbar { width: 8px; height: 8px; }
+    [data-os="macos"] .terminal::-webkit-scrollbar-track { background: transparent; }
+    [data-os="macos"] .terminal::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.18);
+      border-radius: 4px;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+    }
+    [data-os="macos"] .terminal::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.32);
+      background-clip: padding-box;
+    }
+    [data-os="macos"] .terminal::-webkit-scrollbar-corner { background: transparent; }
+
+    /* Windows 11 — wider, gray track + thumb, slight rounding */
+    [data-os="windows"] .terminal { scrollbar-width: auto; scrollbar-color: #4d4d4d #1f1f1f; }
+    [data-os="windows"] .terminal::-webkit-scrollbar { width: 14px; height: 14px; }
+    [data-os="windows"] .terminal::-webkit-scrollbar-track {
+      background: #1f1f1f;
+      border-left: 1px solid #0a0a0a;
+    }
+    [data-os="windows"] .terminal::-webkit-scrollbar-thumb {
+      background: #4d4d4d;
+      border: 4px solid #1f1f1f;
+      border-radius: 7px;
+    }
+    [data-os="windows"] .terminal::-webkit-scrollbar-thumb:hover { background: #6e6e6e; }
+    [data-os="windows"] .terminal::-webkit-scrollbar-thumb:active { background: #8a8a8a; }
+    [data-os="windows"] .terminal::-webkit-scrollbar-corner { background: #1f1f1f; }
+
+    /* Linux (Ubuntu/Yaru) — thin, orange accent */
+    [data-os="linux"] .terminal { scrollbar-width: thin; scrollbar-color: rgba(233,84,32,0.6) transparent; }
+    [data-os="linux"] .terminal::-webkit-scrollbar { width: 6px; height: 6px; }
+    [data-os="linux"] .terminal::-webkit-scrollbar-track { background: transparent; }
+    [data-os="linux"] .terminal::-webkit-scrollbar-thumb {
+      background: rgba(233,84,32,0.55);
+      border-radius: 3px;
+    }
+    [data-os="linux"] .terminal::-webkit-scrollbar-thumb:hover {
+      background: rgba(233,84,32,0.95);
+    }
+    [data-os="linux"] .terminal::-webkit-scrollbar-corner { background: transparent; }
+
+    /* iOS — barely-there overlay */
+    [data-os="ios"] .terminal { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.22) transparent; }
+    [data-os="ios"] .terminal::-webkit-scrollbar { width: 3px; height: 3px; }
+    [data-os="ios"] .terminal::-webkit-scrollbar-track { background: transparent; }
+    [data-os="ios"] .terminal::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.22);
+      border-radius: 2px;
+    }
+    [data-os="ios"] .terminal::-webkit-scrollbar-corner { background: transparent; }
+
+    /* Android — Material You purple, thin */
+    [data-os="android"] .terminal { scrollbar-width: thin; scrollbar-color: rgba(208,188,255,0.5) transparent; }
+    [data-os="android"] .terminal::-webkit-scrollbar { width: 4px; height: 4px; }
+    [data-os="android"] .terminal::-webkit-scrollbar-track { background: transparent; }
+    [data-os="android"] .terminal::-webkit-scrollbar-thumb {
+      background: rgba(208,188,255,0.5);
+      border-radius: 2px;
+    }
+    [data-os="android"] .terminal::-webkit-scrollbar-thumb:hover {
+      background: rgba(208,188,255,0.8);
+    }
+    [data-os="android"] .terminal::-webkit-scrollbar-corner { background: transparent; }
+
+    /* =================================================
+     * Responsive — phones (≤640px) and very small (≤380px)
+     * ================================================= */
+    @media (max-width: 640px) {
+      .os-switcher { padding: 10px 12px; margin-bottom: 10px; }
+      .os-switcher-label { font-size: 9px; margin-bottom: 8px; }
+      .os-switcher-grid {
+        grid-template-columns: repeat(auto-fit, minmax(76px, 1fr));
+        gap: 6px;
+      }
+      .os-chip {
+        padding: 8px 6px;
+        font-size: 10px;
+        gap: 4px;
+        flex-direction: column;
+        letter-spacing: 0.04em;
+      }
+      .os-chip-icon { width: 22px; height: 22px; }
+
+      .terminal {
+        font-size: 12px;
+        padding: 10px 12px;
+        line-height: 1.4;
+        height: 55vh;
+      }
+      .term-prompt { margin-right: 4px; }
+
+      /* macOS */
+      .chrome-mac { padding: 6px 10px; gap: 6px; }
+      .mac-title { font-size: 11px; }
+      .mac-spacer { width: 0; display: none; }
+      .dot { width: 10px; height: 10px; }
+
+      /* Windows */
+      .win-title { padding: 4px 8px; font-size: 11px; }
+      .win-icon { font-size: 10px; }
+      .win-btn { width: 38px; height: 28px; }
+
+      /* Linux */
+      .chrome-linux { padding: 5px 8px; }
+      .linux-title { font-size: 11px; }
+      .linux-btn { width: 22px; height: 22px; font-size: 11px; }
+
+      /* iOS — keep phone illusion but soften corners so content fits */
+      [data-os="ios"].terminal-wrap {
+        border-radius: 28px;
+        border-width: 3px;
+      }
+      [data-os="ios"] .terminal {
+        border-bottom-left-radius: 22px;
+        border-bottom-right-radius: 22px;
+      }
+      .ios-status { padding: 8px 18px 4px; font-size: 12px; }
+      .ios-notch { width: 80px; height: 22px; top: 5px; }
+      .ios-navbar { padding: 4px 12px 8px; font-size: 13px; }
+
+      /* Android */
+      [data-os="android"].terminal-wrap { border-radius: 12px; }
+      .android-status { padding: 5px 12px 3px; font-size: 11px; }
+      .android-appbar { padding: 8px 12px; gap: 10px; }
+      .android-title { font-size: 14px; }
+    }
+
+    @media (max-width: 380px) {
+      .os-chip-label { display: none; }
+      .os-chip { padding: 9px 4px; }
+      .os-chip-icon { width: 24px; height: 24px; }
+      .terminal { font-size: 11px; padding: 8px 10px; }
+      .ios-notch { width: 72px; height: 20px; }
+    }
+  </style>
+
+  <script is:inline>
+    (function () {
+      // ---------- OS switcher with UA detection ----------
+      function detectOS() {
+        const ua = navigator.userAgent || "";
+        const platform = navigator.platform || "";
+        // iPadOS reports as Mac with touch — detect via maxTouchPoints
+        const isIpad = /Macintosh/.test(ua) && navigator.maxTouchPoints > 1;
+        if (/iPad|iPhone|iPod/.test(ua) || isIpad) return "ios";
+        if (/Android/.test(ua)) return "android";
+        if (/Win/i.test(platform) || /Windows/.test(ua)) return "windows";
+        if (/Mac/i.test(platform) || /Mac OS X/.test(ua)) return "macos";
+        if (/Linux|X11/.test(ua) || /Linux/i.test(platform)) return "linux";
+        return "macos";
+      }
+
+      const switcher = document.querySelector(".os-switcher");
+      const wrap = document.getElementById("terminal-wrap");
+      if (switcher && wrap) {
+        const buttons = switcher.querySelectorAll("button[data-os-set]");
+        const hint = switcher.querySelector(".os-switcher-hint");
+        const stored = (() => { try { return localStorage.getItem("cli-os"); } catch { return null; } })();
+        wrap.dataset.os = stored || detectOS();
+        if (hint && stored) hint.style.display = "none";
+        const sync = () => {
+          buttons.forEach((b) => {
+            b.setAttribute("aria-pressed", String(b.dataset.osSet === wrap.dataset.os));
+          });
+        };
+        buttons.forEach((b) => {
+          b.addEventListener("click", () => {
+            wrap.dataset.os = b.dataset.osSet;
+            try { localStorage.setItem("cli-os", b.dataset.osSet); } catch {}
+            const chatRoot = document.getElementById("chat-root");
+            if (chatRoot) chatRoot.dataset.os = b.dataset.osSet;
+            if (hint) hint.style.display = "none";
+            sync();
+            applyFlavor(b.dataset.osSet === "windows" ? "windows" : "unix");
+            cwd = HOME;
+            outputEl.innerHTML = "";
+            appendWelcome();
+            appendOutput("");
+            setInput("");
+            termEl.scrollTop = 0;
+            focusTerm();
+          });
+        });
+        sync();
+      }
+
+      // ---------- Local profile (built from browser-exposed signals; never leaves device) ----------
+      let highEntropyUA = null;
+      if (navigator.userAgentData && typeof navigator.userAgentData.getHighEntropyValues === "function") {
+        navigator.userAgentData
+          .getHighEntropyValues([
+            "platformVersion",
+            "architecture",
+            "bitness",
+            "model",
+            "fullVersionList",
+            "wow64",
+          ])
+          .then((d) => { highEntropyUA = d; })
+          .catch(() => {});
+      }
+
+      function osLabel(id) {
+        return ({ macos: "macOS", windows: "Windows", linux: "Linux", ios: "iOS", android: "Android" })[id] || id;
+      }
+      function pad(k, w) { return (k + " ".repeat(w)).slice(0, w); }
+      function row(k, v) { return "  " + pad(k, 16) + " : " + (v == null || v === "" ? "n/a" : v); }
+      function fmtBytes(n) {
+        if (n == null) return "n/a";
+        return n + " GB";
+      }
+      function safe(fn, fallback) {
+        try { return fn(); } catch { return fallback; }
+      }
+
+      function buildProfile() {
+        const nav = navigator;
+        const ua = nav.userAgent || "";
+        const uad = nav.userAgentData;
+        const conn = nav.connection || nav.mozConnection || nav.webkitConnection || null;
+        const tz = safe(() => Intl.DateTimeFormat().resolvedOptions().timeZone, "n/a");
+        const locale = safe(() => Intl.DateTimeFormat().resolvedOptions().locale, "n/a");
+        const langs = (nav.languages && nav.languages.join(", ")) || nav.language || "n/a";
+        const dnt = nav.doNotTrack === "1" || window.doNotTrack === "1" ? "yes" :
+                    nav.doNotTrack === "0" ? "no" : "unspecified";
+        const detected = osLabel(detectOS());
+        const brands = uad && uad.brands ? uad.brands.map((b) => b.brand + " " + b.version).join(", ") : null;
+        const fullVer = highEntropyUA && highEntropyUA.fullVersionList
+          ? highEntropyUA.fullVersionList.map((b) => b.brand + " " + b.version).join(", ")
+          : null;
+        const now = new Date();
+        const localTime = safe(
+          () => now.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "long" }),
+          now.toString()
+        );
+
+        const lines = [];
+        if (isMobileMode()) {
+          lines.push("┌─ SYSTEM PROFILE ───────────");
+          lines.push("│ Local browser-only report.");
+          lines.push("│ No cookies or network calls.");
+          lines.push("└────────────────────────────");
+        } else {
+          lines.push("┌─ SYSTEM PROFILE ──────────────────────────────────────────────");
+          lines.push("│ Built locally from browser APIs. Nothing here is sent anywhere.");
+          lines.push("│ No cookies, no tracking, no network calls. (GDPR-friendly.)");
+          lines.push("└───────────────────────────────────────────────────────────────");
+        }
+        lines.push("");
+
+        lines.push("[ Operating System ]");
+        lines.push(row("Detected OS", detected));
+        lines.push(row("Platform", nav.platform || "n/a"));
+        if (uad && uad.platform) lines.push(row("UA-CH Platform", uad.platform));
+        if (highEntropyUA && highEntropyUA.platformVersion) lines.push(row("OS Version", highEntropyUA.platformVersion));
+        if (highEntropyUA && highEntropyUA.architecture) {
+          const arch = highEntropyUA.architecture + (highEntropyUA.bitness ? " / " + highEntropyUA.bitness + "-bit" : "");
+          lines.push(row("Architecture", arch));
+        }
+        if (highEntropyUA && highEntropyUA.model) lines.push(row("Device Model", highEntropyUA.model || "n/a"));
+        lines.push("");
+
+        lines.push("[ Browser ]");
+        lines.push(row("User Agent", ua));
+        if (brands) lines.push(row("UA Brands", brands));
+        if (fullVer) lines.push(row("UA Versions", fullVer));
+        if (uad) lines.push(row("Mobile (UA-CH)", String(!!uad.mobile)));
+        lines.push(row("Touch Points", nav.maxTouchPoints != null ? nav.maxTouchPoints : "n/a"));
+        lines.push(row("Vendor", nav.vendor || "n/a"));
+        lines.push("");
+
+        lines.push("[ Locale & Time ]");
+        lines.push(row("Language", nav.language || "n/a"));
+        lines.push(row("All Languages", langs));
+        lines.push(row("Locale", locale));
+        lines.push(row("Time Zone", tz));
+        lines.push(row("Local Time", localTime));
+        lines.push("");
+
+        lines.push("[ Display ]");
+        lines.push(row("Screen", screen.width + " x " + screen.height + " px"));
+        lines.push(row("Available", screen.availWidth + " x " + screen.availHeight + " px"));
+        lines.push(row("Viewport", window.innerWidth + " x " + window.innerHeight + " px"));
+        lines.push(row("Pixel Ratio", String(window.devicePixelRatio || 1)));
+        lines.push(row("Color Depth", (screen.colorDepth || "n/a") + " bit"));
+        lines.push(row("Orientation", safe(() => screen.orientation && screen.orientation.type, "n/a")));
+        lines.push("");
+
+        lines.push("[ Hardware ]");
+        lines.push(row("CPU Cores", nav.hardwareConcurrency != null ? nav.hardwareConcurrency : "n/a"));
+        lines.push(row("Device Memory", nav.deviceMemory != null ? fmtBytes(nav.deviceMemory) : "n/a"));
+        if (conn) {
+          lines.push(row("Network Type", conn.effectiveType || "n/a"));
+          if (conn.downlink != null) lines.push(row("Downlink", conn.downlink + " Mb/s"));
+          if (conn.rtt != null) lines.push(row("RTT", conn.rtt + " ms"));
+          if (conn.saveData != null) lines.push(row("Save Data", String(conn.saveData)));
+        } else {
+          lines.push(row("Network Type", "n/a"));
+        }
+        lines.push("");
+
+        lines.push("[ Privacy & State ]");
+        lines.push(row("Cookies Enabled", String(nav.cookieEnabled)));
+        lines.push(row("Do Not Track", dnt));
+        lines.push(row("Online", String(nav.onLine)));
+        lines.push(row("PDF Viewer", String(!!nav.pdfViewerEnabled)));
+        lines.push("");
+
+        lines.push(isMobileMode()
+          ? "─ Pascal van Kooten: /aboutme /projects"
+          : "─ Hi! I'm Pascal van Kooten — see /aboutme or /projects.");
+        return lines.join("\n");
+      }
+
+      // ---------- Terminal ----------
+      const NOW = new Date();
+      // Pin file mtimes far enough apart that -t produces a stable, visible order.
+      const M_INFO    = NOW;
+      const M_EASTER  = new Date("2026-01-15T14:32:00");
+      const M_BASHRC  = new Date("2025-11-04T09:12:00");
+      const M_LLMS    = new Date("2026-04-01T10:00:00");
+      const M_RECEIPT = new Date("2026-04-15T12:00:00");
+      const M_MISSION = new Date("2026-04-20T09:00:00");
+      const M_HOME    = new Date("2025-09-01T08:00:00");
+
+      const LLMS_TXT = JSON.parse(
+        document.getElementById("cli-llms-data").textContent
+      ).llms;
+      const CODEX_PROMPT_DATA = JSON.parse(
+        document.getElementById("cli-codex-prompt-data").textContent
+      );
+      const CODEX_PROMPT_TXT = CODEX_PROMPT_DATA.codex;
+      const CLAUDE_PROMPT_TXT = CODEX_PROMPT_DATA.claude;
+      const M_CODEX = new Date("2026-05-01T09:00:00");
+      const M_CLAUDE_MD = new Date("2026-05-10T09:00:00");
+      // receipt.txt is generated by scripts/build-receipt.mjs after astro
+      // build, so it isn't available at build time. Fetched at terminal init
+      // and patched into the FS once it arrives.
+      const RECEIPT_HOLDER = {
+        text: "(receipt.txt is built post-deploy — refresh after the next build)\n",
+      };
+      const FS = {
+        type: "dir",
+        mtime: M_HOME,
+        children: {
+          "info.txt": {
+            type: "file",
+            mtime: M_INFO,
+            getContent: buildProfile,
+          },
+          "challenge.txt": {
+            type: "file",
+            mtime: M_EASTER,
+            content: "you have to wash the car it is only 10 meters away do you [w]alk or [d]rive? convert the first letter to alphabet num and take left digit",
+          },
+          "mission.txt": {
+            type: "file",
+            mtime: M_MISSION,
+            content: "Your mission, should you choose to accept it, is to find the five single characters scattered around this whole website, sorted by the page they are found on, and submit your result at /challenge ...",
+          },
+          ".bashrc": {
+            type: "file",
+            mtime: M_BASHRC,
+            content: [
+              "# guest's .bashrc — try `ls -a` to find me",
+              "alias ll='ls -lhtr'",
+              "alias ls='ls -F'  # classify dirs with trailing /",
+              "export PS1='guest@vks.ai:\\w$ '",
+            ].join("\n"),
+          },
+          "llms.txt": {
+            type: "file",
+            mtime: M_LLMS,
+            content: LLMS_TXT,
+          },
+          "AGENTS.md": {
+            type: "file",
+            mtime: M_CODEX,
+            content: CODEX_PROMPT_TXT,
+          },
+          "CLAUDE.md": {
+            type: "file",
+            mtime: M_CLAUDE_MD,
+            content: CLAUDE_PROMPT_TXT,
+          },
+          "receipt.txt": {
+            type: "file",
+            mtime: M_RECEIPT,
+            getContent: function () { return RECEIPT_HOLDER.text; },
+          },
+          // Windows-only: a fake Desktop with a fake game executable.
+          "Desktop": {
+            type: "dir",
+            flavor: "windows",
+            mtime: new Date("2026-02-14T18:30:00"),
+            children: {
+              "GTA6.exe": {
+                type: "file",
+                flavor: "windows",
+                mtime: new Date("2026-04-12T11:11:00"),
+                binary: true,
+                content: [
+                  "MZÉâ¶®¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬",
+                  "ÊÊÉàâ§ÅÊÒÔÓÝÝÆÊÊ@þÿÌÄÔÊÝøPE  d ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬   ð\"",
+                  "This program cannot be run in DOS mode.$",
+                  "ÿÿøøøøèèèè ¶¶µµ███▌▐▀▄ ¥√óØ╪@░▒▓░▒▓░▒▓░▒▓",
+                  ".text¶µ███▌@.rdata¤¤R▒░█│┤╣╗@@.data ▓▒░█▌▐▀▄│┤╣╗",
+                  "┌─────────────────────────────────────┐",
+                  "│ GTA6 Engine v6.x  build 8978 Mythos │",
+                  "└─────────────────────────────────────┘",
+                  "░░▒▒▓▓██▓▓▒▒░░ ßÄÅåäáàâãáæçèéêëÀÁÂÃÄÅÆÇÈÉÊË ░░▒▒▓▓██",
+                ].join("\n"),
+                exec: function () {
+                  return "you wish. but one of these is the code: 44444 (only use one of them for the unlock), maybe it can be useful some day";
+                },
+              },
+            },
+          },
+        },
+      };
+
+      // ---------- Blog: load raw markdown into ~/blog ----------
+      // Sources are embedded at build time via import.meta.glob('?raw'), so
+      // every original .md remains catchable here even though it's also
+      // rendered to HTML pages. New posts show up automatically on rebuild.
+      const BLOG_POSTS = JSON.parse(
+        document.getElementById("cli-blog-data").textContent
+      );
+      const blogChildren = {};
+      let blogNewest = null;
+      for (const p of BLOG_POSTS) {
+        const m = new Date(p.mtime);
+        blogChildren[p.name] = {
+          type: "file",
+          mtime: m,
+          content: p.content,
+          url: p.url,
+        };
+        if (!blogNewest || m > blogNewest) blogNewest = m;
+      }
+      FS.children["blog"] = {
+        type: "dir",
+        mtime: blogNewest || M_HOME,
+        children: blogChildren,
+      };
+
+      const HOME = "/home/guest";
+      const ROOT = {
+        type: "dir",
+        mtime: M_HOME,
+        children: { home: { type: "dir", mtime: M_HOME, children: { guest: FS } } },
+      };
+
+      let cwd = HOME;
+      const history = [];
+      let historyIdx = -1;
+      let draft = "";
+
+      const termEl = document.getElementById("term");
+      const outputEl = document.getElementById("term-output");
+      const inputEl = document.getElementById("term-input");
+      const promptEl = document.getElementById("term-prompt");
+      const mobileInputEl = document.getElementById("term-mobile-input");
+
+      // The hidden <input> is the source of truth for the current line text;
+      // the visible span just mirrors it. Programmatic .value assignments do
+      // not fire the `input` event, so this mirror is one-way only.
+      function getInput() { return mobileInputEl.value; }
+      function setInput(s) {
+        mobileInputEl.value = s;
+        inputEl.textContent = s;
+      }
+      mobileInputEl.addEventListener("input", () => {
+        // Strip newlines (e.g. pasted text) — Enter is handled in keydown.
+        if (mobileInputEl.value.indexOf("\n") !== -1) {
+          mobileInputEl.value = mobileInputEl.value.replace(/\n/g, "");
+        }
+        inputEl.textContent = mobileInputEl.value;
+        termEl.scrollTop = termEl.scrollHeight;
+      });
+
+      function shortPath(p) {
+        if (p === HOME) return "~";
+        if (p.startsWith(HOME + "/")) return "~" + p.slice(HOME.length);
+        return p;
+      }
+      function winPath(p) {
+        // Map our internal unix path to a Windows-looking display path.
+        // /home/guest -> C:\Users\guest, then swap separators.
+        let s = p;
+        if (s === HOME) s = "C:\\Users\\guest";
+        else if (s.startsWith(HOME + "/")) s = "C:\\Users\\guest" + s.slice(HOME.length);
+        else if (s === "/") s = "C:\\";
+        else s = "C:" + s;
+        return s.replace(/\//g, "\\");
+      }
+      function renderPrompt() {
+        if (claudeMode || codexMode) {
+          promptEl.textContent = "❯ ";
+          return;
+        }
+        const f = flavorCfg();
+        const tpl = f.promptTemplate || "{user}@{host}:{cwd}$ ";
+        const cwdShown = flavor === "windows" ? winPath(cwd) : shortPath(cwd);
+        promptEl.textContent = tpl
+          .replace("{user}", f.user || "guest")
+          .replace("{host}", f.host || "vks.ai")
+          .replace("{cwd}", cwdShown);
+      }
+      function normalize(path) {
+        let abs;
+        if (path.startsWith("/")) abs = path;
+        else if (path === "~" || path.startsWith("~/")) abs = HOME + path.slice(1);
+        else abs = cwd + "/" + path;
+        const parts = abs.split("/").filter(Boolean);
+        const stack = [];
+        for (const p of parts) {
+          if (p === ".") continue;
+          if (p === "..") stack.pop();
+          else stack.push(p);
+        }
+        return "/" + stack.join("/");
+      }
+      function resolve(path) {
+        const abs = normalize(path);
+        if (abs === "/") return ROOT;
+        const parts = abs.split("/").filter(Boolean);
+        let node = ROOT;
+        for (const p of parts) {
+          if (node.type !== "dir") return null;
+          const child = node.children[p];
+          if (!child) return null;
+          // Hide nodes scoped to a different flavor.
+          if (child.flavor && child.flavor !== flavor) return null;
+          node = child;
+        }
+        return node;
+      }
+      function read(node) {
+        if (typeof node.getContent === "function") return node.getContent();
+        return node.content || "";
+      }
+      function fileSize(node) {
+        return read(node).length;
+      }
+      function appendOutput(text, cls) {
+        const div = document.createElement("div");
+        div.className = "term-out-line" + (cls ? " " + cls : "");
+        div.textContent = text;
+        outputEl.appendChild(div);
+      }
+      function appendHTML(html) {
+        const div = document.createElement("div");
+        div.className = "term-out-line";
+        div.innerHTML = html;
+        outputEl.appendChild(div);
+      }
+      function appendWelcome() {
+        const welcome = flavorCfg().welcome || "";
+        const marker = "`help`";
+        const idx = welcome.indexOf(marker);
+        if (idx === -1) {
+          appendOutput(welcome);
+          return;
+        }
+        appendHTML(
+          escapeHTML(welcome.slice(0, idx)) +
+          commandButtonHTML("help", "help", "term-link") +
+          escapeHTML(welcome.slice(idx + marker.length))
+        );
+      }
+      function escapeHTML(s) {
+        return s.replace(/[&<>"']/g, (c) => ({
+          "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+        })[c]);
+      }
+      function isMobileMode() {
+        return window.matchMedia("(max-width: 640px), (pointer: coarse)").matches;
+      }
+      function commandButtonHTML(label, command, cls) {
+        return '<button type="button" class="' + (cls ? cls + " " : "") + 'term-run-link" ' +
+          'data-run-command="' + escapeHTML(command) + '">' + escapeHTML(label) + "</button>";
+      }
+      function shellQuote(s) {
+        if (/^[A-Za-z0-9_./~:-]+$/.test(s)) return s;
+        return "'" + s.replace(/'/g, "'\\''") + "'";
+      }
+      function joinPath(base, name) {
+        return (base === "/" ? "" : base) + "/" + name;
+      }
+      function relativeToCwd(abs) {
+        if (abs === cwd) return ".";
+        if (abs.startsWith(cwd + "/")) return abs.slice(cwd.length + 1);
+        return abs;
+      }
+      function parseArgs(argv) {
+        const opts = {}; const positional = [];
+        for (let i = 0; i < argv.length; i++) {
+          const a = argv[i];
+          if (a.startsWith("--") && a.length > 2) {
+            opts[a.slice(2)] = true;
+          } else if (a.startsWith("-") && a.length > 1) {
+            const key = a.slice(1);
+            if (/^n\d+$/.test(key)) opts.n = parseInt(key.slice(1), 10);
+            else if (key === "n" && i + 1 < argv.length) opts.n = parseInt(argv[++i], 10);
+            else {
+              // Split combined short flags: -lhtr -> -l -h -t -r
+              for (const ch of key) opts[ch] = true;
+            }
+          } else positional.push(a);
+        }
+        return { opts, positional };
+      }
+      function humanSize(n) {
+        if (n < 1024) return n + "B";
+        if (n < 1024 * 1024) return (n / 1024).toFixed(1) + "K";
+        if (n < 1024 * 1024 * 1024) return (n / 1024 / 1024).toFixed(1) + "M";
+        return (n / 1024 / 1024 / 1024).toFixed(1) + "G";
+      }
+      const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      function fmtMtime(d) {
+        if (!(d instanceof Date)) d = new Date();
+        const mo = MONTHS[d.getMonth()];
+        const day = String(d.getDate()).padStart(2, " ");
+        const hh = String(d.getHours()).padStart(2, "0");
+        const mm = String(d.getMinutes()).padStart(2, "0");
+        return mo + " " + day + " " + hh + ":" + mm;
+      }
+
+      // ---------- Flavor / commands data ----------
+      const COMMANDS_DATA = JSON.parse(
+        document.getElementById("cli-commands-data").textContent
+      );
+      let flavor = "unix";
+      let activeNames = {};   // visible name -> op
+      let activeAliases = {}; // visible alias -> expansion
+      let claudeMode = false; // when true, input is captured by the fake claude REPL
+      let claudeLoggedIn = false; // flips after /login so the next prompt hits the rate-limit gag
+      let codexMode = false; // when true, input is captured by the fake codex REPL
+      let modelPickerEl = null; // active <div.codex-model-picker> when open
+      function isModelPickerOpen() { return !!modelPickerEl; }
+      function closeModelPicker(selected) {
+        if (!modelPickerEl) return;
+        const el = modelPickerEl;
+        modelPickerEl = null;
+        el.removeAttribute("data-active");
+        if (selected) {
+          el.innerHTML =
+            '<span class="codex-model-confirm">✓ model set to gpt-6.6 max-tokens</span>';
+        }
+        const t = document.getElementById("term");
+        if (t) t.classList.remove("model-picker-active");
+        focusTerm();
+        if (termEl) termEl.scrollTop = termEl.scrollHeight;
+      }
+      function flavorCfg() { return COMMANDS_DATA[flavor]; }
+      function setClaudeMode(on) {
+        claudeMode = !!on;
+        // Entering claude exits codex (mutually exclusive REPLs).
+        if (claudeMode) codexMode = false;
+        // Driving CSS from a data attr on the terminal element so the box
+        // around the live input only shows while the REPL is active.
+        const t = document.getElementById("term");
+        if (t) {
+          t.dataset.claudeMode = claudeMode ? "true" : "false";
+          t.dataset.codexMode = codexMode ? "true" : "false";
+        }
+        renderPrompt();
+      }
+      function setCodexMode(on) {
+        codexMode = !!on;
+        if (codexMode) claudeMode = false;
+        const t = document.getElementById("term");
+        if (t) {
+          t.dataset.codexMode = codexMode ? "true" : "false";
+          t.dataset.claudeMode = claudeMode ? "true" : "false";
+        }
+        renderPrompt();
+      }
+      function applyFlavor(name) {
+        if (!COMMANDS_DATA[name]) return;
+        flavor = name;
+        const f = flavorCfg();
+        activeNames = {};
+        for (const c of f.commands) activeNames[c.name] = c.op;
+        activeAliases = f.aliases || {};
+        // Switching flavor exits any REPL (claude/codex are unix-only).
+        setClaudeMode(false);
+        setCodexMode(false);
+      }
+
+      const OPS = {
+        help() {
+          const parts = ['<div class="term-help-title">Available commands:</div>'];
+          for (const c of flavorCfg().commands) {
+            parts.push('<div class="term-help-line">  ' + escapeHTML(c.help) + "</div>");
+          }
+          return { html: parts.join("") };
+        },
+        pwd() { return cwd; },
+        whoami() { return flavorCfg().user || "guest"; },
+        echo(args) {
+          return args.join(" ")
+            .replace(/\$USER/g, flavorCfg().user || "guest")
+            .replace(/\$HOME/g, HOME)
+            .replace(/\$PWD/g, cwd);
+        },
+        clear() { outputEl.innerHTML = ""; return null; },
+        noop() { return null; },
+        claude() {
+          setClaudeMode(true);
+          // Inline style so the blue survives Astro's scoped-CSS attribute hashing.
+          const BLUE = 'style="color:#1e3a8a;font-weight:600"';
+          const esc = escapeHTML;
+          const px = (col, row) =>
+            '<span class="claude-pixel" style="grid-column:' + col + ';grid-row:' + row + '"></span>';
+          const cell = (ch, col, row) => {
+            const x = (col - 1) * 2 + 1;
+            const y = (row - 1) * 2 + 1;
+            const parts = {
+              "█": [[0, 0], [1, 0], [0, 1], [1, 1]],
+              "▐": [[1, 0], [1, 1]],
+              "▌": [[0, 0], [0, 1]],
+              "▛": [[0, 0], [1, 0], [0, 1]],
+              "▜": [[0, 0], [1, 0], [1, 1]],
+              "▝": [[1, 0]],
+              "▘": [[0, 0]],
+            }[ch] || [];
+            return parts.map(([dx, dy]) => px(x + dx, y + dy)).join("");
+          };
+          const mascot =
+            '<span class="claude-mascot" aria-hidden="true">' +
+              cell("▐", 2, 1) + cell("▛", 3, 1) + cell("█", 4, 1) +
+              cell("█", 5, 1) + cell("█", 6, 1) + cell("▜", 7, 1) +
+              cell("▌", 8, 1) +
+              cell("▝", 1, 2) + cell("▜", 2, 2) + cell("█", 3, 2) +
+              cell("█", 4, 2) + cell("█", 5, 2) + cell("█", 6, 2) +
+              cell("█", 7, 2) + cell("▛", 8, 2) + cell("▘", 9, 2) +
+              cell("▘", 3, 3) + cell("▘", 4, 3) +
+              cell("▝", 6, 3) + cell("▝", 7, 3) +
+            '</span>';
+          const banner = (lines) =>
+            '<div class="claude-banner">' + mascot +
+              '<div class="claude-banner-text">' +
+                lines.map((l) => '<div>' + l + '</div>').join('') +
+              '</div>' +
+            '</div>';
+          const desktop = banner([
+            '<span ' + BLUE + '>Claude Code</span> v4.5.234',
+            'Mythos 1.1 (10B context) with no‑effort · Claude Ultra Max 1000x',
+            esc(cwd),
+          ]);
+          const mobile = banner([
+            '<span ' + BLUE + '>Claude Code</span> v4.5.234',
+            'Mythos 1.1 (10B context) with no‑effort',
+            'Claude Ultra Max 1000x',
+            esc(cwd),
+          ]);
+          const html =
+            '<div class="claude-banner-d">' + desktop + '</div>' +
+            '<div class="claude-banner-m">' + mobile + '</div>';
+          return { html: html };
+        },
+        codex() {
+          setCodexMode(true);
+          // Static Unicode-box banner, mirroring the OpenAI Codex CLI chrome.
+          // Inner width is 50 chars so the right border lines up with all rows.
+          const innerWidth = 50;
+          const dirShown = shortPath(cwd);
+          const padRight = (s, w) => {
+            const visible = s.length;
+            return s + " ".repeat(Math.max(0, w - visible));
+          };
+          const top = "╭" + "─".repeat(innerWidth) + "╮";
+          const bot = "╰" + "─".repeat(innerWidth) + "╯";
+          const blank = "│" + " ".repeat(innerWidth) + "│";
+          const titleInner = " >_ OpenAI Codex (v0.128.0)";
+          const titleRow = "│" + padRight(titleInner, innerWidth) + "│";
+          const modelInner = " model:     gpt-6.6 max-tokens   /model to change";
+          const modelRow = "│" + padRight(modelInner, innerWidth) + "│";
+          const dirInner = " directory: " + dirShown;
+          const dirRow = "│" + padRight(dirInner, innerWidth) + "│";
+          const esc = escapeHTML;
+          const frame = (s) => '<span class="codex-banner-frame">' + esc(s) + "</span>";
+          const html =
+            '<div class="codex-banner">' +
+              frame(top) + "\n" +
+              frame(titleRow) + "\n" +
+              frame(blank) + "\n" +
+              frame(modelRow) + "\n" +
+              frame(dirRow) + "\n" +
+              frame(bot) +
+            '</div>' +
+            '<div class="codex-banner-tip">' +
+              "  Tip: quality slop over quantity slop" +
+            '</div>';
+          return { html: html };
+        },
+        history() { return history.map((h, i) => "  " + (i + 1) + "  " + h).join("\n"); },
+        list(args) {
+          const { opts, positional } = parseArgs(args);
+          const target = positional[0] || cwd;
+          const node = resolve(target);
+          if (!node) return { err: "ls: " + target + ": No such file or directory" };
+          if (node.type === "file") {
+            return { html: '<span class="term-file">' + escapeHTML(target) + "</span>" };
+          }
+          let names = Object.keys(node.children).filter((n) => {
+            const c = node.children[n];
+            return !c.flavor || c.flavor === flavor;
+          });
+          if (!opts.a) names = names.filter((n) => !n.startsWith("."));
+          // sort: alpha by default; -t = mtime desc; -r reverses final order
+          names.sort((a, b) => a.localeCompare(b));
+          if (opts.t) {
+            names.sort((a, b) => {
+              const ma = node.children[a].mtime ? node.children[a].mtime.getTime() : 0;
+              const mb = node.children[b].mtime ? node.children[b].mtime.getTime() : 0;
+              return mb - ma;
+            });
+          }
+          if (opts.r) names.reverse();
+          // Always classify dirs with a trailing `/` (per `alias ls='ls -F'`
+          // in ~/.bashrc). Skip on Windows where the convention is `\`.
+          const classify = (c, n) =>
+            c.type === "dir" && flavor !== "windows" ? n + "/" : n;
+          const listedAbs = normalize(target);
+          const renderLsName = (c, n) => {
+            const cls = c.type === "dir" ? "term-dir" : "term-file";
+            const label = escapeHTML(classify(c, n));
+            if (c.type !== "file" || !isMobileMode()) {
+              return '<span class="' + cls + '">' + label + "</span>";
+            }
+            const catArg = relativeToCwd(joinPath(listedAbs, n));
+            const command = n === "claude"
+              ? "claude"
+              : n === "codex"
+                ? "codex"
+                : (flavor === "windows" ? "type " : "cat ") + shellQuote(catArg);
+            return commandButtonHTML(classify(c, n), command, cls);
+          };
+          if (opts.l) {
+            const lines = names.map((n) => {
+              const c = node.children[n];
+              const t = c.type === "dir" ? "d" : "-";
+              const rawSize = c.type === "file" ? fileSize(c) : 4096;
+              const size = opts.h ? humanSize(rawSize) : String(rawSize);
+              const when = fmtMtime(c.mtime || NOW);
+              return t + "rw-r--r--  1 guest guest " + size.padStart(6) +
+                " " + when +
+                " " + renderLsName(c, n);
+            });
+            return { html: lines.join("<br>") };
+          }
+          const parts = names.map((n) => {
+            const c = node.children[n];
+            return renderLsName(c, n);
+          });
+          return { html: parts.join("  ") };
+        },
+        chdir(args) {
+          // Windows `cd` with no args prints cwd; Unix `cd` goes home.
+          if (args.length === 0) {
+            if (flavor === "windows") return cwd;
+            cwd = HOME;
+            renderPrompt();
+            return null;
+          }
+          const target = args[0];
+          const dest = target === "-" ? HOME : target;
+          const abs = normalize(dest);
+          const node = resolve(abs);
+          if (!node) return { err: "cd: " + target + ": No such file or directory" };
+          if (node.type !== "dir") return { err: "cd: " + target + ": Not a directory" };
+          cwd = abs;
+          renderPrompt();
+          return null;
+        },
+        cat(args) {
+          if (args.length === 0) return { err: "cat: missing file operand" };
+          // Resolve once so we know whether to render html (any blog post) or text.
+          const resolved = [];
+          for (const a of args) {
+            const node = resolve(a);
+            if (!node) return { err: "cat: " + a + ": No such file or directory" };
+            if (node.type !== "file") return { err: "cat: " + a + ": Is a directory" };
+            resolved.push({ a, node });
+          }
+          const anyUrl = resolved.some((r) => r.node.url);
+          if (anyUrl) {
+            const PREVIEW = 10;
+            const blocks = resolved.map(({ a, node }) => {
+              const text = read(node);
+              const lines = text.split("\n");
+              const head = lines.slice(0, PREVIEW).join("\n");
+              const remaining = Math.max(0, lines.length - PREVIEW);
+              let block = '<pre class="term-cat-head">' + escapeHTML(head) + "</pre>";
+              if (node.url) {
+                const link =
+                  '<a class="term-link" href="' + escapeHTML(node.url) + '">' +
+                  escapeHTML(node.url) + "</a>";
+                const tail = remaining > 0
+                  ? "… " + remaining + " more line" + (remaining === 1 ? "" : "s") +
+                    " — read in full: " + link
+                  : "read in full: " + link;
+                block += '<div class="term-cat-more">' + tail + "</div>";
+              } else if (resolved.length > 1) {
+                // Mixed bag: keep file headers stable so output stays parseable.
+                block = '<div class="term-file">==&gt; ' + escapeHTML(a) + " &lt;==</div>" + block;
+              }
+              return block;
+            });
+            return { html: blocks.join("") };
+          }
+          const out = [];
+          for (const { a, node } of resolved) {
+            if (node.binary) {
+              // Flash the gibberish briefly, then it disappears — like a
+              // terminal that briefly chokes on binary then recovers.
+              const div = document.createElement("div");
+              div.className = "term-out-line";
+              div.textContent = read(node);
+              outputEl.appendChild(div);
+              termEl.scrollTop = termEl.scrollHeight;
+              setTimeout(() => { div.remove(); }, 1500);
+            } else {
+              out.push(read(node));
+            }
+          }
+          return out.length ? out.join("\n") : null;
+        },
+      };
+
+      function tokenize(line) {
+        const tokens = [];
+        const re = /"([^"]*)"|'([^']*)'|(\S+)/g;
+        let m;
+        while ((m = re.exec(line)) !== null) {
+          tokens.push(m[1] !== undefined ? m[1] : m[2] !== undefined ? m[2] : m[3]);
+        }
+        return tokens;
+      }
+      function runClaudeLine(line) {
+        if (line.startsWith("/")) {
+          const cmd = line.slice(1).split(/\s+/)[0];
+          if (cmd === "login") {
+            const id = Math.floor(Math.random() * 9000000) + 1000000;
+            const url = "https://claude.ai/oauth/authorize?code=true&client_id=" + id + "&joke=true";
+            appendHTML(
+              "login has been opened in browser at " +
+              '<span class="claude-fake-link" style="text-decoration: underline; ' +
+              'text-underline-offset: 2px; cursor: text;">' +
+              escapeHTML(url) + "</span>"
+            );
+            appendHTML('<span style="color:#22c55e">Logged in as dario@anthropic.com</span>');
+            appendHTML('<span style="color:#22c55e">Login successful. How can I help today?</span>');
+            claudeLoggedIn = true;
+            return;
+          }
+          if (cmd === "upgrade") {
+            appendOutput(
+              "All higher-tier plans are currently sold out. " +
+              "You have been added to the waitlist for Claude Ultra Max 10000x.",
+              "term-err"
+            );
+            // Pretend Ctrl+C: echo the claude prompt with `^C` on a new line,
+            // then exit claude mode so the live prompt reverts to the shell.
+            const ctrlCLine = document.createElement("div");
+            ctrlCLine.className = "term-out-line";
+            const ps = document.createElement("span");
+            ps.className = "term-prompt";
+            ps.style.color = "rgb(var(--c-accent))";
+            ps.textContent = promptEl.textContent;
+            const cs = document.createElement("span");
+            cs.textContent = "^C";
+            ctrlCLine.appendChild(ps);
+            ctrlCLine.appendChild(cs);
+            outputEl.appendChild(ctrlCLine);
+            setClaudeMode(false);
+            termEl.scrollTop = termEl.scrollHeight;
+            return;
+          }
+          if (cmd === "exit" || cmd === "quit") {
+            setClaudeMode(false);
+            return;
+          }
+          if (cmd === "clear") { outputEl.innerHTML = ""; return; }
+          if (cmd === "help") {
+            appendOutput([
+              "Slash commands:",
+              "  /login    sign in",
+              "  /upgrade  raise your usage tier",
+              "  /clear    clear the screen",
+              "  /exit     leave the Claude session",
+            ].join("\n"));
+            return;
+          }
+          appendOutput("Unknown slash command: /" + cmd, "term-err");
+          return;
+        }
+        // Non-slash input: animate "Pascalling. .. ..." in place, then swap in the OAuth error.
+        const div = document.createElement("div");
+        div.className = "term-out-line";
+        div.style.color = "#ff6b6b";
+        const glyphs = ["✻", "✢", "·", "✽", "*"];
+        const dots = [".", "..", "..."];
+        let i = 0;
+        let g = 0;
+        div.textContent = glyphs[g] + " Pascalling.";
+        outputEl.appendChild(div);
+        termEl.scrollTop = termEl.scrollHeight;
+        const interval = setInterval(() => {
+          i = (i + 1) % dots.length;
+          g = (g + 1) % glyphs.length;
+          div.textContent = glyphs[g] + " Pascalling" + dots[i];
+        }, 350);
+        setTimeout(() => {
+          clearInterval(interval);
+          div.style.color = "#ff6b6b";
+          if (!claudeLoggedIn) {
+            div.textContent = "Please run ";
+            const link = document.createElement("span");
+            link.className = "claude-fake-link claude-login-link";
+            link.style.cursor = "pointer";
+            link.style.textDecoration = "underline";
+            link.style.textUnderlineOffset = "2px";
+            link.style.padding = "0 2px";
+            link.textContent = "/login";
+            link.addEventListener("click", (e) => {
+              e.stopPropagation();
+              if (!claudeMode) setClaudeMode(true);
+              simulateClaudeEntry("/login");
+            });
+            div.appendChild(link);
+            div.appendChild(document.createTextNode(
+              ' · API Error: 401 {"type":"error","error":' +
+              '{"type":"authentication_error","message":"OAuth token has expired"}}'
+            ));
+          } else {
+            div.textContent =
+              'API Error: 429 {"type":"error","error":' +
+              '{"type":"rate_limit_error","message":"Usage limit reached on ' +
+              'Claude Ultra Max 1000x. Resets in 4h 59m."}}';
+            const ask = document.createElement("div");
+            ask.className = "term-out-line";
+            ask.style.color = "#a0a0a0";
+            ask.innerHTML =
+              "Subscribe to a higher tier? Run " +
+              commandButtonHTML("/upgrade", "/upgrade", "claude-fake-link");
+            outputEl.appendChild(ask);
+          }
+          termEl.scrollTop = termEl.scrollHeight;
+        }, 2400);
+      }
+
+      function runCodexLine(line) {
+        if (line.startsWith("/")) {
+          const cmd = line.slice(1).split(/\s+/)[0];
+          if (cmd === "exit" || cmd === "quit") {
+            setCodexMode(false);
+            return;
+          }
+          if (cmd === "clear") { outputEl.innerHTML = ""; return; }
+          if (cmd === "help") {
+            appendOutput([
+              "Slash commands:",
+              "  /clear    clear the screen",
+              "  /model    pick the model",
+              "  /exit     leave the Codex session",
+            ].join("\n"));
+            return;
+          }
+          if (cmd === "model") {
+            // Only one picker can be open at a time.
+            if (modelPickerEl) closeModelPicker(false);
+            const wrap = document.createElement("div");
+            wrap.className = "term-out-line";
+            const picker = document.createElement("div");
+            picker.className = "codex-model-picker";
+            picker.setAttribute("data-active", "true");
+            const title = document.createElement("div");
+            title.className = "codex-model-picker-title";
+            title.textContent = "Select model  (Enter to confirm · Esc or q to cancel)";
+            const opt = document.createElement("button");
+            opt.type = "button";
+            opt.className = "codex-model-option";
+            opt.setAttribute("aria-pressed", "true");
+            opt.innerHTML =
+              '<span class="codex-model-option-marker">▸</span>' +
+              '<span>gpt-6.6 max-tokens</span>' +
+              '<span class="codex-model-option-badge">current</span>';
+            opt.addEventListener("click", () => { closeModelPicker(true); });
+            picker.appendChild(title);
+            picker.appendChild(opt);
+            wrap.appendChild(picker);
+            outputEl.appendChild(wrap);
+            modelPickerEl = picker;
+            const t = document.getElementById("term");
+            if (t) t.classList.add("model-picker-active");
+            termEl.scrollTop = termEl.scrollHeight;
+            return;
+          }
+          appendOutput("Unknown slash command: /" + cmd, "term-err");
+          return;
+        }
+        // Non-slash input: spin briefly, then echo the user's line back with
+        // a random goblin-flavored aside.
+        const div = document.createElement("div");
+        div.className = "term-out-line";
+        div.style.color = "#a0a0a0";
+        const spinnerFrames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
+        let si = 0;
+        div.textContent = spinnerFrames[0];
+        outputEl.appendChild(div);
+        termEl.scrollTop = termEl.scrollHeight;
+        const spin = setInterval(() => {
+          si = (si + 1) % spinnerFrames.length;
+          div.textContent = spinnerFrames[si];
+        }, 90);
+        const goblinReplies = [
+          "the goblin cave council gnaws on it now, three pebbles cast, raven nods, anyway 🧌",
+          "mrrgh, that one tastes of moss and forgotten copper coins, the goblin elders would approve 🧌",
+          "into the goblin hoard it goes, next to the cracked monocle and the spoon of regret, skrrk 🧌",
+          "wrrgh, smells like dragon-aunt's pantry on a Tuesday — lore-juicy, slightly cursed, deeply goblin 🧌",
+          "noted, scribbled on bark with charcoal, filed in the goblin archive under 'things the swamp told me' 🧌",
+        ];
+        setTimeout(() => {
+          clearInterval(spin);
+          div.style.color = "";
+          const pick = goblinReplies[Math.floor(Math.random() * goblinReplies.length)];
+          div.textContent = "Oh, you said " + line + ". " + pick;
+          termEl.scrollTop = termEl.scrollHeight;
+        }, 1000);
+      }
+
+      // Types text into the live input one character at a time, then
+      // commits as if the user pressed Enter. Used by clickable /login.
+      let typingSim = false;
+      function simulateClaudeEntry(text) {
+        if (typingSim) return;
+        typingSim = true;
+        setInput("");
+        focusTerm();
+        let idx = 0;
+        const tick = () => {
+          idx++;
+          setInput(text.slice(0, idx));
+          termEl.scrollTop = termEl.scrollHeight;
+          if (idx < text.length) {
+            setTimeout(tick, 70);
+          } else {
+            setTimeout(() => {
+              typingSim = false;
+              commitLine(text);
+            }, 220);
+          }
+        };
+        tick();
+      }
+
+      function runLine(raw) {
+        const trimmed = raw.trim();
+        if (!trimmed) return;
+        history.push(trimmed);
+        historyIdx = history.length;
+        if (claudeMode) {
+          runClaudeLine(trimmed);
+          return;
+        }
+        if (codexMode) {
+          runCodexLine(trimmed);
+          return;
+        }
+        const first = trimmed.split(" ")[0];
+        const expanded = activeAliases[first]
+          ? activeAliases[first] + trimmed.slice(first.length)
+          : trimmed;
+        const tokens = tokenize(expanded);
+        const cmd = tokens[0];
+        const args = tokens.slice(1);
+        const op = activeNames[cmd];
+        const fn = op ? OPS[op] : null;
+        if (!fn) {
+          // Windows convention: typing `foo.exe` (or `foo`, with .exe inferred)
+          // in a directory that contains it runs the file.
+          if (flavor === "windows") {
+            const dir = resolve(cwd);
+            if (dir && dir.type === "dir") {
+              const candidates = [cmd.toLowerCase(), cmd.toLowerCase() + ".exe"];
+              for (const want of candidates) {
+                const match = Object.keys(dir.children).find((n) => {
+                  const c = dir.children[n];
+                  return n.toLowerCase() === want
+                    && c.type === "file"
+                    && (!c.flavor || c.flavor === flavor)
+                    && typeof c.exec === "function";
+                });
+                if (match) {
+                  const result = dir.children[match].exec(args);
+                  if (typeof result === "string" && result !== "") appendOutput(result);
+                  return;
+                }
+              }
+            }
+          }
+          const tpl = flavorCfg().notFoundTemplate || "{cmd}: command not found. Type `help`.";
+          appendOutput(tpl.replace("{cmd}", cmd), "term-err");
+          return;
+        }
+        const result = fn(args);
+        if (result == null) return;
+        if (typeof result === "string") {
+          if (result !== "") appendOutput(result);
+        } else if (result.err) appendOutput(result.err, "term-err");
+        else if (result.html != null) appendHTML(result.html);
+      }
+      function commitLine(raw) {
+        const echoLine = document.createElement("div");
+        echoLine.className = "term-out-line";
+        const promptSpan = document.createElement("span");
+        promptSpan.className = "term-prompt";
+        promptSpan.style.color = "rgb(var(--c-accent))";
+        promptSpan.textContent = promptEl.textContent;
+        const cmdSpan = document.createElement("span");
+        cmdSpan.textContent = raw;
+        echoLine.appendChild(promptSpan);
+        echoLine.appendChild(cmdSpan);
+        outputEl.appendChild(echoLine);
+        runLine(raw);
+        setInput("");
+        termEl.scrollTop = termEl.scrollHeight;
+      }
+      outputEl.addEventListener("click", (e) => {
+        const btn = e.target.closest(".term-run-link[data-run-command]");
+        if (!btn || !outputEl.contains(btn)) return;
+        e.preventDefault();
+        e.stopPropagation();
+        const sel = window.getSelection();
+        if (sel) sel.removeAllRanges();
+        commitLine(btn.dataset.runCommand);
+        if (isMobileMode()) blurTerm();
+        else focusTerm();
+      });
+      function focusTerm() {
+        // Focus the hidden input — that's what raises the on-screen keyboard
+        // on mobile and is the actual target of typed text. The terminal div
+        // remains tabbable for desktop accessibility, with a focus-redirect
+        // listener below.
+        mobileInputEl.focus({ preventScroll: true });
+      }
+      function blurTerm() {
+        if (document.activeElement && typeof document.activeElement.blur === "function") {
+          document.activeElement.blur();
+        }
+        mobileInputEl.blur();
+        termEl.blur();
+      }
+      // Skip the focus redirect on mouse-initiated focus — otherwise the
+      // synchronous re-focus during mousedown cancels the in-progress drag-
+      // selection. The click handler below covers the mouse-click path.
+      let mouseFocusing = false;
+      termEl.addEventListener("mousedown", () => { mouseFocusing = true; });
+      window.addEventListener("mouseup", () => { mouseFocusing = false; });
+      termEl.addEventListener("focus", () => {
+        if (mouseFocusing) return;
+        mobileInputEl.focus({ preventScroll: true });
+      });
+
+      termEl.addEventListener("click", () => {
+        const sel = window.getSelection();
+        if (sel && sel.toString().length > 0) return;
+        focusTerm();
+      });
+
+      // Keys the terminal claims while focused. Captured at the window level so
+      // page-level plugins (e.g., extensions that hijack Backspace) can't eat them.
+      const OWNED_KEYS = new Set([
+        "Backspace", "Enter", "Tab",
+        "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight",
+        "Home", "End",
+      ]);
+      function isTermFocused() {
+        return document.activeElement === termEl
+          || document.activeElement === mobileInputEl
+          || termEl.contains(document.activeElement);
+      }
+      function isOurKey(e) {
+        if (e.ctrlKey || e.metaKey || e.altKey) return false;
+        if (OWNED_KEYS.has(e.key)) return true;
+        return e.key && e.key.length === 1; // printable
+      }
+      const termKeydown = (e) => {
+        if (!isTermFocused()) return;
+        // Beat any page-level / extension listener that wants to eat these keys
+        // (Backspace -> back nav, Tab -> focus jump, etc.). preventDefault alone
+        // is not enough if a plugin is also listening; we also stop other
+        // capture-phase listeners on this same dispatch.
+        if (isOurKey(e)) e.stopImmediatePropagation();
+
+        // Model picker captures keys while open: Enter confirms; Esc or q cancel.
+        if (isModelPickerOpen() && !e.ctrlKey && !e.metaKey && !e.altKey) {
+          if (e.key === "Enter") { e.preventDefault(); closeModelPicker(true); return; }
+          if (e.key === "Escape" || e.key === "q" || e.key === "Q") {
+            e.preventDefault();
+            closeModelPicker(false);
+            return;
+          }
+          // Disable arrow keys (no history nav / cursor movement) while picking.
+          if (
+            e.key === "ArrowUp" || e.key === "ArrowDown" ||
+            e.key === "ArrowLeft" || e.key === "ArrowRight"
+          ) { e.preventDefault(); return; }
+          // Swallow other printable keys while the picker has focus so they
+          // don't leak into the prompt input.
+          if (e.key && e.key.length === 1) { e.preventDefault(); return; }
+        }
+
+        if (e.ctrlKey || e.metaKey) {
+          if (e.key === "l") { e.preventDefault(); outputEl.innerHTML = ""; return; }
+          if (e.key === "c") {
+            const sel = window.getSelection();
+            if (sel && sel.toString().length > 0) return;
+            e.preventDefault();
+            if (claudeMode) {
+              setInput("");
+              setClaudeMode(false);
+              termEl.scrollTop = termEl.scrollHeight;
+              return;
+            }
+            if (codexMode) {
+              setInput("");
+              setCodexMode(false);
+              termEl.scrollTop = termEl.scrollHeight;
+              return;
+            }
+            const echoLine = document.createElement("div");
+            echoLine.className = "term-out-line";
+            const ps = document.createElement("span");
+            ps.className = "term-prompt";
+            ps.style.color = "rgb(var(--c-accent))";
+            ps.textContent = promptEl.textContent;
+            const cs = document.createElement("span");
+            cs.textContent = getInput() + "^C";
+            echoLine.appendChild(ps);
+            echoLine.appendChild(cs);
+            outputEl.appendChild(echoLine);
+            setInput("");
+            termEl.scrollTop = termEl.scrollHeight;
+            return;
+          }
+          if (e.key === "d" && claudeMode) {
+            e.preventDefault();
+            setInput("");
+            setClaudeMode(false);
+            termEl.scrollTop = termEl.scrollHeight;
+            return;
+          }
+          if (e.key === "d" && codexMode) {
+            e.preventDefault();
+            setInput("");
+            setCodexMode(false);
+            termEl.scrollTop = termEl.scrollHeight;
+            return;
+          }
+          return;
+        }
+        if (e.key === "Enter") { e.preventDefault(); commitLine(getInput()); return; }
+        // Backspace and printable keys are handled natively by the hidden
+        // <input>; its `input` listener mirrors the new value into the span.
+        if (e.key === "ArrowUp") {
+          e.preventDefault();
+          if (history.length === 0) return;
+          if (historyIdx === history.length) draft = getInput();
+          historyIdx = Math.max(0, historyIdx - 1);
+          setInput(history[historyIdx] || "");
+          return;
+        }
+        if (e.key === "ArrowDown") {
+          e.preventDefault();
+          if (history.length === 0) return;
+          historyIdx = Math.min(history.length, historyIdx + 1);
+          setInput(historyIdx === history.length ? draft : history[historyIdx]);
+          return;
+        }
+        if (e.key === "Tab") {
+          e.preventDefault();
+          if (claudeMode || codexMode) return;
+          const cur = getInput();
+          const parts = cur.split(" ");
+          const last = parts[parts.length - 1];
+          if (parts.length === 1) {
+            const cmdMatches = Object.keys(activeNames).filter((c) => c.startsWith(last));
+            // On Windows, typing a filename runs it (PATHEXT) — include cwd files as completion candidates too.
+            let fileMatches = [];
+            if (flavor === "windows") {
+              const dir = resolve(cwd);
+              if (dir && dir.type === "dir") {
+                fileMatches = Object.keys(dir.children).filter((n) => n.startsWith(last));
+              }
+            }
+            const matches = [...new Set([...cmdMatches, ...fileMatches])];
+            if (matches.length === 1) {
+              const only = matches[0];
+              const isFile = fileMatches.includes(only) && !cmdMatches.includes(only);
+              setInput(only + (isFile ? "" : " "));
+            } else if (matches.length > 1) appendOutput(matches.join("  "));
+          } else {
+            const dir = resolve(cwd);
+            if (dir && dir.type === "dir") {
+              const matches = Object.keys(dir.children).filter((n) => n.startsWith(last));
+              if (matches.length === 1) {
+                parts[parts.length - 1] = matches[0];
+                setInput(parts.join(" "));
+              } else if (matches.length > 1) appendOutput(matches.join("  "));
+            }
+          }
+          return;
+        }
+      };
+      // Capture phase on window so we run before bubble-phase listeners
+      // and most document-level capture listeners. Also block keypress so
+      // older plugins relying on it can't fire.
+      window.addEventListener("keydown", termKeydown, true);
+      // Shield typing from extensions that listen on keypress, but do NOT
+      // preventDefault — that would block the hidden <input> from receiving
+      // the character (and break typing entirely).
+      window.addEventListener("keypress", (e) => {
+        if (isTermFocused() && isOurKey(e)) e.stopImmediatePropagation();
+      }, true);
+      // Some plugins listen on `keyup` for Backspace; swallow it too while focused.
+      window.addEventListener("keyup", (e) => {
+        if (isTermFocused() && isOurKey(e)) e.stopImmediatePropagation();
+      }, true);
+
+      // Command flavor follows the shell skin: Windows skin → windows commands, everything else → unix.
+      applyFlavor(wrap && wrap.dataset.os === "windows" ? "windows" : "unix");
+      appendWelcome();
+      appendOutput("");
+      focusTerm();
+
+      // Fetch the post-build receipt; populate ~/receipt.txt's content once
+      // it arrives. Silent failure in dev (where /receipt.txt may 404).
+      fetch("/receipt.txt", { cache: "no-store" })
+        .then((r) => (r.ok ? r.text() : null))
+        .then((t) => { if (t) RECEIPT_HOLDER.text = t; })
+        .catch(() => {});
+    })();
+  </script>

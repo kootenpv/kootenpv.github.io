@@ -1,0 +1,58 @@
+---
+import type { GetStaticPathsOptions, Page } from "astro";
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { SITE } from "~/config";
+import { getPublishedPosts, postUrl, type Post } from "~/lib/posts";
+
+export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
+  const posts = await getPublishedPosts();
+  return paginate(posts, { pageSize: SITE.postsPerPage });
+}
+
+interface Props {
+  page: Page<Post>;
+}
+
+const { page } = Astro.props;
+
+const dateFmt = (d: Date) =>
+  d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    timeZone: SITE.timezone,
+  });
+---
+
+<BaseLayout title="Blog" description={`Posts by ${SITE.author}`}>
+  <h1 class="text-3xl font-bold mb-6">Blog</h1>
+  <ul class="space-y-6">
+    {
+      page.data.map((p) => (
+        <li>
+          <a href={postUrl(p)} class="block group no-underline">
+            <h2 class="text-xl font-semibold group-hover:underline text-fg">
+              {p.data.title}
+            </h2>
+            {p.data.subtitle && (
+              <p class="text-muted mt-1">{p.data.subtitle}</p>
+            )}
+            <p class="text-xs text-muted mt-1">{dateFmt(p.data.date)}</p>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <nav class="mt-10 flex items-center justify-between text-sm">
+    <span>
+      {page.url.prev && <a href={page.url.prev}>← Newer</a>}
+    </span>
+    <span class="text-muted">
+      Page {page.currentPage} of {page.lastPage}
+    </span>
+    <span>
+      {page.url.next && <a href={page.url.next}>Older →</a>}
+    </span>
+  </nav>
+</BaseLayout>

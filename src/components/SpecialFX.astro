@@ -1,0 +1,433 @@
+---
+interface Props {
+  contained?: boolean;
+}
+const { contained = false } = Astro.props;
+---
+
+<aside
+  class:list={["special-fx-panel", contained && "special-fx-panel-contained"]}
+  aria-label="Special effects controls"
+>
+  <button type="button" class="special-fx-title" aria-expanded="false">Special FX</button>
+  <button type="button" class="fx-all-toggle-btn" id="fx-all-toggle">toggle on/off</button>
+  <button type="button" class="fx-drunk-btn" data-fx-toggle="fx-drunk" data-fx-not-all>🍻 i'm drunk</button>
+
+  <div class="special-fx-sep" role="separator" aria-label="Moving"><span>moving</span></div>
+  <button type="button" data-fx-toggle="fx-live-ticker" data-fx-default-on>ticker</button>
+  <button type="button" data-fx-toggle="fx-live-htop" data-fx-default-on>htop</button>
+  <button type="button" data-fx-toggle="fx-scanline" data-fx-default-on>scanline</button>
+
+  <div class="special-fx-sep" role="separator" aria-label="Collage pieces"><span>collage pieces</span></div>
+  <button type="button" data-fx-toggle="fx-piece-translate" data-fx-default-on>translate3d pieces</button>
+  <button type="button" data-fx-toggle="fx-piece-transform" data-fx-default-on>piece transforms</button>
+
+  <div class="special-fx-sep" role="separator" aria-label="Visuals"><span>visuals</span></div>
+  <button type="button" data-fx-toggle="fx-text-glow" data-fx-default-on>text glow</button>
+  <button type="button" data-fx-toggle="fx-tron-grid" data-fx-default-on>tron grid</button>
+  <button type="button" data-fx-toggle="fx-backdrop" data-fx-default-on>backdrop shapes</button>
+  <button type="button" data-fx-toggle="fx-chat-effects" data-fx-default-on>chat effects</button>
+
+  <div class="special-fx-sep" role="separator" aria-label="Global"><span>global</span></div>
+  <button type="button" data-fx-toggle="fx-animations" data-fx-default-on>animations</button>
+  <button type="button" data-fx-toggle="fx-transitions" data-fx-default-on>transitions</button>
+  <button type="button" data-fx-toggle="fx-component-shadows" data-fx-default-on>component shadows</button>
+  <button type="button" data-fx-toggle="fx-blur" data-fx-default-on>backdrop blur</button>
+
+  <div class="special-fx-sep" role="separator" aria-label="Backgrounds"><span>backgrounds</span></div>
+  <button type="button" data-fx-toggle="fx-body-bg" data-fx-default-on>body bg</button>
+  <button type="button" data-fx-toggle="fx-stage-bg" data-fx-default-on>stage bg</button>
+</aside>
+
+<script is:inline>
+  (() => {
+    if (window.__specialFxInit) return;
+    window.__specialFxInit = true;
+
+    const fxKey = "special-fx-toggles";
+    const legacyFxKey = "collage-fx-toggles";
+    const panels = Array.from(document.querySelectorAll(".special-fx-panel"));
+    const toggles = Array.from(document.querySelectorAll("[data-fx-toggle]"));
+    const allToggleButtons = Array.from(document.querySelectorAll(".fx-all-toggle-btn"));
+    const allClasses = toggles
+      .filter((b) => !b.hasAttribute("data-fx-not-all"))
+      .map((b) => b.dataset.fxToggle)
+      .filter(Boolean);
+    let htopTimer = 0;
+
+    const readJsonSet = (key, fallbackKey) => {
+      try {
+        const raw = localStorage.getItem(key) || localStorage.getItem(fallbackKey) || "[]";
+        return new Set(JSON.parse(raw));
+      } catch {
+        return new Set();
+      }
+    };
+
+    const enabled = readJsonSet(fxKey, legacyFxKey);
+
+    const startHtopMovement = () => {
+      if (htopTimer) return;
+      const BAR_W = 28;
+      const bar = (pct) => "|".repeat(Math.round((pct / 100) * BAR_W)) + " ".repeat(BAR_W - Math.round((pct / 100) * BAR_W));
+      const padPct = (n) => n.toFixed(1).padStart(4, " ") + "%";
+      const cpuBar = document.getElementById("htop-cpu-bar");
+      const cpuPct = document.getElementById("htop-cpu-pct");
+      const memBar = document.getElementById("htop-mem-bar");
+      const memPct = document.getElementById("htop-mem-pct");
+      const uptime = document.getElementById("htop-uptime");
+      const rowCpus = Array.from(document.querySelectorAll(".row-cpu"));
+
+      const tick = () => {
+        const v = 18 + Math.random() * 42;
+        if (cpuBar) cpuBar.textContent = bar(v);
+        if (cpuPct) cpuPct.textContent = padPct(v);
+        let total = 0;
+        rowCpus.forEach((c) => { total += Number(c.dataset.weight) || 0; });
+        if (total > 0) {
+          rowCpus.forEach((c) => {
+            const w = (Number(c.dataset.weight) || 0) / total;
+            c.textContent = (w * v).toFixed(1).padStart(4, " ");
+          });
+        }
+        const mem = 10 + Math.random() * 30;
+        if (memBar) memBar.textContent = bar(mem);
+        if (memPct) memPct.textContent = padPct(mem);
+        if (uptime) {
+          const now = new Date();
+          const pad = (n) => String(n).padStart(2, "0");
+          let years = now.getUTCFullYear() - 1989;
+          const anniv = Date.UTC(now.getUTCFullYear(), 6, 16);
+          if (now.getTime() < anniv) years--;
+          const last = Date.UTC(1989 + years, 6, 16);
+          const t = Math.floor((now.getTime() - last) / 1000);
+          const days = Math.floor(t / 86400);
+          const hh = Math.floor(t / 3600) % 24;
+          const mm = Math.floor(t / 60) % 60;
+          const ss = t % 60;
+          uptime.textContent = `${years} years, ${days} days, ${pad(hh)}:${pad(mm)}:${pad(ss)}`;
+        }
+      };
+      tick();
+      htopTimer = window.setInterval(tick, 1000);
+    };
+
+    const stopHtopMovement = () => {
+      if (!htopTimer) return;
+      window.clearInterval(htopTimer);
+      htopTimer = 0;
+    };
+
+    const offToken = (cls) => cls + ":off";
+    const isDefaultOn = (button) => button.hasAttribute("data-fx-default-on");
+    const isOn = (button) => {
+      const cls = button.dataset.fxToggle;
+      if (!cls) return false;
+      return isDefaultOn(button)
+        ? !enabled.has(offToken(cls))
+        : enabled.has(cls);
+    };
+    const isClassOn = (cls) => {
+      const b = toggles.find((t) => t.dataset.fxToggle === cls);
+      return b ? isOn(b) : enabled.has(cls);
+    };
+
+    const syncFx = () => {
+      toggles.forEach((button) => {
+        const cls = button.dataset.fxToggle;
+        const on = isOn(button);
+        if (cls) document.body.classList.toggle(cls, on);
+        button.classList.toggle("is-on", on);
+        button.setAttribute("aria-pressed", String(on));
+      });
+
+      document.querySelectorAll(".ticker").forEach((ticker) => {
+        if (isClassOn("fx-live-ticker")) ticker.removeAttribute("data-paused");
+        else ticker.setAttribute("data-paused", "true");
+      });
+
+      document.querySelectorAll(".tron-scanline").forEach((scanline) => {
+        scanline.classList.toggle("special-fx-hidden", !isClassOn("fx-scanline"));
+      });
+
+      if (isClassOn("fx-live-htop")) startHtopMovement();
+      else stopHtopMovement();
+
+      try {
+        localStorage.setItem(fxKey, JSON.stringify(Array.from(enabled)));
+      } catch {}
+    };
+
+    allToggleButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const anyOn = toggles
+          .filter((t) => !t.hasAttribute("data-fx-not-all"))
+          .some((t) => isOn(t));
+        toggles.forEach((t) => {
+          if (t.hasAttribute("data-fx-not-all")) return;
+          const cls = t.dataset.fxToggle;
+          if (!cls) return;
+          if (isDefaultOn(t)) {
+            // turning all OFF means setting :off token; turning all ON means removing it
+            if (anyOn) enabled.add(offToken(cls));
+            else enabled.delete(offToken(cls));
+          } else {
+            if (anyOn) enabled.delete(cls);
+            else enabled.add(cls);
+          }
+        });
+        syncFx();
+      });
+    });
+
+    toggles.forEach((button) => {
+      button.addEventListener("click", () => {
+        const cls = button.dataset.fxToggle;
+        if (!cls) return;
+        if (isDefaultOn(button)) {
+          const off = offToken(cls);
+          if (enabled.has(off)) enabled.delete(off);
+          else enabled.add(off);
+        } else {
+          if (enabled.has(cls)) enabled.delete(cls);
+          else enabled.add(cls);
+        }
+        syncFx();
+      });
+    });
+
+    document.querySelectorAll(".special-fx-title").forEach((title) => {
+      title.addEventListener("click", () => {
+        const panel = title.closest(".special-fx-panel");
+        if (!panel) return;
+        const open = panel.classList.toggle("is-open");
+        title.setAttribute("aria-expanded", String(open));
+      });
+    });
+
+    document.addEventListener("click", (event) => {
+      panels.forEach((panel) => {
+        if (!panel.classList.contains("is-open")) return;
+        if (panel.contains(event.target)) return;
+        panel.classList.remove("is-open");
+        const title = panel.querySelector(".special-fx-title");
+        if (title) title.setAttribute("aria-expanded", "false");
+      });
+    });
+
+    panels.forEach((panel) => {
+      panel.dataset.ready = "true";
+    });
+    syncFx();
+  })();
+</script>
+
+<style is:global>
+  .special-fx-panel {
+    position: fixed;
+    left: 12px;
+    top: 12px;
+    z-index: 10001;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    width: min(300px, calc(100vw - 24px));
+    max-height: calc(100vh - 24px);
+    overflow: auto;
+    padding: 8px;
+    border: 1px solid rgb(var(--c-accent) / 0.45);
+    border-radius: 8px;
+    background: rgb(0 0 0 / 0.86);
+    font: 700 10px/1 var(--font-mono, ui-monospace, monospace);
+    text-transform: uppercase;
+  }
+  /* Contained variant: stay inside the parent container instead of escaping
+     to the viewport. Used by the /mix collage page so the FX panel doesn't
+     leave its draggable frame. */
+  .special-fx-panel.special-fx-panel-contained {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    z-index: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: none !important;
+  }
+  /* In contained mode the panel lives inside a draggable piece, so always
+     show the full button grid — the piece-handle already labels the panel,
+     so the collapse-to-title behavior would just hide everything. */
+  .special-fx-panel.special-fx-panel-contained > * {
+    display: block !important;
+  }
+  .special-fx-panel.special-fx-panel-contained > .special-fx-sep {
+    display: flex !important;
+  }
+  .special-fx-panel.special-fx-panel-contained {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .special-fx-panel.special-fx-panel-contained > .special-fx-title {
+    display: none !important;
+  }
+
+  .special-fx-panel > :not(.special-fx-title) {
+    display: none;
+  }
+
+  .special-fx-panel:hover,
+  .special-fx-panel:focus-within,
+  .special-fx-panel.is-open {
+    width: min(300px, calc(100vw - 24px));
+  }
+
+  .special-fx-panel:not(:hover):not(:focus-within):not(.is-open) {
+    grid-template-columns: 1fr;
+    width: auto;
+  }
+
+  .special-fx-panel:hover > :not(.special-fx-title),
+  .special-fx-panel:focus-within > :not(.special-fx-title),
+  .special-fx-panel.is-open > :not(.special-fx-title) {
+    display: block;
+  }
+
+  .special-fx-panel:hover > .special-fx-sep,
+  .special-fx-panel:focus-within > .special-fx-sep,
+  .special-fx-panel.is-open > .special-fx-sep {
+    display: flex;
+  }
+
+  .special-fx-panel button.special-fx-title {
+    grid-column: 1 / -1;
+    min-height: 0;
+    padding: 0;
+    color: rgb(var(--c-muted));
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
+    text-transform: inherit;
+  }
+
+  .special-fx-panel button {
+    min-height: 28px;
+    padding: 0 6px;
+    color: rgb(var(--c-fg));
+    border: 1px solid rgb(var(--c-border));
+    border-radius: 5px;
+    background: rgb(255 255 255 / 0.05);
+  }
+
+  .special-fx-panel button.is-on {
+    color: rgb(0 0 0);
+    background: rgb(var(--c-accent));
+  }
+
+  .special-fx-panel .special-fx-sep {
+    grid-column: 1 / -1;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+    color: rgb(var(--c-muted));
+    font-size: 9px;
+    letter-spacing: 0.08em;
+  }
+  .special-fx-panel .special-fx-sep::before,
+  .special-fx-panel .special-fx-sep::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: rgb(var(--c-border) / 0.6);
+  }
+
+  .special-fx-panel button.fx-drunk-btn {
+    grid-column: 1 / -1;
+    border-style: dashed;
+    border-color: rgb(var(--c-accent) / 0.7);
+    color: rgb(var(--c-fg));
+  }
+  .special-fx-panel button.fx-drunk-btn.is-on {
+    border-style: solid;
+    color: rgb(0 0 0);
+    background: rgb(var(--c-accent) / 0.85);
+  }
+
+  .special-fx-hidden {
+    display: none !important;
+  }
+
+  body:not(.fx-animations) *,
+  body:not(.fx-animations) *::before,
+  body:not(.fx-animations) *::after {
+    animation: none !important;
+  }
+
+  body:not(.fx-transitions) *,
+  body:not(.fx-transitions) *::before,
+  body:not(.fx-transitions) *::after {
+    transition: none !important;
+  }
+
+  body:not(.fx-blur) *,
+  body:not(.fx-blur) *::before,
+  body:not(.fx-blur) *::after {
+    backdrop-filter: none !important;
+  }
+
+  body:not(.fx-body-bg) {
+    background-image: none !important;
+  }
+
+  body:not(.fx-text-glow) :is(h1, h2, h3, a, .chat-launcher-text, .chat-launcher-caret) {
+    text-shadow: none !important;
+  }
+
+  body :is(.nav-link.cli-attention, .nav-link.cli-attention::before, .nav-link.cli-attention::after) {
+    animation: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* "I'm drunk" — soft blur + slow wobble on everything except the FX panel
+     itself, so you can still find the button to sober back up. */
+  body.fx-drunk > :not(.special-fx-panel):not(script):not(style) {
+    filter: blur(0.6px) saturate(1.06);
+    animation: fx-drunk-wobble 6s ease-in-out infinite alternate;
+    transform-origin: center center;
+  }
+  @keyframes fx-drunk-wobble {
+    0%   { transform: translate(0, 0) rotate(0deg); }
+    25%  { transform: translate(-3px, 2px) rotate(-0.4deg); }
+    50%  { transform: translate(2px, -2px) rotate(0.3deg); }
+    75%  { transform: translate(-2px, 3px) rotate(-0.2deg); }
+    100% { transform: translate(3px, -1px) rotate(0.4deg); }
+  }
+
+  @media (max-width: 760px) {
+    .special-fx-panel {
+      top: 64px; /* sit just below the sticky navbar/avatar */
+      left: 12px;
+      grid-template-columns: 1fr;
+      width: min(210px, calc(100vw - 24px));
+    }
+  }
+
+  /* Desktop: float just below the sticky navbar. */
+  @media (min-width: 761px) {
+    .special-fx-panel {
+      top: 64px;
+    }
+  }
+
+  /* On wide screens, dock the panel just left of the centered max-w-3xl main
+     content rather than at the viewport edge. */
+  @media (min-width: 1200px) {
+    .special-fx-panel {
+      left: auto;
+      right: calc(50% + 24rem + 16px);
+    }
+  }
+</style>

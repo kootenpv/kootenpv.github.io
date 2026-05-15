@@ -1,25 +1,43 @@
 {
-  "name": "kootenpv.github.io",
+  "name": "kootenpv-github-io",
+  "type": "module",
   "version": "1.0.0",
-  "description": "Pascal van Kooten's github.io website.",
-  "main": "index.js",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "node scripts/refresh-chat-stats.mjs && astro dev",
+    "start": "node scripts/refresh-chat-stats.mjs && astro dev",
+    "chat-stats": "node scripts/refresh-chat-stats.mjs",
+    "build": "node scripts/refresh-chat-stats.mjs && astro build && node scripts/build-receipt.mjs dist",
+    "preview": "astro preview",
+    "astro": "astro"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/kootenpv/kootenpv.github.io.git"
+  "dependencies": {
+    "@astrojs/mdx": "^4.0.0",
+    "@astrojs/rss": "^4.0.7",
+    "@astrojs/sitemap": "^3.2.1",
+    "@astrojs/tailwind": "^5.1.2",
+    "astro": "^5.0.0",
+    "rehype-autolink-headings": "^7.1.0",
+    "rehype-slug": "^6.0.0",
+    "remark-gfm": "^4.0.0",
+    "satori": "^0.11.2",
+    "satori-html": "^0.3.2",
+    "sharp": "^0.33.5",
+    "tailwindcss": "^3.4.14"
   },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/kootenpv/kootenpv.github.io/issues"
-  },
-  "homepage": "https://github.com/kootenpv/kootenpv.github.io",
   "devDependencies": {
-    "browser-sync": "^2.11.0",
-    "gulp": "^3.9.0",
-    "gulp-shell": "^0.5.1",
-    "lodash": "^3.10.1"
+    "@tailwindcss/typography": "^0.5.19",
+    "@types/node": "^22.9.0",
+    "typescript": "^5.6.3"
+  },
+  "packageManager": "pnpm@10.0.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp"
+    ]
   }
 }

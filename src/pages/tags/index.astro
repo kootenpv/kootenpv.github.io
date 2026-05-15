@@ -1,0 +1,25 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { getAllTags } from "~/lib/posts";
+
+const tags = [...(await getAllTags()).entries()].sort((a, b) => b[1] - a[1]);
+---
+
+<BaseLayout title="Tags" description="Browse posts by tag">
+  <h1 class="text-3xl font-bold mb-4">Tags</h1>
+  {tags.length === 0 && <p class="text-muted">No tags yet.</p>}
+  <ul class="flex flex-wrap gap-2">
+    {
+      tags.map(([t, n]) => (
+        <li>
+          <a
+            class="inline-flex items-center gap-1 px-2 py-1 rounded border border-border bg-card hover:border-accent text-fg no-underline"
+            href={`/tags/${t}`}
+          >
+            #{t} <span class="text-muted text-xs">({n})</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</BaseLayout>

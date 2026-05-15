@@ -1,0 +1,43 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { SITE } from "~/config";
+import { getPublishedPosts, postUrl, getAllTags } from "~/lib/posts";
+
+export async function getStaticPaths() {
+  const tags = [...(await getAllTags()).keys()];
+  return tags.map((tag) => ({ params: { tag } }));
+}
+
+const { tag } = Astro.params;
+const posts = (await getPublishedPosts()).filter((p) => p.data.tags.includes(tag!));
+
+const dateFmt = (d: Date) =>
+  d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    timeZone: SITE.timezone,
+  });
+---
+
+<BaseLayout title={`#${tag}`} description={`Posts tagged with ${tag}`}>
+  <h1 class="text-3xl font-bold mb-1">#{tag}</h1>
+  <p class="text-muted mb-6">{posts.length} {posts.length === 1 ? "post" : "posts"}</p>
+  <ul class="space-y-4">
+    {
+      posts.map((p) => (
+        <li>
+          <a href={postUrl(p)} class="block group no-underline">
+            <h2 class="text-lg font-medium group-hover:underline text-fg">
+              {p.data.title}
+            </h2>
+            <p class="text-xs text-muted mt-1">{dateFmt(p.data.date)}</p>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+  <p class="mt-8 text-sm">
+    <a href="/tags" class="text-accent">← All tags</a>
+  </p>
+</BaseLayout>

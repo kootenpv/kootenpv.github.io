@@ -1,0 +1,53 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import Introduction from "~/components/Introduction.astro";
+import Htop from "~/components/htop.astro";
+---
+
+<BaseLayout title="About Me" description="About Pascal van Kooten">
+  <article class="prose max-w-none">
+    <h1>About me</h1>
+
+    <p>My name is <strong>Pascal van Kooten</strong>.</p>
+
+    <aside class="dyk not-prose" role="note">
+      <span class="dyk-label">Did you know?</span>
+      <span class="dyk-body">Some games only play on <u>Windows</u> — but development is better on <u>Linux</u>. They each have their own /challenge</span>
+    </aside>
+
+    <h3>Introduction</h3>
+    <Introduction />
+
+    <h3>Popular posts</h3>
+    <Htop />
+
+    <h3>Portfolio</h3>
+    <p>You can check out the <a href="/projects">projects I have worked on</a>.</p>
+  </article>
+</BaseLayout>
+
+<style>
+  .dyk {
+    margin: 1.25rem 0;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 122, 24, 0.08);
+    border-left: 3px solid #ff7a18;
+    border-radius: 4px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.55rem;
+    color: #d6d2c8;
+    box-shadow: 0 0 0 1px rgba(255, 122, 24, 0.12);
+  }
+  .dyk-label {
+    color: #ff7a18;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    font-size: 0.78rem;
+    flex: 0 0 auto;
+  }
+  .dyk-body { flex: 1 1 auto; }
+  .dyk u { text-decoration-color: rgba(255, 122, 24, 0.6); text-underline-offset: 2px; }
+</style>

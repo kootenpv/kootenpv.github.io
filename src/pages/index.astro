@@ -1,0 +1,385 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { SITE } from "~/config";
+import { getPublishedPosts, postUrl } from "~/lib/posts";
+
+const posts = (await getPublishedPosts()).slice(0, 5);
+
+const dateFmt = (d: Date) =>
+  d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    timeZone: SITE.timezone,
+  });
+---
+
+<BaseLayout title={undefined} description={SITE.description}>
+  <section class="mb-10">
+    <h1 class="text-4xl font-bold">{SITE.title}</h1>
+    <p class="mt-2 text-lg text-muted">{SITE.tagline}</p>
+  </section>
+
+  <section>
+    <h2 class="text-2xl font-semibold mb-4">Recent posts</h2>
+    <ul class="space-y-4">
+      {
+        posts.map((p) => (
+          <li>
+            <a href={postUrl(p)} class="block group no-underline">
+              <h3 class="text-xl font-medium group-hover:underline text-fg">
+                {p.data.title}
+              </h3>
+              {p.data.subtitle && (
+                <p class="text-muted text-sm mt-0.5">{p.data.subtitle}</p>
+              )}
+              <p class="text-xs text-muted mt-1">{dateFmt(p.data.date)}</p>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <p class="mt-6">
+      <a href="/blog" class="text-accent">All posts →</a>
+    </p>
+  </section>
+
+  <div
+    id="cli-demo-cursor"
+    aria-hidden="true"
+    role="presentation"
+  >
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="cli-cursor-grad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="rgb(255, 200, 160)" />
+          <stop offset="55%" stop-color="rgb(255, 90, 35)" />
+          <stop offset="100%" stop-color="rgb(180, 30, 0)" />
+        </linearGradient>
+      </defs>
+      {/* Outer arrow */}
+      <path
+        d="M5 3 L5 24 L11 18.5 L14.5 27 L18 25.5 L14.5 17 L23 17 Z"
+        fill="url(#cli-cursor-grad)"
+        stroke="#fff8e8"
+        stroke-width="1"
+        stroke-linejoin="round"
+      />
+      {/* Inner highlight line — circuit accent */}
+      <path
+        d="M7 6 L7 19 L11 15.5"
+        fill="none"
+        stroke="rgba(255, 230, 200, 0.9)"
+        stroke-width="0.8"
+        stroke-linecap="round"
+      />
+      {/* Tip glint */}
+      <circle cx="5" cy="3" r="1" fill="#fff" />
+    </svg>
+    <span class="cli-demo-ring cli-demo-ring-1"></span>
+    <span class="cli-demo-ring cli-demo-ring-2"></span>
+    <span class="cli-demo-ring cli-demo-ring-3"></span>
+  </div>
+
+  <style is:global>
+    #cli-demo-cursor {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 32px;
+      height: 32px;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0;
+      transform: translate(-200px, -200px);
+      transition: opacity 0.25s ease;
+      filter:
+        drop-shadow(0 0 4px rgb(var(--c-accent, 255 75 35) / 0.95))
+        drop-shadow(0 0 10px rgb(var(--tron-glow, 255 90 50) / 0.75))
+        drop-shadow(0 0 22px rgb(var(--tron-glow, 255 90 50) / 0.45));
+    }
+    #cli-demo-cursor.visible { opacity: 1; }
+    #cli-demo-cursor svg { display: block; }
+
+    .cli-demo-ring {
+      position: absolute;
+      top: 0; left: 0;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 1.5px solid rgb(var(--c-accent, 255 75 35));
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.3);
+      box-shadow:
+        0 0 10px rgb(var(--c-accent, 255 75 35) / 0.9),
+        0 0 22px rgb(var(--tron-glow, 255 90 50) / 0.7),
+        inset 0 0 8px rgb(var(--c-accent, 255 75 35) / 0.5);
+    }
+    #cli-demo-cursor.click .cli-demo-ring-1 { animation: cli-demo-ring 0.65s cubic-bezier(.25,.65,.35,1) forwards; }
+    #cli-demo-cursor.click .cli-demo-ring-2 { animation: cli-demo-ring 0.85s cubic-bezier(.25,.65,.35,1) forwards 0.1s; }
+    #cli-demo-cursor.click .cli-demo-ring-3 { animation: cli-demo-ring 1.05s cubic-bezier(.25,.65,.35,1) forwards 0.2s; }
+    @keyframes cli-demo-ring {
+      0%   { opacity: 0.95; transform: translate(-50%, -50%) scale(0.3); }
+      60%  { opacity: 0.6;  transform: translate(-50%, -50%) scale(2.4); }
+      100% { opacity: 0;    transform: translate(-50%, -50%) scale(3.4); }
+    }
+
+    /* Trail particles dropped along the path */
+    .cli-demo-trail {
+      position: fixed;
+      top: 0; left: 0;
+      width: 6px;
+      height: 6px;
+      margin: -3px 0 0 -3px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      background: radial-gradient(circle,
+        rgba(255, 230, 200, 0.95) 0%,
+        rgb(var(--c-accent, 255 75 35) / 0.85) 40%,
+        rgb(var(--tron-glow, 255 90 50) / 0) 75%);
+      box-shadow:
+        0 0 6px rgb(var(--c-accent, 255 75 35) / 0.85),
+        0 0 14px rgb(var(--tron-glow, 255 90 50) / 0.55);
+      animation: cli-demo-trail 0.85s ease-out forwards;
+    }
+    @keyframes cli-demo-trail {
+      0%   { opacity: 1;   transform: scale(1); }
+      100% { opacity: 0;   transform: scale(0.2); }
+    }
+
+    /* HUD targeting brackets that converge on the CLI link as cursor approaches */
+    .cli-demo-target-frame {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9997;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+    .cli-demo-target-frame.visible { opacity: 1; }
+    .cli-demo-target-frame::before,
+    .cli-demo-target-frame::after,
+    .cli-demo-target-frame > i,
+    .cli-demo-target-frame > i + i {
+      content: "";
+      position: absolute;
+      width: 10px; height: 10px;
+      border: 1.5px solid rgb(var(--c-accent, 255 75 35));
+      box-shadow: 0 0 8px rgb(var(--tron-glow, 255 90 50) / 0.7);
+    }
+    .cli-demo-target-frame::before { top: -3px; left: -3px; border-right: 0; border-bottom: 0; }
+    .cli-demo-target-frame::after  { top: -3px; right: -3px; border-left: 0; border-bottom: 0; }
+    .cli-demo-target-frame > i:nth-child(1) { bottom: -3px; left: -3px; border-right: 0; border-top: 0; }
+    .cli-demo-target-frame > i:nth-child(2) { bottom: -3px; right: -3px; border-left: 0; border-top: 0; }
+    .cli-demo-target-frame.lock {
+      animation: cli-demo-lock 0.45s ease-out;
+    }
+    @keyframes cli-demo-lock {
+      0%   { transform: scale(1.25); }
+      60%  { transform: scale(0.92); }
+      100% { transform: scale(1); }
+    }
+
+    /* CLI link flash + scan sweep on click */
+    a.cli-demo-target { position: relative; overflow: hidden; }
+    a.cli-demo-target.cli-demo-flash {
+      animation: cli-demo-flash 0.55s ease-out;
+    }
+    a.cli-demo-target.cli-demo-flash::after {
+      content: "";
+      position: absolute;
+      top: 0; left: -120%;
+      width: 60%; height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgb(var(--c-accent) / 0.55) 50%,
+        transparent 100%
+      );
+      animation: cli-demo-sweep 0.55s ease-out;
+    }
+    @keyframes cli-demo-flash {
+      0%   { background: rgb(var(--c-accent) / 0);
+             box-shadow: 0 0 0 rgb(var(--tron-glow) / 0); }
+      45%  { background: rgb(var(--c-accent) / 0.45);
+             box-shadow: 0 0 18px rgb(var(--tron-glow) / 0.85),
+                         inset 0 0 12px rgb(var(--tron-glow) / 0.4); }
+      100% { background: rgb(var(--c-accent) / 0);
+             box-shadow: 0 0 0 rgb(var(--tron-glow) / 0); }
+    }
+    @keyframes cli-demo-sweep {
+      0%   { left: -120%; }
+      100% { left: 220%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #cli-demo-cursor,
+      .cli-demo-trail,
+      .cli-demo-target-frame { display: none !important; }
+    }
+  </style>
+
+  <script is:inline>
+    (function () {
+      // Plays on every visit to /. Skip only for reduced-motion users.
+      if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+      const cursor = document.getElementById("cli-demo-cursor");
+      const target = document.querySelector('a[href="/challenge"]');
+      if (!cursor || !target) return;
+      target.classList.add("cli-demo-target");
+      // Persistently pulse the nav link from page load so the targeting
+      // animation is visible even if the cursor demo runs by too quickly.
+      target.classList.add("challenge-attention");
+
+      // HUD targeting frame around the CLI link (created once, reused)
+      const frame = document.createElement("div");
+      frame.className = "cli-demo-target-frame";
+      frame.appendChild(document.createElement("i"));
+      frame.appendChild(document.createElement("i"));
+      document.body.appendChild(frame);
+      function positionFrame() {
+        const r = target.getBoundingClientRect();
+        frame.style.top = r.top + "px";
+        frame.style.left = r.left + "px";
+        frame.style.width = r.width + "px";
+        frame.style.height = r.height + "px";
+      }
+
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+      const lerp = (a, b, t) => a + (b - a) * t;
+      const ease = (t) => 1 - Math.pow(1 - t, 3); // easeOutCubic
+
+      // ---- State ----
+      let currentX = window.innerWidth * 0.35;
+      let currentY = window.innerHeight * 0.65;
+      cursor.style.transform = "translate(" + currentX + "px," + currentY + "px)";
+
+      let activeRun = null;       // current animation controller (or null)
+      let idleTimer = null;       // restart-after-idle timer
+      const IDLE_MS = 3000;
+
+      // Track the user's mouse so the cursor "wakes up" near where they left it.
+      window.addEventListener("mousemove", (e) => {
+        currentX = e.clientX - 6;
+        currentY = e.clientY - 4;
+        if (cursor.classList.contains("visible")) {
+          cursor.style.transform = "translate(" + currentX + "px," + currentY + "px)";
+        }
+      });
+
+      function spawnTrail(x, y) {
+        const dot = document.createElement("div");
+        dot.className = "cli-demo-trail";
+        dot.style.transform = "translate(" + x + "px," + y + "px)";
+        document.body.appendChild(dot);
+        if (Math.random() < 0.25) dot.style.filter = "hue-rotate(-10deg) brightness(1.2)";
+        setTimeout(() => dot.remove(), 900);
+      }
+
+      function makeRun() {
+        let cancelled = false;
+        let lastTrail = 0;
+        function moveTo(x, y, duration) {
+          return new Promise((resolve) => {
+            const startX = currentX, startY = currentY;
+            const t0 = performance.now();
+            function step(now) {
+              if (cancelled) return resolve();
+              const t = Math.min(1, (now - t0) / duration);
+              const k = ease(t);
+              currentX = lerp(startX, x, k);
+              currentY = lerp(startY, y, k);
+              cursor.style.transform = "translate(" + currentX + "px," + currentY + "px)";
+              if (now - lastTrail >= 24) {
+                lastTrail = now;
+                spawnTrail(currentX + 5, currentY + 3);
+              }
+              if (t < 1) requestAnimationFrame(step);
+              else resolve();
+            }
+            requestAnimationFrame(step);
+          });
+        }
+        const promise = (async () => {
+          await sleep(450);
+          if (cancelled) return;
+          cursor.classList.add("visible");
+          await sleep(180);
+          if (cancelled) return;
+
+          positionFrame();
+          frame.classList.add("visible");
+
+          const r = target.getBoundingClientRect();
+          const tx = r.left + r.width / 2 - 6;
+          const ty = r.top + r.height / 2 - 4;
+          const midX = lerp(currentX, tx, 0.55) + (Math.random() * 60 - 30);
+          const midY = lerp(currentY, ty, 0.4) + 30;
+
+          await moveTo(midX, midY, 700);
+          if (cancelled) return;
+          await moveTo(tx, ty, 650);
+          if (cancelled) return;
+
+          frame.classList.add("lock");
+          cursor.classList.add("click");
+          target.classList.add("cli-demo-flash");
+          await sleep(320);
+          if (cancelled) return;
+          window.location.href = target.getAttribute("href");
+        })();
+        return {
+          promise,
+          cancel() {
+            cancelled = true;
+            cursor.classList.remove("visible", "click");
+            frame.classList.remove("visible", "lock");
+            target.classList.remove("cli-demo-flash");
+          },
+        };
+      }
+
+      function startRun() {
+        if (activeRun) return;
+        activeRun = makeRun();
+        activeRun.promise.finally(() => { activeRun = null; });
+      }
+
+      function cancelRun() {
+        if (activeRun) {
+          activeRun.cancel();
+          activeRun = null;
+        }
+      }
+
+      function scheduleIdleStart() {
+        clearTimeout(idleTimer);
+        idleTimer = setTimeout(startRun, IDLE_MS);
+      }
+
+      function onUserActivity() {
+        cancelRun();
+        scheduleIdleStart();
+      }
+
+      // Activity signals that count as "user is taking over, cancel the demo":
+      // - `wheel`: explicit scroll on desktop (does NOT fire on mobile touch
+      //   scroll, which is what we want).
+      // - `keydown`: explicit typing.
+      // We deliberately exclude `mousemove`, `touchstart`, and `click`:
+      //   * `mousemove` fires constantly and would cancel before the run is
+      //     visible.
+      //   * `touchstart` fires on every mobile scroll.
+      //   * `click` is fired by every casual tap on mobile (and synthesized
+      //     by some browsers shortly after page load), which was preventing
+      //     the cursor approach from ever rendering on phones.
+      ["wheel", "keydown"].forEach((ev) =>
+        window.addEventListener(ev, onUserActivity, { capture: true, passive: true })
+      );
+
+      // First run begins immediately on landing.
+      startRun();
+    })();
+  </script>
+</BaseLayout>

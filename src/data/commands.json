@@ -1,0 +1,51 @@
+{
+  "unix": {
+    "label": "Unix",
+    "user": "guest",
+    "host": "vks.ai",
+    "promptTemplate": "{user}@{host}:{cwd}$ ",
+    "welcome": "Welcome to vks.ai web terminal. Type `help` to get started.",
+    "notFoundTemplate": "{cmd}: command not found. Type `help`.",
+    "aliases": {
+      "ll": "ls -l",
+      "la": "ls -a",
+      "lh": "ls -lh",
+      "ltr": "ls -ltr",
+      "lhtr": "ls -lhtr",
+      "?": "help"
+    },
+    "commands": [
+      { "name": "ls",      "op": "list",    "help": "ls [-lahtr] [path]   list directory contents" },
+      { "name": "cd",      "op": "chdir",   "help": "cd [path]            change directory" },
+      { "name": "pwd",     "op": "pwd",     "help": "pwd                  print working directory" },
+      { "name": "cat",     "op": "cat",     "help": "cat <file>           print file contents" },
+      { "name": "echo",    "op": "echo",    "help": "echo <text>          print text" },
+      { "name": "whoami",  "op": "whoami",  "help": "whoami               print current user" },
+      { "name": "history", "op": "history", "help": "history              show command history" },
+      { "name": "clear",   "op": "clear",   "help": "clear                clear the screen" },
+      { "name": "claude",  "op": "claude",  "help": "claude               Claude Code - starts an interactive session by default" },
+      { "name": "codex",   "op": "codex",   "help": "codex                Codex CLI" },
+      { "name": "help",    "op": "help",    "help": "help                 show this message" }
+    ]
+  },
+  "windows": {
+    "label": "Windows",
+    "user": "guest",
+    "host": "vks.ai",
+    "promptTemplate": "{cwd}> ",
+    "welcome": "Microsoft Windows [Version 10.0.22631.0]\n(c) Microsoft Corporation. All rights reserved.\n\nType `help` to get started.",
+    "notFoundTemplate": "'{cmd}' is not recognized as an internal or external command.",
+    "aliases": {
+      "?": "help"
+    },
+    "commands": [
+      { "name": "dir",     "op": "list",    "help": "dir [path]           list directory contents" },
+      { "name": "cd",      "op": "chdir",   "help": "cd [path]            change directory" },
+      { "name": "type",    "op": "cat",     "help": "type <file>          print file contents" },
+      { "name": "echo",    "op": "echo",    "help": "echo <text>          print text" },
+      { "name": "whoami",  "op": "whoami",  "help": "whoami               print current user" },
+      { "name": "cls",     "op": "clear",   "help": "cls                  clear the screen" },
+      { "name": "help",    "op": "help",    "help": "help                 show this message" }
+    ]
+  }
+}

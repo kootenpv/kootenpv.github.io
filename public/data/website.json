@@ -1,0 +1,342 @@
+[
+  {
+    "id": "easter_eggs_overview",
+    "category": "easter",
+    "questions": [
+      "are there easter eggs",
+      "any easter eggs",
+      "hidden features",
+      "what's hidden on the site",
+      "secret features",
+      "what should i look for on the site",
+      "does the site have surprises"
+    ],
+    "answer": "Quite a few — but I won't spoil them. Try /cli, poke at the theme toggle, look closely at the footer, and stay on a page for a moment without moving."
+  },
+  {
+    "id": "cli_page",
+    "category": "easter",
+    "questions": [
+      "what is the cli page",
+      "what is /cli",
+      "is there a terminal",
+      "in-browser terminal",
+      "the cli on your site"
+    ],
+    "answer": "/cli is a real, fully-client-side terminal. The standard commands work — explore the way you'd explore any new shell."
+  },
+  {
+    "id": "cli_aliases",
+    "category": "easter",
+    "questions": [
+      "are there aliases in the cli",
+      "shell aliases",
+      "what aliases does the terminal have"
+    ],
+    "answer": "There are aliases — try `alias` once you're in /cli, or guess the obvious ones."
+  },
+  {
+    "id": "cli_files",
+    "category": "easter",
+    "questions": [
+      "what files are in the cli",
+      "what's in the home directory",
+      "what's in ~",
+      "files in the terminal"
+    ],
+    "answer": "ls in /cli will show you. And if ls feels like it's hiding something, there's a flag for that."
+  },
+  {
+    "id": "info_txt",
+    "category": "easter",
+    "questions": [
+      "what is info.txt",
+      "what does cat info.txt show",
+      "what's in info.txt"
+    ],
+    "answer": "Read it in /cli — it's worth seeing fresh. (Hint: nothing leaves your browser to produce it.)"
+  },
+  {
+    "id": "echo_vars",
+    "category": "easter",
+    "questions": [
+      "does echo expand variables",
+      "echo $user",
+      "shell variables in cli"
+    ],
+    "answer": "Try it. echo behaves about the way you'd hope."
+  },
+  {
+    "id": "shell_skins",
+    "category": "easter",
+    "questions": [
+      "what are shell skins",
+      "can i change the terminal style",
+      "skin the terminal",
+      "shell appearance",
+      "make it look like macos"
+    ],
+    "answer": "Yes — there's a chip row above the terminal in /cli. Try each one; some change more than just the chrome."
+  },
+  {
+    "id": "shell_skin_details",
+    "category": "easter",
+    "questions": [
+      "what skins are available",
+      "list of shell skins",
+      "what os styles"
+    ],
+    "answer": "Five flavors, each modeled on a real OS. Best discovered by clicking through them."
+  },
+  {
+    "id": "command_flavors",
+    "category": "easter",
+    "questions": [
+      "windows commands in the terminal",
+      "does it support cmd.exe",
+      "dir command",
+      "two command sets"
+    ],
+    "answer": "The command set tracks the shell skin. Pick a different OS and try the obvious built-ins for that platform."
+  },
+  {
+    "id": "ls_flags",
+    "category": "easter",
+    "questions": [
+      "what flags does ls support",
+      "ls options in cli",
+      "ls -l in the terminal"
+    ],
+    "answer": "More than you'd expect for a toy shell. The usual short flags — and they combine."
+  },
+  {
+    "id": "claude_repl",
+    "category": "easter",
+    "questions": [
+      "is there a claude command",
+      "the fake claude",
+      "claude repl",
+      "type claude in the terminal"
+    ],
+    "answer": "There may or may not be a command named after a certain assistant. Try typing it in /cli (Unix flavor only)."
+  },
+  {
+    "id": "claude_login",
+    "category": "easter",
+    "questions": [
+      "what does /login do in claude",
+      "claude login command"
+    ],
+    "answer": "Find the REPL first, then poke at it like you would the real thing."
+  },
+  {
+    "id": "gta6",
+    "category": "easter",
+    "questions": [
+      "what is gta6",
+      "gta6.exe",
+      "is there a gta6 file",
+      "the windows desktop file"
+    ],
+    "answer": "Switch the /cli skin to Windows and look around the Desktop. Some files reward `type`-ing, others reward running."
+  },
+  {
+    "id": "secret_code",
+    "category": "easter",
+    "questions": [
+      "what is the secret code",
+      "what's the hidden number",
+      "the cooperation token",
+      "is there a code on the site",
+      "8978"
+    ],
+    "answer": "There is one. There are at least two paths to it — both involve /cli. I'm not telling you the number."
+  },
+  {
+    "id": "cli_lure_home",
+    "category": "easter",
+    "questions": [
+      "why does the cursor move on its own",
+      "the orange cursor",
+      "auto cursor demo",
+      "cursor animation on home page"
+    ],
+    "answer": "Stay still on the home page for a few seconds and watch what the cursor does. Any input cancels it."
+  },
+  {
+    "id": "cli_lure_pulse",
+    "category": "easter",
+    "questions": [
+      "why does the cli link glow",
+      "pulsing nav item",
+      "why is cli highlighted in the nav"
+    ],
+    "answer": "The site is gently nudging you somewhere. Wait a few seconds on any page and notice which nav item starts asking for attention."
+  },
+  {
+    "id": "light_mode_lock",
+    "category": "easter",
+    "questions": [
+      "why can't i switch to light mode",
+      "where's the light theme",
+      "why is the sun broken",
+      "light mode trap",
+      "the broken toggle"
+    ],
+    "answer": "Light mode isn't available. The toggle isn't broken — keep clicking and find out what happens."
+  },
+  {
+    "id": "screen_quake",
+    "category": "easter",
+    "questions": [
+      "what is the screen quake",
+      "why does the page shake",
+      "the shake animation",
+      "tron shake"
+    ],
+    "answer": "Fired when you push something you weren't supposed to push. You'll know when you trigger it."
+  },
+  {
+    "id": "footer_reset",
+    "category": "easter",
+    "questions": [
+      "what does the © do",
+      "the copyright button",
+      "footer reset",
+      "how do i reset the site",
+      "clear the easter egg state",
+      "unlock light mode"
+    ],
+    "answer": "The © in the footer is interactive. Click it if you ever want a clean slate."
+  },
+  {
+    "id": "storage_keys",
+    "category": "easter",
+    "questions": [
+      "what does the site store",
+      "what local storage keys are used",
+      "what's in localstorage"
+    ],
+    "answer": "A few small keys for state that survives reloads — nothing tracking. Open devtools if you're curious. The footer © wipes them all."
+  },
+  {
+    "id": "nav_separators",
+    "category": "design",
+    "questions": [
+      "what are the nav separators",
+      "the diagonal lines in the nav",
+      "between menu items"
+    ],
+    "answer": "Those aren't slashes — they're CSS-drawn rotated bars with a glow. Easy to miss."
+  },
+  {
+    "id": "backspace_shield",
+    "category": "easter",
+    "questions": [
+      "why does backspace work in the terminal",
+      "backspace shield",
+      "browser plugin and backspace"
+    ],
+    "answer": "The terminal politely outranks any browser plugin that tries to steal Backspace, but only while it's focused."
+  },
+  {
+    "id": "no_network",
+    "category": "design",
+    "questions": [
+      "does the site call home",
+      "is the cli online",
+      "does info.txt phone home",
+      "does the terminal use a server"
+    ],
+    "answer": "No — /cli, info.txt, and every easter egg run entirely on-device. No network calls."
+  },
+  {
+    "id": "llms_txt",
+    "category": "design",
+    "questions": [
+      "do you have llms.txt",
+      "is there an llms.txt",
+      "ai crawler file"
+    ],
+    "answer": "Yes — /llms.txt and /llms-full.txt are exposed. There's also a quieter sibling for well-behaved crawlers."
+  },
+  {
+    "id": "rss_feed",
+    "category": "navigation",
+    "questions": [
+      "rss feed",
+      "do you have rss",
+      "atom feed",
+      "subscribe to the blog"
+    ],
+    "answer": "Yes — /rss.xml."
+  },
+  {
+    "id": "theme",
+    "category": "design",
+    "questions": [
+      "what is the site theme",
+      "design style",
+      "tron ares",
+      "why is everything orange"
+    ],
+    "answer": "A custom \"tron-ares\" theme — orange/red glow on dark, with scanline accents."
+  },
+  {
+    "id": "tech_stack",
+    "category": "design",
+    "questions": [
+      "how is the site built",
+      "site tech stack",
+      "what framework is the site",
+      "is it astro"
+    ],
+    "answer": "Built with Astro and Tailwind."
+  },
+  {
+    "id": "popular_posts_widget",
+    "category": "easter",
+    "questions": [
+      "the htop widget",
+      "what is htop on the about page",
+      "the popular posts list"
+    ],
+    "answer": "On /aboutme, the \"popular posts\" section pretends to be a system tool. Watch one of the columns for a second or two."
+  },
+  {
+    "id": "intro_editor",
+    "category": "easter",
+    "questions": [
+      "what is the intro editor",
+      "the editable intro",
+      "click the language to switch",
+      "introduction.md editor"
+    ],
+    "answer": "The intro on /aboutme isn't just text. Look for the underlined words and click one — and the × on the tab is also a button."
+  },
+  {
+    "id": "sitemap",
+    "category": "navigation",
+    "questions": [
+      "where is the sitemap",
+      "site map",
+      "all pages on the site"
+    ],
+    "answer": "Main pages: /, /blog, /projects, /aboutme, /speaking, /ppm, /cli."
+  },
+  {
+    "id": "delete_model",
+    "category": "chat",
+    "questions": [
+      "delete the model",
+      "delete the local model",
+      "remove the model",
+      "forget the model",
+      "clear the cached model",
+      "uninstall the model",
+      "free up the space",
+      "wipe the chat model"
+    ],
+    "answer": "Done — I've cleared the cached model from your browser. Refresh the page to confirm."
+  }
+]

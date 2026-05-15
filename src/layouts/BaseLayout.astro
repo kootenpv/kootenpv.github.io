@@ -1,0 +1,84 @@
+---
+import "~/styles/global.css";
+import { SITE, THEME } from "~/config";
+import Navbar from "~/components/Navbar.astro";
+import Footer from "~/components/Footer.astro";
+import Ticker from "~/components/Ticker.astro";
+import Chat from "~/components/Chat.astro";
+import Analytics from "~/components/Analytics.astro";
+import SEO from "~/components/SEO.astro";
+import SpecialFX from "~/components/SpecialFX.astro";
+
+const useTronFonts = THEME === "tron-ares";
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  type?: "website" | "article";
+  date?: Date;
+  updated?: Date;
+  canonicalUrl?: string;
+  jsonLd?: Record<string, unknown>;
+  bodyClass?: string;
+}
+
+const {
+  title,
+  description,
+  image,
+  type,
+  date,
+  updated,
+  canonicalUrl,
+  jsonLd,
+  bodyClass = "",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang={SITE.locale} data-theme={THEME}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {
+      useTronFonts && (
+        <link
+          rel="preload"
+          href="/fonts/orbitron/orbitron-latin-var.woff2"
+          as="font"
+          type="font/woff2"
+          crossorigin
+          fetchpriority="high"
+        />
+      )
+    }
+    <SEO
+      title={title}
+      description={description}
+      image={image}
+      type={type}
+      date={date}
+      updated={updated}
+      canonicalUrl={canonicalUrl}
+      jsonLd={jsonLd}
+    />
+    <Analytics />
+    <script is:inline>
+      // Light mode is intentionally not supported on this site.
+      document.documentElement.classList.add("dark");
+      try { localStorage.removeItem("theme-mode"); } catch {}
+    </script>
+  </head>
+  <body class={`bg-bg text-fg ${bodyClass}`}>
+    {useTronFonts && <div class="tron-scanline" aria-hidden="true" />}
+    <Navbar />
+    <main class="flex-1 mx-auto w-full max-w-3xl px-4 py-8">
+      <slot />
+    </main>
+    <Chat />
+    <Ticker />
+    <SpecialFX />
+    <Footer />
+  </body>
+</html>

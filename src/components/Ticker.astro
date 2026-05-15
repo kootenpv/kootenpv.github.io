@@ -1,0 +1,166 @@
+---
+type Item =
+  | { kind: "stock"; sym: string; delta: number; price: number; note?: string }
+  | { kind: "log"; level: "INFO" | "WARN" | "ERR"; text: string }
+  | { kind: "news"; text: string };
+
+interface Props {
+  paused?: boolean;
+}
+
+const { paused = false } = Astro.props;
+
+const items: Item[] = [
+  { kind: "stock", sym: "PSCL",     delta:  2.34, price: 42.07, note: "strong commit volume" },
+  { kind: "log",   level: "INFO",   text: "git push origin master · 30 files changed, +127 -42" },
+  { kind: "news",  text: "LLM throughput up 18% q/q · vibe coding cited as leading indicator" },
+  { kind: "stock", sym: "WHRMI",    delta:  0.81, price: 18.40, note: "indoor positioning still works" },
+  { kind: "log",   level: "INFO",   text: "commit 8978: \"fix easter egg\"" },
+  { kind: "stock", sym: "BRGHT",    delta: -0.05, price:  9.12, note: "ambient light low · ML model pre-dimming" },
+  { kind: "stock", sym: "HFT",      delta: -0.42, price: 99.99, note: "proprietary · cannot disclose" },
+];
+
+function fmtStock(it: Extract<Item, { kind: "stock" }>) {
+  const arrow = it.delta >= 0 ? "▲" : "▼";
+  const sign = it.delta >= 0 ? "+" : "";
+  const cls = it.delta >= 0 ? "up" : "down";
+  return `<span class="sym">${it.sym}</span> <span class="${cls}">${arrow} ${sign}${it.delta.toFixed(2)}</span> <span class="price">$${it.price.toFixed(2)}</span>${it.note ? ` <span class="note">${it.note}</span>` : ""}`;
+}
+function fmtLog(it: Extract<Item, { kind: "log" }>) {
+  const cls = it.level === "ERR" ? "err" : it.level === "WARN" ? "warn" : "info";
+  return `<span class="lvl ${cls}">[${it.level}]</span> <span class="note">${it.text}</span>`;
+}
+function fmtNews(it: Extract<Item, { kind: "news" }>) {
+  return `<span class="news">◇</span> <span class="note">${it.text}</span>`;
+}
+
+const html = items.map((it) =>
+  it.kind === "stock" ? fmtStock(it) :
+  it.kind === "log"   ? fmtLog(it)   :
+                        fmtNews(it)
+).join('<span class="sep"> · </span>');
+
+const reel = `${html}<span class="sep"> · </span>`;
+---
+
+<aside class="ticker" data-paused={paused ? "true" : undefined} aria-label="Bloomberg-style ticker of project status updates">
+  <div class="ticker-track">
+    <div class="ticker-reel">
+      <span class="ticker-copy" set:html={reel}></span>
+      <span class="ticker-copy" aria-hidden="true" set:html={reel}></span>
+    </div>
+  </div>
+</aside>
+
+<style>
+  .ticker {
+    border-top: 1px solid rgba(255, 122, 24, 0.35);
+    border-bottom: 1px solid rgba(255, 122, 24, 0.18);
+    background: #0a0a0c;
+    color: #d6d2c8;
+    overflow: hidden;
+    position: relative;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.4;
+    padding: 8px 1rem; /* matches main's px-4 */
+    width: 100%;
+    max-width: 48rem; /* matches main's max-w-3xl */
+    margin: 0 auto;
+    box-sizing: border-box;
+    isolation: isolate;
+    text-rendering: optimizeSpeed;
+  }
+  .ticker-track {
+    width: 100%;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 1rem, #000 calc(100% - 1rem), transparent);
+            mask-image: linear-gradient(to right, transparent, #000 1rem, #000 calc(100% - 1rem), transparent);
+  }
+  .ticker-reel {
+    display: flex;
+    width: max-content;
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
+    pointer-events: none;
+  }
+  .ticker-copy {
+    display: inline-block;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .ticker .sym   { color: #fff5e0; font-weight: 700; letter-spacing: 0.5px; }
+  .ticker .price { color: #ffb070; }
+  .ticker .up    { color: #34d058; }
+  .ticker .down  { color: #ff3b30; }
+  .ticker .note  { color: #b8b1a3; }
+  .ticker .sep   { color: #4a443a; }
+  .ticker .news  { color: #ff7a18; }
+  .ticker .lvl   { font-weight: 700; padding: 0 2px; }
+  .ticker .info  { color: #ff7a18; }
+  .ticker .warn  { color: #ffb070; background: rgba(255, 122, 24, 0.15); }
+  .ticker .err   { color: #fff5e0; background: #ff3b30; }
+
+</style>
+
+<script>
+  (() => {
+    const tickers = document.querySelectorAll<HTMLElement>(".ticker");
+    const SPEED = 60;
+
+    tickers.forEach((ticker) => {
+      if (ticker.dataset.tickerInit === "true") return;
+      ticker.dataset.tickerInit = "true";
+
+      const reel = ticker.querySelector<HTMLElement>(".ticker-reel");
+      const copy = ticker.querySelector<HTMLElement>(".ticker-copy");
+      if (!reel || !copy) return;
+
+      let x = 0;
+      let copyW = copy.offsetWidth;
+      let last = performance.now();
+      let hovered = false;
+      let offscreen = false;
+      let rafId = 0;
+
+      const measure = () => { copyW = copy.offsetWidth; };
+
+      let resizeTimer = 0;
+      window.addEventListener("resize", () => {
+        window.clearTimeout(resizeTimer);
+        resizeTimer = window.setTimeout(measure, 150);
+      });
+
+      ticker.addEventListener("mouseenter", () => { hovered = true; });
+      ticker.addEventListener("mouseleave", () => { hovered = false; last = performance.now(); });
+
+      if ("IntersectionObserver" in window) {
+        new IntersectionObserver((entries) => {
+          offscreen = !entries.some((entry) => entry.isIntersecting);
+          if (!offscreen) {
+            measure();
+            last = performance.now();
+          }
+        }).observe(ticker);
+      }
+
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(measure).catch(() => {});
+      }
+
+      const tick = (now: number) => {
+        const dt = (now - last) / 1000;
+        last = now;
+        const paused = hovered || offscreen || ticker.dataset.paused === "true";
+        if (!paused && copyW > 0) {
+          x -= SPEED * dt;
+          if (-x >= copyW) x += copyW;
+          reel.style.transform = `translate3d(${x}px, 0, 0)`;
+        }
+        rafId = requestAnimationFrame(tick);
+      };
+      rafId = requestAnimationFrame(tick);
+    });
+  })();
+</script>

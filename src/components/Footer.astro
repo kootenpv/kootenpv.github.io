@@ -1,0 +1,115 @@
+---
+import { SOCIAL, FOOTER_LINKS, SITE } from "~/config";
+
+const links: Array<{ key: string; href: string; label: string }> = [];
+if (FOOTER_LINKS.email && SOCIAL.email) {
+  links.push({ key: "email", href: `mailto:${SOCIAL.email}`, label: "Email" });
+}
+if (FOOTER_LINKS.github && SOCIAL.github) {
+  links.push({
+    key: "github",
+    href: `https://github.com/${SOCIAL.github}`,
+    label: "GitHub",
+  });
+}
+if (FOOTER_LINKS.linkedin && SOCIAL.linkedin) {
+  links.push({
+    key: "linkedin",
+    href: `https://linkedin.com/${SOCIAL.linkedin}`,
+    label: "LinkedIn",
+  });
+}
+if (FOOTER_LINKS.stackoverflow && SOCIAL.stackoverflow) {
+  links.push({
+    key: "stackoverflow",
+    href: `https://stackoverflow.com/${SOCIAL.stackoverflow}`,
+    label: "Stack Overflow",
+  });
+}
+if (FOOTER_LINKS.twitter && SOCIAL.twitter) {
+  links.push({
+    key: "twitter",
+    href: `https://twitter.com/${SOCIAL.twitter}`,
+    label: "Twitter",
+  });
+}
+if (FOOTER_LINKS.facebook && SOCIAL.facebook) {
+  links.push({
+    key: "facebook",
+    href: `https://facebook.com/${SOCIAL.facebook}`,
+    label: "Facebook",
+  });
+}
+const year = new Date().getFullYear();
+---
+
+<footer class="border-t border-border mt-12 py-8 text-sm text-muted">
+  <div class="mx-auto max-w-3xl px-4 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+    <div>
+      <button
+        type="button"
+        id="footer-reset"
+        class="footer-reset"
+        aria-label="Reset local storage"
+        title="Reset all local storage for this site"
+      >©</button>
+      {" "}{year} {SITE.author}
+    </div>
+    <ul class="flex flex-wrap gap-3">
+      {
+        links.map((l) => (
+          <li>
+            <a href={l.href} rel="me noopener noreferrer" target={l.key === "email" ? undefined : "_blank"}>
+              {l.label}
+            </a>
+          </li>
+        ))
+      }
+      <li>
+        <a href="/rss.xml">RSS</a>
+      </li>
+    </ul>
+  </div>
+</footer>
+
+<style>
+  .footer-reset {
+    background: none;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    transition: color 0.15s ease, text-shadow 0.15s ease, transform 0.15s ease;
+  }
+  .footer-reset:hover {
+    color: rgb(var(--c-accent));
+    text-shadow: 0 0 8px rgb(var(--tron-glow, 255 90 50) / 0.7);
+  }
+  .footer-reset:active { transform: scale(0.9); }
+  .footer-reset.flashed {
+    animation: footer-reset-pulse 0.6s ease-out;
+  }
+  @keyframes footer-reset-pulse {
+    0%   { color: rgb(var(--c-accent)); text-shadow: 0 0 14px rgb(var(--tron-glow, 255 90 50) / 1); transform: scale(1.4); }
+    60%  { transform: scale(0.85); }
+    100% { color: inherit; text-shadow: none; transform: scale(1); }
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    const btn = document.getElementById("footer-reset");
+    if (!btn) return;
+    btn.addEventListener("click", () => {
+      try { localStorage.clear(); } catch {}
+      btn.classList.remove("flashed");
+      void btn.offsetWidth;
+      btn.classList.add("flashed");
+      setTimeout(() => btn.classList.remove("flashed"), 700);
+      // Reload so the page picks up its fresh-default state.
+      setTimeout(() => location.reload(), 350);
+    });
+  })();
+</script>

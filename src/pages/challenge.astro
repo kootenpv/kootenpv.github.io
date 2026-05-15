@@ -1,0 +1,1407 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+
+// Encrypted reveal payload. Successful AES-GCM decryption (PBKDF2 of the
+// 5-character code) yields a JSON object {html, cfg} that drives the reveal:
+//   - html: markup + scoped <style> for the reveal section, innerHTML-injected
+//   - cfg:  text labels + color palette consumed by the (plaintext) renderer
+const PAYLOAD = {
+  salt: "qcuhwSVRF47enWk0igN14g==",
+  iv: "CbTAtLH2dG0xr5+S",
+  ciphertext:
+    "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",
+  chunks: 15,
+  perChunk: 10_000_000,
+};
+---
+
+<BaseLayout title="Challenge" description="A small challenge hidden across this site.">
+  <article id="challenge-intro" class="prose max-w-none">
+    <h1>&lt;!Challenge!&gt;</h1>
+
+    <blockquote>
+      <strong>Your mission, should you choose to accept it</strong>, is to find the
+      <strong>five characters</strong> scattered around this site and submit the result below.
+    </blockquote>
+
+    <h3>How it works</h3>
+    <ul>
+      <li>Challenges are hidden across this site, with some hints spread across pages as well</li>
+      <li>I only give one character at a time, and there are five characters to get</li>
+      <li>There can be more than one per page</li>
+      <li>I tried to make it not immediately obvious for LLMs and I don't try to deceive humans.</li>
+      <li>The characters should be sorted based on the page they are found on. </li>
+      <li>Answers aren't restricted to digits — any character on a standard QWERTY keyboard is fair game (letters, digits, and shifted symbols like !@#$%).</li>
+      <li class="mb-8">Nothing here requires guessing URLs. Everything you need is reachable from the navbar.</li>
+    </ul>
+  </article>
+
+  <article class="prose max-w-none unlock">
+    <h2>unlock</h2>
+    <p class="lede">Please enter the correct five characters</p>
+
+    <div class="unlock-form-wrap">
+      <form id="unlock-form" class="unlock-form" autocomplete="off" novalidate>
+        <div class="unlock-typed">
+          <div class="unlock-row">
+            <input
+              id="unlock-code"
+              type="text"
+              inputmode="text"
+              maxlength="5"
+              placeholder="•••••"
+              aria-label="characters code"
+            />
+            <button id="unlock-submit" type="submit">try</button>
+          </div>
+        </div>
+
+        <div class="unlock-keypad" aria-label="keypad">
+          <div class="kp-display" id="kp-display">
+            <span class="kp-slot"></span>
+            <span class="kp-slot"></span>
+            <span class="kp-slot"></span>
+            <span class="kp-slot"></span>
+            <span class="kp-slot"></span>
+          </div>
+          <div class="kp-mode-tabs">
+            <button type="button" class="kp-tab kp-tab-active" data-action="mode-numeric">123</button>
+            <button type="button" class="kp-tab" data-action="mode-qwerty">ABC</button>
+          </div>
+
+          <div class="kp-grid kp-numeric">
+            <button type="button" class="kp-btn" data-char="1">1</button>
+            <button type="button" class="kp-btn" data-char="2">2</button>
+            <button type="button" class="kp-btn" data-char="3">3</button>
+            <button type="button" class="kp-btn" data-char="4">4</button>
+            <button type="button" class="kp-btn" data-char="5">5</button>
+            <button type="button" class="kp-btn" data-char="6">6</button>
+            <button type="button" class="kp-btn" data-char="7">7</button>
+            <button type="button" class="kp-btn" data-char="8">8</button>
+            <button type="button" class="kp-btn" data-char="9">9</button>
+            <button type="button" class="kp-btn kp-btn-action" data-action="backspace" aria-label="backspace">⌫</button>
+            <button type="button" class="kp-btn" data-char="0">0</button>
+            <button type="button" class="kp-btn kp-btn-action" data-action="submit" aria-label="submit">↵</button>
+          </div>
+
+          <div class="kp-qwerty" hidden>
+            <div class="kp-row">
+              <button type="button" class="kp-btn kp-btn-sm" data-char="1">1</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="2">2</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="3">3</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="4">4</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="5">5</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="6">6</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="7">7</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="8">8</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="9">9</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="0">0</button>
+            </div>
+            <div class="kp-row">
+              <button type="button" class="kp-btn kp-btn-sm" data-char="q">q</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="w">w</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="e">e</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="r">r</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="t">t</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="y">y</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="u">u</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="i">i</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="o">o</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="p">p</button>
+            </div>
+            <div class="kp-row kp-row-mid">
+              <button type="button" class="kp-btn kp-btn-sm" data-char="a">a</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="s">s</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="d">d</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="f">f</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="g">g</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="h">h</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="j">j</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="k">k</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="l">l</button>
+            </div>
+            <div class="kp-row">
+              <button type="button" class="kp-btn kp-btn-sm kp-btn-action" data-action="shift" aria-label="shift">⇧</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="z">z</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="x">x</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="c">c</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="v">v</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="b">b</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="n">n</button>
+              <button type="button" class="kp-btn kp-btn-sm" data-char="m">m</button>
+              <button type="button" class="kp-btn kp-btn-sm kp-btn-action" data-action="backspace" aria-label="backspace">⌫</button>
+            </div>
+            <div class="kp-row kp-row-bottom">
+              <button type="button" class="kp-btn kp-btn-action" data-action="submit" aria-label="submit">↵ submit</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="unlock-meter" aria-hidden="true">
+          <div class="unlock-meter-fill" id="unlock-meter-fill"></div>
+        </div>
+        <p class="unlock-status" id="unlock-status">&nbsp;</p>
+      </form>
+    </div>
+
+    <div id="unlock-reveal" class="unlock-reveal" hidden></div>
+
+    <!--
+      Reveal-mode templates. The decrypted payload selects one via cfg.mode.
+      Templates are inert clones; they're populated at dispatch time.
+    -->
+    <template id="alt-letter">
+      <article class="letter-body">
+        <span class="envelope-flap" aria-hidden="true"></span>
+        <p class="letter-date"></p>
+        <p class="letter-greeting"></p>
+        <div class="letter-prose"></div>
+        <p class="letter-signature"></p>
+        <span class="wax-seal" aria-hidden="true"></span>
+      </article>
+    </template>
+
+    <template id="alt-poem">
+      <section class="poem-page">
+        <h2 class="poem-title"></h2>
+        <div class="poem-stanza"></div>
+        <p class="poem-attribution"></p>
+      </section>
+    </template>
+
+    <template id="alt-gallery">
+      <div class="gallery-grid"></div>
+    </template>
+
+    <template id="alt-map">
+      <div class="map-card">
+        <div class="map-surface">
+          <span class="map-pin" aria-hidden="true"></span>
+        </div>
+        <p class="map-coords"></p>
+        <p class="gift-tag"></p>
+      </div>
+    </template>
+  </article>
+
+  <script
+    id="unlock-payload"
+    type="application/json"
+    set:html={JSON.stringify(PAYLOAD)}
+  />
+
+  <style>
+    .unlock {
+      max-width: 40rem;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .unlock h2 {
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin-top: 0.25rem;
+      margin-bottom: 0.5rem;
+    }
+    .lede {
+      color: rgb(var(--c-muted));
+      font-style: italic;
+      margin-bottom: 2rem;
+    }
+
+    .unlock-form-wrap {
+      max-width: 36rem;
+      margin: 0 auto;
+    }
+    .unlock-form { margin-top: 1.5rem; }
+    .unlock-row {
+      display: flex;
+      gap: 0.6rem;
+      align-items: stretch;
+    }
+    .unlock-row input {
+      flex: 1;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 1.5rem;
+      letter-spacing: 0.5em;
+      text-align: center;
+      padding: 0.7rem 0.8rem;
+      background: rgb(var(--c-card));
+      color: rgb(var(--c-fg));
+      border: 1px solid rgb(var(--c-border));
+      border-radius: 6px;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .unlock-row input:focus {
+      border-color: rgb(var(--c-accent));
+      box-shadow: 0 0 0 3px rgb(var(--c-accent) / 0.18);
+    }
+    .unlock-row input::placeholder {
+      color: rgb(var(--c-muted));
+      opacity: 0.5;
+    }
+    .unlock-row button {
+      padding: 0 1.2rem;
+      font-family: var(--font-sans, system-ui);
+      font-size: 0.85rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      background: rgb(var(--c-accent) / 0.1);
+      color: rgb(var(--c-accent));
+      border: 1px solid rgb(var(--c-accent));
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+    .unlock-row button:hover { background: rgb(var(--c-accent) / 0.18); }
+    .unlock-row button:active { transform: scale(0.98); }
+    .unlock-row button:disabled {
+      cursor: progress;
+      opacity: 0.6;
+    }
+
+    .unlock-meter {
+      margin-top: 0.9rem;
+      height: 3px;
+      background: rgb(var(--c-border));
+      border-radius: 2px;
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .unlock-form.working .unlock-meter,
+    .unlock-form.done .unlock-meter { opacity: 1; }
+    .unlock-meter-fill {
+      height: 100%;
+      width: 0%;
+      background: rgb(var(--c-accent));
+      box-shadow: 0 0 8px rgb(var(--c-accent) / 0.55);
+      transition: width 0.18s ease-out;
+    }
+
+    .unlock-status {
+      min-height: 1.4em;
+      margin: 0.6rem 0 0;
+      font-size: 0.9rem;
+      color: rgb(var(--c-muted));
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .unlock-status.error { color: rgb(220 80 90); }
+
+    .unlock-reveal {
+      margin-top: 2.5rem;
+      padding-top: 2rem;
+      border-top: 1px dashed rgb(var(--c-border));
+      animation: unlock-fade 0.8s ease-out both;
+    }
+    @keyframes unlock-fade {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ---- keypad (mobile) ---- */
+    .unlock-typed { display: block; }
+    .unlock-keypad { display: none; }
+    @media (max-width: 600px) {
+      .unlock-typed  { display: none; }
+      .unlock-keypad { display: block; }
+    }
+
+    .kp-display {
+      display: flex;
+      justify-content: center;
+      gap: 0.9rem;
+      margin: 0 auto 1rem;
+      padding: 0.85rem 0;
+      max-width: 280px;
+      border: 1px solid rgb(var(--c-border));
+      border-radius: 6px;
+      background: rgb(var(--c-card));
+    }
+    .kp-slot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1px solid rgb(var(--c-border));
+      transition: background 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+    }
+    .kp-slot.filled {
+      background: rgb(var(--c-accent));
+      border-color: rgb(var(--c-accent));
+      box-shadow: 0 0 8px rgb(var(--c-accent) / 0.7);
+    }
+
+    .kp-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.65rem;
+      max-width: 280px;
+      margin: 0 auto;
+    }
+    .kp-btn {
+      height: 60px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 1.4rem;
+      background: rgb(var(--c-card));
+      color: rgb(var(--c-fg));
+      border: 1px solid rgb(var(--c-border));
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.1s ease, transform 0.08s ease, box-shadow 0.1s ease, border-color 0.1s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .kp-btn:hover {
+      background: rgb(var(--c-accent) / 0.1);
+      border-color: rgb(var(--c-accent));
+      color: rgb(var(--c-accent));
+    }
+    .kp-btn:active {
+      transform: scale(0.96);
+      background: rgb(var(--c-accent) / 0.22);
+      box-shadow: 0 0 14px rgb(var(--c-accent) / 0.45);
+      border-color: rgb(var(--c-accent));
+      color: rgb(var(--c-accent));
+    }
+    .kp-btn-action {
+      font-size: 1.2rem;
+      background: transparent;
+      color: rgb(var(--c-muted));
+    }
+    .kp-btn-action:active {
+      background: rgb(var(--c-accent) / 0.1);
+    }
+
+    .kp-mode-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 0.4rem;
+      margin: 0 auto 0.7rem;
+      max-width: 280px;
+    }
+    .kp-tab {
+      flex: 1;
+      padding: 0.45rem 0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      background: rgb(var(--c-card));
+      color: rgb(var(--c-muted));
+      border: 1px solid rgb(var(--c-border));
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .kp-tab-active {
+      background: rgb(var(--c-accent) / 0.14);
+      color: rgb(var(--c-accent));
+      border-color: rgb(var(--c-accent));
+    }
+
+    .kp-qwerty {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      max-width: 360px;
+      margin: 0 auto;
+    }
+    .kp-qwerty[hidden] { display: none; }
+    .kp-row {
+      display: flex;
+      gap: 0.25rem;
+      justify-content: center;
+    }
+    .kp-row-mid { padding: 0 0.6rem; }
+    .kp-row-bottom { margin-top: 0.3rem; }
+    .kp-btn-sm {
+      flex: 1;
+      min-width: 0;
+      height: 44px;
+      font-size: 1rem;
+      padding: 0;
+    }
+    .kp-row-bottom .kp-btn { flex: 1; height: 46px; font-size: 1rem; }
+    .kp-qwerty.shifted [data-action="shift"] {
+      background: rgb(var(--c-accent) / 0.18);
+      color: rgb(var(--c-accent));
+      border-color: rgb(var(--c-accent));
+    }
+
+    /* ---- reveal modes ----
+       Selected at decrypt time based on the encrypted payload's mode field.
+       Each mode mounts its own template into #unlock-reveal. */
+
+    .letter-body {
+      max-width: 32rem;
+      margin: 0 auto;
+      padding: 2rem 1.6rem 2.6rem;
+      background: #f6efe1;
+      color: #3a2f1f;
+      font-family: 'Georgia', 'Times New Roman', serif;
+      border: 1px solid #d8ccaa;
+      border-radius: 4px;
+      position: relative;
+      box-shadow: 0 6px 24px rgb(0 0 0 / 0.18);
+    }
+    .letter-body p { line-height: 1.75; }
+    .envelope-flap {
+      position: absolute;
+      top: -1px; left: 50%;
+      transform: translateX(-50%);
+      width: 60%;
+      height: 32px;
+      background: linear-gradient(135deg, #c9b07e, #b89860);
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      opacity: 0.8;
+    }
+    .letter-date {
+      font-style: italic;
+      color: #7a6a4d;
+      text-align: right;
+      margin: 1.5rem 0 1.2rem;
+      font-size: 0.9rem;
+    }
+    .letter-greeting { font-size: 1.1rem; }
+    .letter-prose { margin: 1rem 0; }
+    .letter-signature {
+      margin-top: 2rem;
+      font-family: 'Brush Script MT', 'Lucida Handwriting', cursive;
+      font-size: 1.4rem;
+      text-align: right;
+      color: #2a1f10;
+    }
+    .wax-seal {
+      position: absolute;
+      bottom: 1.2rem;
+      right: 1.2rem;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #a02030, #44060d 70%);
+      box-shadow: 0 2px 6px rgb(0 0 0 / 0.4), inset 0 -3px 6px rgb(0 0 0 / 0.3);
+    }
+
+    .poem-page {
+      max-width: 28rem;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+      font-family: 'Iowan Old Style', 'Palatino', serif;
+      color: rgb(var(--c-fg));
+      text-align: center;
+    }
+    .poem-title {
+      font-style: italic;
+      font-weight: 400;
+      font-size: 1.4rem;
+      margin-bottom: 1.4rem;
+      letter-spacing: 0.05em;
+    }
+    .poem-stanza {
+      font-size: 1.05rem;
+      line-height: 2;
+      white-space: pre-line;
+    }
+    .poem-attribution {
+      margin-top: 2rem;
+      color: rgb(var(--c-muted));
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.6rem;
+      max-width: 36rem;
+      margin: 0 auto;
+    }
+    .gallery-frame {
+      aspect-ratio: 1;
+      background: rgb(var(--c-card));
+      border: 1px solid rgb(var(--c-border));
+      border-radius: 2px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgb(0 0 0 / 0.15);
+    }
+    .gallery-frame img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+
+    .map-card {
+      max-width: 36rem;
+      margin: 0 auto;
+      padding: 1.4rem;
+      background: linear-gradient(180deg, #e8e2d3, #d8cfb8);
+      border: 1px solid #b8a878;
+      border-radius: 4px;
+      text-align: center;
+      box-shadow: 0 4px 16px rgb(0 0 0 / 0.18);
+    }
+    .map-surface {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      background:
+        repeating-linear-gradient(0deg,    rgb(58 76 58 / 0.08) 0 1px, transparent 1px 24px),
+        repeating-linear-gradient(90deg,   rgb(58 76 58 / 0.08) 0 1px, transparent 1px 24px),
+        radial-gradient(circle at 60% 40%, #b9c8a4, #8aa078);
+      border: 1px solid #8a9a72;
+      border-radius: 2px;
+      margin-bottom: 1rem;
+    }
+    .map-pin {
+      position: absolute;
+      top: 38%; left: 58%;
+      width: 18px;
+      height: 18px;
+      background: #2a8fb0;
+      border: 2px solid #fff;
+      border-radius: 50% 50% 50% 0;
+      transform: translate(-50%, -100%) rotate(-45deg);
+      box-shadow: 0 0 10px rgb(42 143 176 / 0.7);
+    }
+    .map-coords {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.9rem;
+      color: #2a4a55;
+      letter-spacing: 0.12em;
+      margin: 0.3rem 0;
+    }
+    .gift-tag {
+      display: inline-block;
+      padding: 0.4rem 1rem;
+      background: linear-gradient(135deg, #2c5e4a, #1a3a2c);
+      color: #d8e6db;
+      font-family: 'Caveat', 'Comic Sans MS', cursive;
+      font-size: 1.1rem;
+      border-radius: 2px;
+      transform: rotate(-2deg);
+      box-shadow: 0 2px 8px rgb(0 0 0 / 0.3);
+      margin-top: 0.6rem;
+    }
+  </style>
+
+  <script is:inline>
+    (function () {
+      const form    = document.getElementById("unlock-form");
+      const input   = document.getElementById("unlock-code");
+      const button  = document.getElementById("unlock-submit");
+      const meter   = document.getElementById("unlock-meter-fill");
+      const status  = document.getElementById("unlock-status");
+      const reveal  = document.getElementById("unlock-reveal");
+      const payload = JSON.parse(document.getElementById("unlock-payload").textContent);
+      if (!form || !input || !button) return;
+
+      const b64 = (s) => {
+        const bin = atob(s);
+        const out = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+        return out;
+      };
+
+      const SALT = b64(payload.salt);
+      const IV   = b64(payload.iv);
+      const CT   = b64(payload.ciphertext);
+      const CHUNKS = payload.chunks;
+      const PER_CHUNK = payload.perChunk;
+
+      async function pbkdf2(passBytes, saltBytes, iterations, outBytes) {
+        const km = await crypto.subtle.importKey(
+          "raw", passBytes, "PBKDF2", false, ["deriveBits"]
+        );
+        const bits = await crypto.subtle.deriveBits(
+          { name: "PBKDF2", salt: saltBytes, iterations, hash: "SHA-256" },
+          km,
+          outBytes * 8,
+        );
+        return new Uint8Array(bits);
+      }
+
+      function setProgress(p) { meter.style.width = (p * 100).toFixed(1) + "%"; }
+      function setStatus(text, isError) {
+        status.textContent = text;
+        status.classList.toggle("error", !!isError);
+      }
+      const nextFrame = () =>
+        new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0)));
+
+      const MOTIVATIONAL_MESSAGES = [
+        "hang tight, this can take a while",
+        "good things take time",
+        "the bits are being convinced, please wait",
+        "your patience is appreciated",
+        "almost there, keep the tab open",
+        "stretching entropy — won't be long",
+        "rotating cogs of crypto…",
+        "PBKDF2 is doing its slow dance",
+        "iterating diligently on your behalf",
+        "trust the process",
+        "warming up the silicon",
+        "polishing each bit by hand",
+        "the answer is worth the wait",
+        "you're closer than you think",
+        "every iteration brings you nearer",
+        "deep breaths — the key is forming",
+      ];
+      const pickMessage = () =>
+        MOTIVATIONAL_MESSAGES[Math.floor(Math.random() * MOTIVATIONAL_MESSAGES.length)];
+
+      async function deriveKeyChained(codeBytes) {
+        let current = codeBytes;
+        for (let i = 0; i < CHUNKS; i++) {
+          current = await pbkdf2(current, SALT, PER_CHUNK, 32);
+          setProgress((i + 1) / CHUNKS);
+          setStatus("deriving key… " + pickMessage());
+          await nextFrame();
+        }
+        return current;
+      }
+
+      async function attempt(code) {
+        form.classList.remove("done");
+        form.classList.add("working");
+        button.disabled = true;
+        input.disabled = true;
+        setProgress(0);
+        setStatus("deriving key…");
+
+        const codeBytes = new TextEncoder().encode(code);
+        const t0 = performance.now();
+        const keyBytes = await deriveKeyChained(codeBytes);
+        const dt = ((performance.now() - t0) / 1000).toFixed(2);
+
+        setStatus(`decrypting (${dt}s)…`);
+        const aesKey = await crypto.subtle.importKey(
+          "raw", keyBytes, { name: "AES-GCM" }, false, ["decrypt"]
+        );
+
+        let parsed;
+        try {
+          const ptBuf = await crypto.subtle.decrypt(
+            { name: "AES-GCM", iv: IV }, aesKey, CT
+          );
+          parsed = JSON.parse(new TextDecoder().decode(ptBuf));
+        } catch {
+          form.classList.remove("working");
+          setStatus("✗ wrong code. try again.", true);
+          setProgress(0);
+          button.disabled = false;
+          input.disabled = false;
+          input.select();
+          return;
+        }
+
+        form.classList.remove("working");
+        form.classList.add("done");
+        setStatus(`✓ unlocked in ${dt}s`);
+        const intro = document.getElementById("challenge-intro");
+        if (intro) intro.hidden = true;
+        reveal.hidden = false;
+        dispatchReveal(parsed);
+        reveal.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      function dispatchReveal(parsed) {
+        const mode = (parsed.cfg && parsed.cfg.mode) || "card";
+        switch (mode) {
+          case "letter":  return runLetterRenderer(parsed);
+          case "poem":    return runPoemRenderer(parsed);
+          case "gallery": return runGalleryRenderer(parsed);
+          case "map":     return runMapRenderer(parsed);
+          case "card":
+          default:        return runCardRenderer(parsed);
+        }
+      }
+
+      function mountTemplate(id) {
+        const tpl = document.getElementById(id);
+        const root = tpl.content.firstElementChild.cloneNode(true);
+        reveal.innerHTML = "";
+        reveal.appendChild(root);
+        return root;
+      }
+
+      function runLetterRenderer(parsed) {
+        const root = mountTemplate("alt-letter");
+        const L = (parsed.cfg && parsed.cfg.letter) || {};
+        root.querySelector(".letter-date").textContent = L.date || "";
+        root.querySelector(".letter-greeting").textContent = L.greeting || "";
+        root.querySelector(".letter-prose").innerHTML = L.body || "";
+        root.querySelector(".letter-signature").textContent = L.signature || "";
+      }
+
+      function runPoemRenderer(parsed) {
+        const root = mountTemplate("alt-poem");
+        const P = (parsed.cfg && parsed.cfg.poem) || {};
+        root.querySelector(".poem-title").textContent = P.title || "";
+        root.querySelector(".poem-stanza").textContent = P.stanza || "";
+        root.querySelector(".poem-attribution").textContent = P.author || "";
+      }
+
+      function runGalleryRenderer(parsed) {
+        const root = mountTemplate("alt-gallery");
+        const items = (parsed.cfg && parsed.cfg.gallery) || [];
+        for (const src of items) {
+          const f = document.createElement("div");
+          f.className = "gallery-frame";
+          if (src) {
+            const img = document.createElement("img");
+            img.src = src;
+            img.alt = "";
+            f.appendChild(img);
+          }
+          root.appendChild(f);
+        }
+      }
+
+      function runMapRenderer(parsed) {
+        const root = mountTemplate("alt-map");
+        const M = (parsed.cfg && parsed.cfg.map) || {};
+        root.querySelector(".map-coords").textContent = M.coords || "";
+        const tag = root.querySelector(".gift-tag");
+        if (M.note) tag.textContent = M.note;
+        else tag.remove();
+        const pin = root.querySelector(".map-pin");
+        if (M.x != null) pin.style.left = M.x;
+        if (M.y != null) pin.style.top = M.y;
+      }
+
+      function runCardRenderer(parsed) {
+        reveal.innerHTML = parsed.html;
+        const els = {
+          canvas:      reveal.querySelector("#r-canvas"),
+          nameEl:      reveal.querySelector("#r-name"),
+          shuffleBtn:  reveal.querySelector("#r-shuffle"),
+          downloadBtn: reveal.querySelector("#r-download"),
+        };
+        runRenderer(els, parsed.cfg);
+      }
+
+      input.addEventListener("input", () => {
+        input.value = input.value.slice(0, 5);
+        status.classList.remove("error");
+        if (status.textContent.startsWith("✗")) setStatus(" ");
+        syncKeypadDisplay();
+      });
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const code = input.value;
+        if (code.length !== 5) {
+          setStatus("✗ five characters, please.", true);
+          return;
+        }
+        attempt(code);
+      });
+
+      const kpDisplay = document.getElementById("kp-display");
+      const kpSlots = kpDisplay ? kpDisplay.querySelectorAll(".kp-slot") : [];
+      function syncKeypadDisplay() {
+        for (let i = 0; i < kpSlots.length; i++) {
+          kpSlots[i].classList.toggle("filled", i < input.value.length);
+        }
+      }
+      const SHIFT_MAP = {
+        "1":"!","2":"@","3":"#","4":"$","5":"%","6":"^","7":"&","8":"*","9":"(","0":")",
+        q:"Q",w:"W",e:"E",r:"R",t:"T",y:"Y",u:"U",i:"I",o:"O",p:"P",
+        a:"A",s:"S",d:"D",f:"F",g:"G",h:"H",j:"J",k:"K",l:"L",
+        z:"Z",x:"X",c:"C",v:"V",b:"B",n:"N",m:"M",
+      };
+      const numericGrid = document.querySelector(".kp-numeric");
+      const qwertyGrid  = document.querySelector(".kp-qwerty");
+      const tabNumeric  = document.querySelector('[data-action="mode-numeric"]');
+      const tabQwerty   = document.querySelector('[data-action="mode-qwerty"]');
+      let shifted = false;
+
+      function setMode(mode) {
+        const qwerty = mode === "qwerty";
+        numericGrid.hidden = qwerty;
+        qwertyGrid.hidden  = !qwerty;
+        tabNumeric.classList.toggle("kp-tab-active", !qwerty);
+        tabQwerty.classList.toggle("kp-tab-active",  qwerty);
+      }
+      function applyShift() {
+        qwertyGrid.classList.toggle("shifted", shifted);
+        qwertyGrid.querySelectorAll("[data-char]").forEach((b) => {
+          if (!b.dataset.charBase) b.dataset.charBase = b.dataset.char;
+          const base = b.dataset.charBase;
+          const out  = shifted ? (SHIFT_MAP[base] || base) : base;
+          b.dataset.char = out;
+          b.textContent  = out;
+        });
+      }
+
+      document.querySelectorAll(".kp-btn, .kp-tab").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const ch = btn.dataset.char;
+          const action = btn.dataset.action;
+          if (action === "mode-numeric") { setMode("numeric"); return; }
+          if (action === "mode-qwerty")  { setMode("qwerty"); return; }
+          if (action === "shift")        { shifted = !shifted; applyShift(); return; }
+          if (ch !== undefined && input.value.length < 5) {
+            input.value += ch;
+          } else if (action === "backspace") {
+            input.value = input.value.slice(0, -1);
+          } else if (action === "submit") {
+            form.requestSubmit ? form.requestSubmit() : form.dispatchEvent(new Event("submit", { cancelable: true }));
+            return;
+          }
+          status.classList.remove("error");
+          if (status.textContent.startsWith("✗")) setStatus(" ");
+          syncKeypadDisplay();
+        });
+      });
+
+      input.focus();
+
+      function runRenderer(els, cfg) {
+        const canvas = els.canvas;
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        const W = canvas.width;
+        const H = canvas.height;
+        const C = cfg.c;
+        const T = cfg.t;
+        const P = cfg.p;
+
+        const s = {
+          v0: "",
+          v1: detect1(),
+          v2: detect2(),
+          v3: new Date(),
+          v4: randomId(),
+        };
+
+        function detect1() {
+          const uad = navigator.userAgentData;
+          if (uad) return uad.mobile ? "MOBILE TERMINAL" : "WORKSTATION";
+          const ua = navigator.userAgent;
+          if (/iPad|Tablet/i.test(ua)) return "TABLET TERMINAL";
+          if (/Mobi|Android|iPhone|iPod/i.test(ua)) return "MOBILE TERMINAL";
+          return "WORKSTATION";
+        }
+        function detect2() {
+          const uad = navigator.userAgentData;
+          if (uad && uad.platform) {
+            const p = uad.platform.toLowerCase();
+            if (p.includes("win")) return "WINDOWS";
+            if (p.includes("mac")) return "MACOS";
+            if (p.includes("linux")) return "LINUX";
+            if (p.includes("android")) return "ANDROID";
+            if (p.includes("ios") || p.includes("ipad") || p.includes("iphone")) return "iOS";
+            return uad.platform.toUpperCase();
+          }
+          const ua = navigator.userAgent;
+          if (/Windows/i.test(ua)) return "WINDOWS";
+          if (/Macintosh|Mac OS X/i.test(ua)) return "MACOS";
+          if (/Android/i.test(ua)) return "ANDROID";
+          if (/iPhone|iPad|iPod/i.test(ua)) return "iOS";
+          if (/Linux/i.test(ua)) return "LINUX";
+          return "UNKNOWN";
+        }
+        function randomId() {
+          const hex = "0123456789ABCDEF";
+          let s = "";
+          for (let i = 0; i < 12; i++) s += hex[Math.floor(Math.random() * 16)];
+          return s.match(/.{1,4}/g).join("-");
+        }
+        function fmtTime(d) {
+          const pad = (n) => String(n).padStart(2, "0");
+          const Y = d.getFullYear();
+          const M = pad(d.getMonth() + 1);
+          const D = pad(d.getDate());
+          const h = pad(d.getHours());
+          const m = pad(d.getMinutes());
+          const s = pad(d.getSeconds());
+          const tz = -d.getTimezoneOffset();
+          const tzh = pad(Math.floor(Math.abs(tz) / 60));
+          const tzm = pad(Math.abs(tz) % 60);
+          const sign = tz >= 0 ? "+" : "-";
+          return `${Y}-${M}-${D} ${h}:${m}:${s} ${sign}${tzh}${tzm}`;
+        }
+
+        function seedFromId(id) {
+          let h = 2166136261 >>> 0;
+          for (let i = 0; i < id.length; i++) {
+            h ^= id.charCodeAt(i);
+            h = Math.imul(h, 16777619) >>> 0;
+          }
+          return h >>> 0;
+        }
+        function mulberry32(seed) {
+          let s = seed >>> 0;
+          return function () {
+            s = (s + 0x6D2B79F5) >>> 0;
+            let t = Math.imul(s ^ (s >>> 15), 1 | s);
+            t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+            return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+          };
+        }
+
+        function roundRect(x, y, w, h, r) {
+          ctx.beginPath();
+          ctx.moveTo(x + r, y);
+          ctx.lineTo(x + w - r, y);
+          ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+          ctx.lineTo(x + w, y + h - r);
+          ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+          ctx.lineTo(x + r, y + h);
+          ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+          ctx.lineTo(x, y + r);
+          ctx.quadraticCurveTo(x, y, x + r, y);
+          ctx.closePath();
+        }
+        function hexPath(cx, cy, r) {
+          ctx.beginPath();
+          for (let i = 0; i < 6; i++) {
+            const a = -Math.PI / 2 + i * Math.PI / 3;
+            const px = cx + Math.cos(a) * r;
+            const py = cy + Math.sin(a) * r;
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          }
+          ctx.closePath();
+        }
+
+        function drawCard() {
+          ctx.clearRect(0, 0, W, H);
+          const bg = ctx.createLinearGradient(0, 0, W, H);
+          bg.addColorStop(0, C[3]);
+          bg.addColorStop(1, C[4]);
+          ctx.fillStyle = bg;
+          ctx.fillRect(0, 0, W, H);
+          drawGridFloor();
+          drawCornerCircuits();
+          drawOuterFrame();
+          drawHeader();
+          drawSigil();
+          drawDataPanel();
+          drawFooter();
+          drawBarcode();
+        }
+
+        function drawGridFloor() {
+          ctx.save();
+          ctx.strokeStyle = C[7];
+          ctx.lineWidth = 1.5;
+          const horizon = H * 0.55;
+          const bottom  = H;
+          const vp = W / 2;
+          const cols = 22;
+          for (let i = 0; i <= cols; i++) {
+            const x = (W / cols) * i;
+            ctx.beginPath();
+            ctx.moveTo(vp, horizon);
+            ctx.lineTo(x, bottom);
+            ctx.stroke();
+          }
+          const rows = 10;
+          for (let i = 1; i <= rows; i++) {
+            const t = i / rows;
+            const y = horizon + (bottom - horizon) * (t * t);
+            ctx.globalAlpha = 0.08 + t * 0.32;
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(W, y);
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+
+        function drawCornerCircuits() {
+          ctx.save();
+          ctx.strokeStyle = C[8];
+          ctx.lineWidth = 2;
+          const len = 140;
+          const inset = 30;
+          traceL(inset, inset, len, "br");
+          traceL(W - inset, inset, len, "bl");
+          traceL(inset, H - inset, len, "tr");
+          traceL(W - inset, H - inset, len, "tl");
+          ctx.restore();
+
+          function traceL(x, y, n, dir) {
+            ctx.beginPath();
+            if (dir === "br") {
+              ctx.moveTo(x + n, y); ctx.lineTo(x + 24, y);
+              ctx.lineTo(x, y + 24); ctx.lineTo(x, y + n);
+            } else if (dir === "bl") {
+              ctx.moveTo(x - n, y); ctx.lineTo(x - 24, y);
+              ctx.lineTo(x, y + 24); ctx.lineTo(x, y + n);
+            } else if (dir === "tr") {
+              ctx.moveTo(x + n, y); ctx.lineTo(x + 24, y);
+              ctx.lineTo(x, y - 24); ctx.lineTo(x, y - n);
+            } else {
+              ctx.moveTo(x - n, y); ctx.lineTo(x - 24, y);
+              ctx.lineTo(x, y - 24); ctx.lineTo(x, y - n);
+            }
+            ctx.stroke();
+            ctx.fillStyle = C[0];
+            for (const [px, py] of cornerNodes(x, y, n, dir)) {
+              ctx.beginPath();
+              ctx.arc(px, py, 3, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          }
+          function cornerNodes(x, y, n, dir) {
+            const sx = dir.includes("r") ? 1 : -1;
+            const sy = dir.startsWith("b") ? 1 : -1;
+            return [[x + sx * n, y], [x, y + sy * n]];
+          }
+        }
+
+        function drawOuterFrame() {
+          ctx.save();
+          const inset = 22;
+          const rect = [inset, inset, W - inset * 2, H - inset * 2];
+          ctx.shadowColor = C[2];
+          ctx.shadowBlur = 32;
+          ctx.strokeStyle = C[0];
+          ctx.lineWidth = 3;
+          roundRect(...rect, 14);
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+          ctx.strokeStyle = C[1];
+          ctx.lineWidth = 1.5;
+          roundRect(...rect, 14);
+          ctx.stroke();
+          ctx.strokeStyle = C[8];
+          ctx.lineWidth = 1;
+          roundRect(inset + 10, inset + 10, W - (inset + 10) * 2, H - (inset + 10) * 2, 10);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        function drawHeader() {
+          ctx.save();
+          ctx.textBaseline = "top";
+          ctx.font = "700 88px ui-sans-serif, system-ui, Inter, Arial";
+          ctx.fillStyle = C[6];
+          ctx.shadowColor = C[2];
+          ctx.shadowBlur = 22;
+          ctx.fillText(T[0], 80, 60);
+          ctx.shadowBlur = 0;
+
+          ctx.fillStyle = C[5];
+          ctx.font = "500 18px ui-monospace, SFMono-Regular, Menlo, monospace";
+          ctx.fillText(T[1], 82, 170);
+
+          ctx.strokeStyle = C[25];
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(80, 200);
+          ctx.lineTo(W - 80, 200);
+          ctx.stroke();
+
+          ctx.fillStyle = C[1];
+          ctx.font = "500 16px ui-monospace, SFMono-Regular, Menlo, monospace";
+          ctx.textAlign = "right";
+          ctx.fillText(T[2], W - 80, 80);
+          ctx.fillStyle = C[5];
+          ctx.fillText(T[3], W - 80, 108);
+          ctx.fillText(T[4], W - 80, 136);
+          ctx.textAlign = "left";
+          ctx.restore();
+        }
+
+        function drawSigil() {
+          const cx = 320, cy = 600, r = 230;
+          const rng = mulberry32(seedFromId(s.v4));
+
+          ctx.save();
+          ctx.shadowColor = C[2];
+          ctx.shadowBlur = 28;
+          ctx.strokeStyle = C[0];
+          ctx.lineWidth = 3;
+          hexPath(cx, cy, r + 14);
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+
+          ctx.save();
+          hexPath(cx, cy, r);
+          ctx.clip();
+
+          const grad = ctx.createRadialGradient(cx, cy, 10, cx, cy, r);
+          grad.addColorStop(0, C[20]);
+          grad.addColorStop(1, C[21]);
+          ctx.fillStyle = grad;
+          ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+
+          ctx.strokeStyle = C[19];
+          ctx.lineWidth = 1;
+          for (let y = cy - r; y < cy + r; y += 6) {
+            ctx.beginPath();
+            ctx.moveTo(cx - r, y);
+            ctx.lineTo(cx + r, y);
+            ctx.stroke();
+          }
+
+          ctx.strokeStyle = C[9];
+          for (let i = 1; i <= 5; i++) { hexPath(cx, cy, r * (i / 6)); ctx.stroke(); }
+
+          const spokeCount = 6 + Math.floor(rng() * 6);
+          ctx.strokeStyle = C[10];
+          ctx.lineWidth = 1.2;
+          for (let i = 0; i < spokeCount; i++) {
+            const a = (i / spokeCount) * Math.PI * 2 + rng() * 0.15;
+            const r0 = r * (0.18 + rng() * 0.1);
+            const r1 = r * (0.78 + rng() * 0.18);
+            ctx.beginPath();
+            ctx.moveTo(cx + Math.cos(a) * r0, cy + Math.sin(a) * r0);
+            ctx.lineTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1);
+            ctx.stroke();
+          }
+
+          const numPts = 7 + Math.floor(rng() * 6);
+          const pts = [];
+          for (let i = 0; i < numPts; i++) {
+            const a = (i / numPts) * Math.PI * 2 + rng() * 0.4;
+            const rad = r * (0.42 + rng() * 0.42);
+            pts.push([cx + Math.cos(a) * rad, cy + Math.sin(a) * rad]);
+          }
+          ctx.shadowColor = C[2];
+          ctx.shadowBlur = 22;
+          ctx.strokeStyle = C[0];
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(pts[0][0], pts[0][1]);
+          for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+          ctx.closePath();
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+          ctx.strokeStyle = C[13];
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+
+          ctx.strokeStyle = C[11];
+          ctx.lineWidth = 1;
+          const chordCount = Math.floor(numPts / 2);
+          for (let i = 0; i < chordCount; i++) {
+            const a = pts[i];
+            const b = pts[(i + Math.floor(numPts / 2)) % numPts];
+            ctx.beginPath();
+            ctx.moveTo(a[0], a[1]);
+            ctx.lineTo(b[0], b[1]);
+            ctx.stroke();
+          }
+
+          ctx.shadowColor = C[2];
+          ctx.shadowBlur = 14;
+          for (const [px, py] of pts) {
+            const sz = 4 + rng() * 4;
+            ctx.fillStyle = C[12];
+            ctx.beginPath();
+            ctx.arc(px, py, sz, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = C[0];
+            ctx.beginPath();
+            ctx.arc(px, py, sz * 0.45, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.shadowBlur = 0;
+
+          const dotCount = 28 + Math.floor(rng() * 18);
+          for (let i = 0; i < dotCount; i++) {
+            const a = rng() * Math.PI * 2;
+            const rad = r * (0.55 + rng() * 0.4);
+            const sz = 0.8 + rng() * 1.6;
+            const g = P[1] + Math.floor(rng() * P[2]);
+            const b = P[3] + Math.floor(rng() * P[4]);
+            const al = (P[5] + rng() * P[6]).toFixed(3);
+            ctx.fillStyle = `rgba(${P[0]}, ${g}, ${b}, ${al})`;
+            ctx.beginPath();
+            ctx.arc(cx + Math.cos(a) * rad, cy + Math.sin(a) * rad, sz, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          const rot = rng() * Math.PI;
+          const gr = r * 0.18;
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate(rot);
+          ctx.shadowColor = C[16];
+          ctx.shadowBlur = 40;
+          ctx.strokeStyle = C[14];
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(0, -gr);
+          ctx.lineTo(gr * 0.866, gr / 2);
+          ctx.lineTo(-gr * 0.866, gr / 2);
+          ctx.closePath();
+          ctx.stroke();
+          ctx.shadowBlur = 18;
+          ctx.fillStyle = C[15];
+          ctx.fill();
+          ctx.shadowBlur = 30;
+          ctx.fillStyle = C[17];
+          ctx.beginPath();
+          ctx.arc(0, 0, gr * 0.18, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+          ctx.shadowBlur = 0;
+
+          ctx.strokeStyle = C[18];
+          ctx.lineWidth = 1;
+          const ticks = 48;
+          for (let i = 0; i < ticks; i++) {
+            const a = (i / ticks) * Math.PI * 2;
+            const major = i % 6 === 0;
+            const r1 = r * 0.92;
+            const r2 = r1 - (major ? 16 : 7);
+            ctx.beginPath();
+            ctx.moveTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1);
+            ctx.lineTo(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2);
+            ctx.stroke();
+          }
+
+          ctx.restore();
+
+          ctx.strokeStyle = C[1];
+          ctx.lineWidth = 1.5;
+          hexPath(cx, cy, r);
+          ctx.stroke();
+
+          ctx.strokeStyle = C[0];
+          ctx.lineWidth = 2.5;
+          for (let i = 0; i < 6; i++) {
+            const a = -Math.PI / 2 + i * Math.PI / 3;
+            const x1 = cx + Math.cos(a) * (r + 14);
+            const y1 = cy + Math.sin(a) * (r + 14);
+            const x2 = cx + Math.cos(a) * (r + 32);
+            const y2 = cy + Math.sin(a) * (r + 32);
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+          }
+
+          ctx.fillStyle = C[5];
+          ctx.font = "500 14px ui-monospace, SFMono-Regular, Menlo, monospace";
+          ctx.textAlign = "center";
+          ctx.fillText(T[10] + " · " + s.v4, cx, cy + r + 70);
+          ctx.textAlign = "left";
+          ctx.restore();
+        }
+
+        function drawDataPanel() {
+          const x = 720, y = 280, w = W - x - 80;
+          ctx.save();
+          ctx.fillStyle = C[22];
+          roundRect(x, y, w, 540, 8);
+          ctx.fill();
+          ctx.strokeStyle = C[23];
+          ctx.lineWidth = 1.5;
+          roundRect(x, y, w, 540, 8);
+          ctx.stroke();
+
+          const rows = [
+            { k: T[5], v: (s.v0 || "—").toUpperCase() },
+            { k: T[6], v: s.v1 },
+            { k: T[7], v: s.v2 },
+            { k: T[8], v: fmtTime(s.v3) },
+            { k: T[9],     v: s.v4 },
+          ];
+
+          let cy = y + 28;
+          for (const row of rows) {
+            ctx.fillStyle = C[5];
+            ctx.font = "500 14px ui-monospace, SFMono-Regular, Menlo, monospace";
+            ctx.fillText(row.k, x + 28, cy);
+
+            ctx.fillStyle = C[6];
+            ctx.font = "600 26px ui-monospace, SFMono-Regular, Menlo, monospace";
+            ctx.shadowColor = C[2];
+            ctx.shadowBlur = 8;
+            const maxW = w - 56;
+            let value = row.v;
+            while (ctx.measureText(value).width > maxW && value.length > 4) {
+              value = value.slice(0, -2);
+            }
+            if (value !== row.v) value = value.slice(0, -1) + "…";
+            ctx.fillText(value, x + 28, cy + 20);
+            ctx.shadowBlur = 0;
+
+            cy += 80;
+            ctx.strokeStyle = C[9];
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(x + 28, cy + 6);
+            ctx.lineTo(x + w - 28, cy + 6);
+            ctx.stroke();
+            cy += 22;
+          }
+          ctx.restore();
+        }
+
+        function drawFooter() {
+          ctx.save();
+          ctx.strokeStyle = C[25];
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(80, H - 110);
+          ctx.lineTo(W - 80, H - 110);
+          ctx.stroke();
+
+          ctx.fillStyle = C[5];
+          ctx.font = "500 14px ui-monospace, SFMono-Regular, Menlo, monospace";
+          ctx.fillText(T[11] + s.v4, 80, H - 90);
+
+          ctx.textAlign = "right";
+          ctx.fillStyle = C[1];
+          ctx.fillText(T[12], W - 80, H - 90);
+          ctx.textAlign = "left";
+          ctx.restore();
+        }
+
+        function drawBarcode() {
+          const x = 80, y = H - 70, w = W - 160, h = 24;
+          const seed = s.v4.replace(/-/g, "");
+          ctx.save();
+          ctx.fillStyle = C[24];
+          let cx = x;
+          for (let i = 0; i < seed.length * 4 && cx < x + w; i++) {
+            const v = parseInt(seed[i % seed.length], 16);
+            const bw = ((v + i) % 7) + 1;
+            const gap = (v % 4) + 1;
+            if ((v + i) % 3 !== 0) ctx.fillRect(cx, y, bw, h);
+            cx += bw + gap;
+          }
+          ctx.restore();
+        }
+
+        if (els.nameEl) {
+          els.nameEl.addEventListener("input", () => {
+            s.v0 = els.nameEl.value;
+            drawCard();
+          });
+        }
+        if (els.shuffleBtn) {
+          els.shuffleBtn.addEventListener("click", () => {
+            s.v4 = randomId();
+            s.v3 = new Date();
+            drawCard();
+          });
+        }
+        if (els.downloadBtn) {
+          els.downloadBtn.addEventListener("click", () => {
+            s.v3 = new Date();
+            drawCard();
+            canvas.toBlob((blob) => {
+              if (!blob) return;
+              const a = document.createElement("a");
+              const safe = (s.v0 || "anon").replace(/[^a-z0-9]+/gi, "_").toLowerCase();
+              a.href = URL.createObjectURL(blob);
+              a.download = `${T[13]}-${safe}-${s.v4}.png`;
+              document.body.appendChild(a);
+              a.click();
+              a.remove();
+              setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+            }, "image/png");
+          });
+        }
+
+        drawCard();
+      }
+    })();
+  </script>
+</BaseLayout>

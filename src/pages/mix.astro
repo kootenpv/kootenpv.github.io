@@ -1,0 +1,891 @@
+---
+import "~/styles/global.css";
+import { SITE, THEME } from "~/config";
+import Analytics from "~/components/Analytics.astro";
+import Avatar from "~/components/Avatar.astro";
+import Chat from "~/components/Chat.astro";
+import CLI from "~/components/CLI.astro";
+import Footer from "~/components/Footer.astro";
+import Giscus from "~/components/Giscus.astro";
+import Htop from "~/components/htop.astro";
+import Introduction from "~/components/Introduction.astro";
+import Navbar from "~/components/Navbar.astro";
+import SEO from "~/components/SEO.astro";
+import SpecialFX from "~/components/SpecialFX.astro";
+import Ticker from "~/components/Ticker.astro";
+
+const useTronFonts = THEME === "tron-ares";
+const title = "Mix";
+const description = "A playful draggable mix of the site's Astro components.";
+---
+
+<!doctype html>
+<html lang={SITE.locale} data-theme={THEME}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <SEO title={title} description={description} />
+    <Analytics />
+    {
+      useTronFonts && (
+        <link
+          rel="preload"
+          href="/fonts/orbitron/orbitron-latin-var.woff2"
+          as="font"
+          type="font/woff2"
+          crossorigin
+        />
+      )
+    }
+    <script is:inline>
+      document.documentElement.classList.add("dark");
+      try { localStorage.removeItem("theme-mode"); } catch {}
+    </script>
+  </head>
+  <body class="collage-body bg-bg text-fg">
+    <main class="collage-page" aria-label="Draggable component collage">
+      <div class="tron-scanline collage-scanline" aria-hidden="true"></div>
+
+      <section class="collage-stage" id="collage-stage">
+        <div class="collage-backdrop" aria-hidden="true">
+          <span class="shape shape-a"></span>
+          <span class="shape shape-b"></span>
+          <span class="shape shape-c"></span>
+          <span class="shape shape-d"></span>
+          <span class="ribbon ribbon-a"></span>
+          <span class="ribbon ribbon-b"></span>
+        </div>
+
+        <article class="collage-piece piece-htop" data-piece="htop" style="--x: 47vw; --y: 19vh; --w: min(800px, 90vw); --rot: -4deg; --z: 5;">
+          <div class="piece-handle"><span>htop.astro</span></div>
+          <div class="piece-body">
+            <Htop interactive={false} />
+          </div>
+        </article>
+
+        <article class="collage-piece piece-avatar" data-piece="avatar" style="--x: 72vw; --y: 7vh; --w: 176px; --rot: 8deg; --z: 8;">
+          <div class="piece-handle"><span>Avatar.astro</span></div>
+          <div class="piece-body avatar-piece-body">
+            <Avatar size={112} />
+          </div>
+        </article>
+
+        <article class="collage-piece piece-giscus" data-piece="giscus" style="--x: 6vw; --y: 98vh; --w: min(460px, 80vw); --rot: -5deg; --z: 2;">
+          <div class="piece-handle"><span>Giscus.astro</span></div>
+          <div class="piece-body">
+            <div class="component-note">
+              Comments slot
+            </div>
+            <Giscus />
+          </div>
+        </article>
+
+        <article class="collage-piece piece-ticker" data-piece="ticker" style="--x: 17vw; --y: 70vh; --w: min(760px, 86vw); --rot: -1deg; --z: 6;">
+          <div class="piece-handle"><span>Ticker.astro</span></div>
+          <div class="piece-body">
+            <Ticker />
+          </div>
+        </article>
+
+        <article class="collage-piece piece-footer" data-piece="footer" style="--x: 32vw; --y: 89vh; --w: min(620px, 82vw); --rot: 2deg; --z: 3;">
+          <div class="piece-handle"><span>Footer.astro</span></div>
+          <div class="piece-body">
+            <Footer />
+          </div>
+        </article>
+
+        <article class="collage-piece piece-chat" data-piece="chat" style="--x: 61vw; --y: 48vh; --w: min(430px, 80vw); --rot: 3deg; --z: 9;">
+          <div class="piece-handle"><span>Chat.astro</span></div>
+          <div class="piece-body chat-piece-body">
+            <Chat contained />
+          </div>
+        </article>
+
+        <article class="collage-piece piece-navbar" data-piece="navbar" style="--x: 4vw; --y: 5vh; --w: min(1100px, 92vw); --rot: -2deg; --z: 7;">
+          <div class="piece-handle"><span>Navbar.astro</span></div>
+          <div class="piece-body">
+            <Navbar />
+          </div>
+        </article>
+
+        <article class="collage-piece piece-intro" data-piece="introduction" style="--x: 6vw; --y: 20vh; --w: min(760px, 88vw); --rot: 2.5deg; --z: 4;">
+          <div class="piece-handle"><span>Introduction.astro</span></div>
+          <div class="piece-body">
+            <Introduction />
+          </div>
+        </article>
+
+        <article class="collage-piece piece-specialfx" data-piece="specialfx" style="--x: 2vw; --y: 42vh; --w: min(300px, 78vw); --rot: -3deg; --z: 7;">
+          <div class="piece-handle"><span>SpecialFX.astro</span></div>
+          <div class="piece-body specialfx-piece-body">
+            <SpecialFX contained />
+          </div>
+        </article>
+
+        <article class="collage-piece piece-cli" data-piece="cli" style="--x: 30vw; --y: 115vh; --w: min(780px, 90vw); --rot: -1.5deg; --z: 4;">
+          <div class="piece-handle"><span>CLI.astro</span></div>
+          <div class="piece-body">
+            <CLI />
+          </div>
+        </article>
+
+        <article class="collage-piece piece-globe" data-piece="globe" style="--x: 74vw; --y: 62vh; --w: min(360px, 70vw); --rot: 4deg; --z: 6;">
+          <div class="piece-handle"><span>speaking-at-globe-tokyo.png</span></div>
+          <div class="piece-body globe-piece-body">
+            <img
+              src="/img/speaking-at-globe-tokyo.png"
+              alt="Pixel-art globe centered on Tokyo"
+              style="image-rendering: pixelated; width: 100%; height: auto; display: block;"
+            />
+          </div>
+        </article>
+
+        <article class="collage-piece piece-four" data-piece="four" style="--x: 50vw; --y: 138vh; --w: min(360px, 70vw); --rot: -2.5deg; --z: 6;">
+          <div class="piece-handle"><span>fouR.gif</span></div>
+          <div class="piece-body four-piece-body">
+            <img
+              src="/assets/fouR.gif"
+              alt="fouR.gif"
+              style="width: 100%; height: auto; display: block;"
+            />
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script is:inline>
+      (() => {
+        const stage = document.getElementById("collage-stage");
+        if (!stage) return;
+        const storageKey = "collage-piece-positions";
+        const saved = (() => {
+          try { return JSON.parse(localStorage.getItem(storageKey) || "{}"); }
+          catch { return {}; }
+        })();
+        let topZ = 20;
+
+        const pieces = Array.from(stage.querySelectorAll(".collage-piece"));
+        pieces.forEach((piece) => {
+          const key = piece.dataset.piece;
+          if (key && saved[key]) {
+            piece.style.setProperty("--tx", saved[key].x + "px");
+            piece.style.setProperty("--ty", saved[key].y + "px");
+          }
+
+          const handle = piece.querySelector(".piece-handle");
+          if (!handle) return;
+
+          let startX = 0;
+          let startY = 0;
+          let startTx = 0;
+          let startTy = 0;
+          let dragging = false;
+
+          const current = (name) => {
+            const value = getComputedStyle(piece).getPropertyValue(name).trim();
+            return Number.parseFloat(value) || 0;
+          };
+
+          handle.addEventListener("pointerdown", (event) => {
+            if (event.button !== 0) return;
+            event.preventDefault();
+            dragging = true;
+            startX = event.clientX;
+            startY = event.clientY;
+            startTx = current("--tx");
+            startTy = current("--ty");
+            piece.style.zIndex = String(++topZ);
+            piece.classList.add("is-dragging");
+            handle.setPointerCapture(event.pointerId);
+          });
+
+          handle.addEventListener("pointermove", (event) => {
+            if (!dragging) return;
+            const nextX = startTx + event.clientX - startX;
+            const nextY = startTy + event.clientY - startY;
+            piece.style.setProperty("--tx", nextX + "px");
+            piece.style.setProperty("--ty", nextY + "px");
+          });
+
+          const finish = (event) => {
+            if (!dragging) return;
+            dragging = false;
+            piece.classList.remove("is-dragging");
+            if (handle.hasPointerCapture(event.pointerId)) {
+              handle.releasePointerCapture(event.pointerId);
+            }
+            const key = piece.dataset.piece;
+            if (!key) return;
+            saved[key] = { x: current("--tx"), y: current("--ty") };
+            try { localStorage.setItem(storageKey, JSON.stringify(saved)); } catch {}
+          };
+
+          handle.addEventListener("pointerup", finish);
+          handle.addEventListener("pointercancel", finish);
+        });
+
+      })();
+    </script>
+
+    <style is:global>
+      .collage-body {
+        min-height: 100vh;
+        overflow-x: hidden;
+        background-attachment: scroll !important;
+      }
+
+      .collage-page {
+        position: relative;
+        z-index: 1;
+        min-height: 100vh;
+      }
+
+      .collage-diagnostics {
+        position: fixed;
+        right: 12px;
+        top: 12px;
+        z-index: 80;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 6px;
+        width: min(300px, calc(100vw - 24px));
+        padding: 8px;
+        border: 1px solid rgb(var(--c-accent) / 0.45);
+        border-radius: 8px;
+        background: rgb(0 0 0 / 0.86);
+        font: 700 10px/1 var(--font-mono, ui-monospace, monospace);
+        text-transform: uppercase;
+      }
+
+      .collage-scanline {
+        display: none;
+      }
+
+      .fx-scanline .collage-scanline {
+        display: block;
+      }
+
+      .diag-title {
+        grid-column: 1 / -1;
+        color: rgb(var(--c-muted));
+      }
+
+      .collage-diagnostics button {
+        min-height: 28px;
+        padding: 0 6px;
+        color: rgb(var(--c-fg));
+        border: 1px solid rgb(var(--c-border));
+        border-radius: 5px;
+        background: rgb(255 255 255 / 0.05);
+      }
+
+      .collage-diagnostics button.is-on {
+        color: rgb(0 0 0);
+        background: rgb(var(--c-accent));
+      }
+
+      .collage-diagnostics .fx-all-off-btn.is-on {
+        color: rgb(255 255 255);
+        border-color: rgb(255 255 255 / 0.6);
+        background: rgb(160 20 20 / 0.85);
+      }
+
+      .fx-all-off,
+      .fx-all-off * ,
+      .fx-all-off *::before,
+      .fx-all-off *::after {
+        animation: none !important;
+        transition: none !important;
+        text-shadow: none !important;
+        box-shadow: none !important;
+        filter: none !important;
+        backdrop-filter: none !important;
+      }
+
+      .fx-all-off {
+        background-image: none !important;
+      }
+
+      .fx-all-off .collage-stage {
+        background: rgb(0 0 0 / 0.22) !important;
+      }
+
+      .fx-all-off .collage-backdrop,
+      .fx-all-off .collage-scanline {
+        display: none !important;
+      }
+
+      .fx-all-off .collage-piece,
+      .fx-all-off .shape,
+      .fx-all-off .ribbon {
+        transform: none !important;
+      }
+
+      .fx-all-off .piece-handle,
+      .fx-all-off .collage-piece {
+        background-image: none !important;
+      }
+
+      .fx-all-off .ticker-reel {
+        transform: none !important;
+      }
+
+      .collage-body:not(.fx-animations) *,
+      .collage-body:not(.fx-animations) *::before,
+      .collage-body:not(.fx-animations) *::after {
+        animation: none !important;
+      }
+
+      .collage-body :is(.piece-navbar .nav-link.cli-attention, .piece-navbar .nav-link.cli-attention::before, .piece-navbar .nav-link.cli-attention::after) {
+        animation: none !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+      }
+
+      .fx-cli-pulse .piece-navbar .nav-link.cli-attention {
+        animation: cli-pulse-both 1.6s ease-in-out infinite !important;
+      }
+
+      .fx-cli-pulse-box .piece-navbar .nav-link.cli-attention {
+        animation: cli-pulse-box 1.6s ease-in-out infinite !important;
+      }
+
+      .fx-cli-pulse-text .piece-navbar .nav-link.cli-attention {
+        animation: cli-pulse-text 1.6s ease-in-out infinite !important;
+      }
+
+      .fx-cli-pulse-slow .piece-navbar .nav-link.cli-attention {
+        animation: cli-pulse-both 4s ease-in-out infinite !important;
+      }
+
+      .fx-cli-pulse-steps .piece-navbar .nav-link.cli-attention {
+        animation: cli-pulse-both 1.6s steps(2, end) infinite !important;
+      }
+
+      @keyframes cli-pulse-both {
+        0%, 100% {
+          box-shadow:
+            0 0 0 1px rgb(var(--c-accent) / 0),
+            0 0 0 rgb(var(--tron-glow, 255 90 50) / 0);
+          text-shadow: 0 0 0 transparent;
+        }
+        50% {
+          box-shadow:
+            0 0 0 1px rgb(var(--c-accent) / 0.75),
+            0 0 14px rgb(var(--tron-glow, 255 90 50) / 0.6);
+          text-shadow: 0 0 8px rgb(var(--tron-glow, 255 90 50) / 0.7);
+        }
+      }
+
+      @keyframes cli-pulse-box {
+        0%, 100% {
+          box-shadow:
+            0 0 0 1px rgb(var(--c-accent) / 0),
+            0 0 0 rgb(var(--tron-glow, 255 90 50) / 0);
+        }
+        50% {
+          box-shadow:
+            0 0 0 1px rgb(var(--c-accent) / 0.75),
+            0 0 14px rgb(var(--tron-glow, 255 90 50) / 0.6);
+        }
+      }
+
+      @keyframes cli-pulse-text {
+        0%, 100% { text-shadow: 0 0 0 transparent; }
+        50% { text-shadow: 0 0 8px rgb(var(--tron-glow, 255 90 50) / 0.7); }
+      }
+
+      .collage-body:not(.fx-transitions) *,
+      .collage-body:not(.fx-transitions) *::before,
+      .collage-body:not(.fx-transitions) *::after {
+        transition: none !important;
+      }
+
+      .collage-body:not(.fx-component-shadows) :is(
+        .avatar-frame,
+        .editor,
+        .htop,
+        .chat-launcher,
+        .chat,
+        .footer-reset,
+        .fk-on,
+        .fkg-on,
+        header,
+        footer,
+        button,
+        input
+      ),
+      .collage-body:not(.fx-component-shadows) :is(
+        .avatar-frame,
+        .editor,
+        .htop,
+        .chat-launcher,
+        .chat,
+        .footer-reset,
+        .fk-on,
+        .fkg-on,
+        header,
+        footer,
+        button,
+        input
+      )::before,
+      .collage-body:not(.fx-component-shadows) :is(
+        .avatar-frame,
+        .editor,
+        .htop,
+        .chat-launcher,
+        .chat,
+        .footer-reset,
+        .fk-on,
+        .fkg-on,
+        header,
+        footer,
+        button,
+        input
+      )::after {
+        box-shadow: none !important;
+      }
+
+      .collage-body:not(.fx-blur) *,
+      .collage-body:not(.fx-blur) *::before,
+      .collage-body:not(.fx-blur) *::after {
+        backdrop-filter: none !important;
+      }
+
+      .collage-body:not(.fx-body-bg) {
+        background-image: none !important;
+      }
+
+      .collage-body:not(.fx-stage-bg) .collage-stage {
+        background: rgb(0 0 0 / 0.16) !important;
+      }
+
+      .collage-stage {
+        position: relative;
+        min-height: max(2100px, 175vh);
+        padding: 24px;
+        overflow: hidden;
+        isolation: isolate;
+        background: linear-gradient(135deg, rgb(0 0 0 / 0.1), rgb(255 75 35 / 0.05));
+      }
+
+      .fx-backdrop .collage-stage {
+        background:
+          radial-gradient(circle at 12% 18%, rgb(255 206 84 / 0.16), transparent 22%),
+          radial-gradient(circle at 88% 22%, rgb(23 212 190 / 0.15), transparent 24%),
+          radial-gradient(circle at 66% 84%, rgb(255 75 35 / 0.18), transparent 28%),
+          linear-gradient(135deg, rgb(0 0 0 / 0.1), rgb(255 75 35 / 0.05));
+      }
+
+      .collage-backdrop,
+      .collage-backdrop > * {
+        position: absolute;
+        pointer-events: none;
+      }
+
+      .collage-backdrop {
+        inset: 0;
+        z-index: -1;
+        display: none;
+      }
+
+      .fx-backdrop .collage-backdrop {
+        display: block;
+      }
+
+      .shape {
+        border: 1px solid rgb(var(--c-accent) / 0.45);
+      }
+
+      .shape-a {
+        width: 210px;
+        height: 210px;
+        left: 72%;
+        top: 16%;
+        border-radius: 50%;
+        background: rgb(23 212 190 / 0.08);
+      }
+
+      .shape-b {
+        width: 150px;
+        height: 150px;
+        left: 3%;
+        top: 58%;
+        transform: rotate(22deg);
+        background: rgb(255 206 84 / 0.08);
+      }
+
+      .shape-c {
+        width: 280px;
+        height: 80px;
+        left: 42%;
+        top: 5%;
+        transform: rotate(-9deg);
+        border-radius: 999px;
+        background: rgb(255 75 35 / 0.07);
+      }
+
+      .shape-d {
+        width: 190px;
+        height: 190px;
+        left: 82%;
+        top: 73%;
+        transform: rotate(18deg);
+        clip-path: polygon(50% 0, 100% 100%, 0 100%);
+        background: rgb(255 255 255 / 0.04);
+      }
+
+      .ribbon {
+        height: 16px;
+        width: 48vw;
+        border-top: 1px dashed rgb(23 212 190 / 0.7);
+        border-bottom: 1px dashed rgb(255 206 84 / 0.65);
+        opacity: 0.55;
+      }
+
+      .ribbon-a {
+        left: -8vw;
+        top: 36%;
+        transform: rotate(-16deg);
+      }
+
+      .ribbon-b {
+        right: -12vw;
+        top: 66%;
+        transform: rotate(18deg);
+      }
+
+      .collage-piece {
+        --tx: 0px;
+        --ty: 0px;
+        position: absolute;
+        left: calc(var(--x) + var(--tx));
+        top: calc(var(--y) + var(--ty));
+        width: var(--w);
+        max-width: calc(100vw - 32px);
+        z-index: var(--z);
+        border: 1px solid rgb(var(--c-accent) / 0.62);
+        border-radius: 8px;
+        background:
+          linear-gradient(135deg, rgb(255 255 255 / 0.08), rgb(0 0 0 / 0.22)),
+          rgb(var(--c-card) / 0.92);
+        box-shadow:
+          0 14px 28px rgb(0 0 0 / 0.34),
+          0 0 0 1px rgb(255 206 84 / 0.08);
+        touch-action: none;
+      }
+
+      .fx-piece-transform .collage-piece {
+        transform: rotate(var(--rot));
+      }
+
+      .fx-piece-translate .collage-piece {
+        left: var(--x);
+        top: var(--y);
+        transform: translate3d(var(--tx), var(--ty), 0);
+      }
+
+      .fx-piece-translate.fx-piece-transform .collage-piece {
+        transform: translate3d(var(--tx), var(--ty), 0) rotate(var(--rot));
+      }
+
+      .collage-piece.is-dragging {
+        box-shadow:
+          0 20px 36px rgb(0 0 0 / 0.42),
+          0 0 0 1px rgb(23 212 190 / 0.32);
+        transition: box-shadow 0.18s ease;
+      }
+
+      .piece-handle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 30px;
+        padding: 6px 10px;
+        border-bottom: 1px solid rgb(var(--c-accent) / 0.36);
+        border-radius: 7px 7px 0 0;
+        color: rgb(var(--c-fg));
+        background:
+          linear-gradient(90deg, rgb(var(--c-accent) / 0.28), rgb(23 212 190 / 0.12)),
+          rgb(0 0 0 / 0.45);
+        cursor: grab;
+        user-select: none;
+        font: 700 11px/1 var(--font-mono, ui-monospace, monospace);
+        text-transform: uppercase;
+      }
+
+      .fx-text-glow :is(h1, h2, h3, a, .chat-launcher-text, .chat-launcher-caret) {
+        text-shadow:
+          0 0 8px rgb(var(--tron-glow) / 0.55),
+          0 0 18px rgb(var(--tron-glow) / 0.25) !important;
+      }
+
+      .collage-body:not(.fx-text-glow) :is(h1, h2, h3, a, .chat-launcher-text, .chat-launcher-caret) {
+        text-shadow: none !important;
+      }
+
+      .collage-body:not(.fx-tron-grid) {
+        background-image: none !important;
+      }
+
+      .fx-tron-grid {
+        background-attachment: fixed !important;
+      }
+
+      .piece-handle::after {
+        content: "";
+        width: 42px;
+        height: 8px;
+        border-top: 1px solid rgb(255 206 84 / 0.85);
+        border-bottom: 1px solid rgb(23 212 190 / 0.75);
+        opacity: 0.8;
+      }
+
+      .is-dragging .piece-handle {
+        cursor: grabbing;
+      }
+
+      .piece-body {
+        position: relative;
+        max-height: 520px;
+        overflow: auto;
+        padding: 10px;
+        border-radius: 0 0 7px 7px;
+      }
+
+      .piece-navbar .piece-body,
+      .piece-ticker .piece-body,
+      .piece-footer .piece-body {
+        padding: 0;
+      }
+
+      .piece-htop .piece-body {
+        max-height: 430px;
+      }
+
+      .piece-htop .piece-body {
+        overflow: hidden;
+      }
+
+      .piece-intro .piece-body {
+        max-height: none;
+        overflow: hidden;
+      }
+
+      .piece-cli .piece-body {
+        max-height: none;
+        overflow: visible;
+      }
+      .piece-cli :global(.terminal) {
+        height: 220px;
+      }
+      .piece-cli :global(.os-switcher) {
+        margin-bottom: 6px;
+      }
+      .piece-cli :global(.os-switcher-label) {
+        display: none;
+      }
+
+      .avatar-piece-body {
+        display: grid;
+        place-items: center;
+        min-height: 148px;
+      }
+
+      .globe-piece-body {
+        padding: 0;
+        overflow: hidden;
+      }
+
+      .four-piece-body {
+        padding: 0;
+        overflow: hidden;
+      }
+
+      .component-note {
+        display: grid;
+        min-height: 120px;
+        place-items: center;
+        color: rgb(var(--c-muted));
+        font: 700 13px/1 var(--font-mono, ui-monospace, monospace);
+        text-transform: uppercase;
+        border: 1px dashed rgb(var(--c-accent) / 0.45);
+        background: rgb(0 0 0 / 0.25);
+      }
+
+      .collage-piece :global(header) {
+        position: static;
+        border-radius: 0 0 7px 7px;
+      }
+
+      .collage-piece :global(header nav) {
+        max-width: none;
+        min-height: 52px;
+      }
+
+      .piece-navbar :global(.nav-list) {
+        flex-wrap: wrap !important;
+        row-gap: 4px;
+        font-size: 12px;
+      }
+
+      .piece-navbar :global(.nav-link) {
+        padding-left: 0.35rem !important;
+        padding-right: 0.35rem !important;
+      }
+
+      .piece-navbar :global(.nav-sep) {
+        margin: 0 3px !important;
+        height: 14px;
+      }
+
+      .piece-navbar :global(nav) {
+        gap: 0.5rem !important;
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+      }
+
+      .collage-piece :global(footer) {
+        margin: 0;
+        border-radius: 0 0 7px 7px;
+      }
+
+      .collage-piece :global(footer > div) {
+        max-width: none;
+      }
+
+      .collage-piece :global(.ticker) {
+        border-radius: 0 0 7px 7px;
+      }
+
+      .collage-piece :global(.ticker[data-paused="true"] .ticker-reel) {
+        transform: none !important;
+        will-change: auto;
+      }
+
+      .collage-piece :global(.editor) {
+        margin: 0;
+      }
+
+      .collage-piece :global(.editor .body) {
+        min-height: 300px;
+      }
+
+      .piece-intro :global(.editor .body) {
+        height: 620px;
+      }
+
+      .collage-piece :global(.htop) {
+        margin: 0.65rem 0 0;
+      }
+
+      .piece-htop :global(.htop) {
+        overflow: hidden;
+        box-shadow: none;
+      }
+
+      .piece-htop :global(.htop-block) {
+        font-size: 11px;
+        line-height: 1.38;
+      }
+
+      .piece-htop :global(.htop *),
+      .piece-htop :global(#htop-toggle) {
+        text-shadow: none !important;
+        box-shadow: none !important;
+      }
+
+      .collage-piece :global(.chat-root) {
+        position: relative;
+        right: auto;
+        bottom: auto;
+        z-index: 1;
+        max-width: none;
+        width: 100%;
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .collage-piece :global(.chat-launcher) {
+        transform: none;
+        opacity: 1;
+        animation: none;
+      }
+
+      .collage-piece :global(.chat) {
+        position: relative;
+        width: 100% !important;
+        transform: none !important;
+        transition: none;
+        box-shadow: none;
+      }
+
+      .piece-chat :global(.chat-root[data-size="max"] .chat),
+      .piece-chat :global(.chat-root[data-size="normal"] .chat) {
+        width: 100% !important;
+      }
+
+      .piece-chat :global(.chat-root[data-open="true"] .chat) {
+        max-height: 460px;
+      }
+
+      .piece-chat :global(.chat-log) {
+        max-height: 250px;
+      }
+
+      .piece-chat :global(.chat-launcher) {
+        backdrop-filter: none;
+        box-shadow: none;
+      }
+
+      .fx-chat-effects .piece-chat :global(.chat-launcher) {
+        backdrop-filter: blur(2px);
+        box-shadow:
+          0 0 0 1px rgb(var(--c-accent, 255 75 35) / 0.25),
+          0 0 20px rgb(var(--tron-glow, 255 90 50) / 0.45),
+          inset 0 0 18px rgb(var(--tron-glow, 255 90 50) / 0.06);
+      }
+
+      .chat-piece-body {
+        min-height: 116px;
+        max-height: none;
+        overflow: visible;
+      }
+
+      .specialfx-piece-body {
+        max-height: none;
+        overflow: visible;
+        padding: 0;
+      }
+      .specialfx-piece-body :global(.special-fx-panel) {
+        border: 0;
+        border-radius: 0 0 7px 7px;
+      }
+
+      @media (max-width: 760px) {
+        .collage-stage {
+          min-height: 2700px;
+          padding: 12px;
+        }
+
+        .collage-piece {
+          left: 12px;
+          width: calc(100vw - 24px) !important;
+        }
+
+        .piece-navbar { top: 18px; }
+        .piece-avatar { top: 130px; }
+        .piece-intro { top: 320px; }
+        .piece-htop { top: 620px; }
+        .piece-chat { top: 860px; }
+        .piece-ticker { top: 1020px; }
+        .piece-footer { top: 1130px; }
+        .piece-giscus { top: 1270px; }
+        .piece-cli { top: 1480px; }
+        .piece-globe { top: 1780px; }
+        .piece-specialfx { top: 2000px; }
+        .piece-four { top: 2200px; }
+      }
+    </style>
+  </body>
+</html>

@@ -1,0 +1,170 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { SOCIAL } from "~/config";
+---
+
+<BaseLayout title="PPM" description="Pascal Password Manager — runs in your browser">
+  <article class="prose max-w-none">
+    <h1>
+      ppm —
+      <a href={`https://github.com/${SOCIAL.github}/ppm`}>GitHub</a>
+    </h1>
+    <p class="lead text-muted"><em>Pascal Password Manager</em></p>
+
+    <p>A password manager I built and used between 2016 and 2018. All cryptography runs locally in your browser — nothing is transmitted or stored.</p>
+    <p>Python and Android implementations are also available.</p>
+
+    <h3>Generate password</h3>
+
+    <form id="ppm-form" class="not-prose space-y-3 my-4">
+      <div class="flex items-center gap-3">
+        <label for="password" class="w-28">Password:</label>
+        <input id="password" name="password" type="password" value="passwordpassword" size={32}
+          class="px-2 py-1 rounded border border-border bg-card text-fg" />
+      </div>
+      <div class="flex items-center gap-3">
+        <label for="keyword" class="w-28">Keyword:</label>
+        <input id="keyword" name="keyword" type="text" value="secret" size={32}
+          class="px-2 py-1 rounded border border-border bg-card text-fg" />
+      </div>
+      <button type="submit" id="ppm-btn"
+        class="px-3 py-1.5 rounded bg-accent text-white hover:opacity-90">
+        Calculate
+      </button>
+    </form>
+
+    <div id="ppm-out" class="text-sm text-muted leading-relaxed">
+      <strong>
+        Credits for Scrypt implementation:
+        <a href="https://github.com/dchest/scrypt-async-js">dchest/scrypt-async-js</a>
+      </strong>
+    </div>
+
+    <p>
+      Because there are no third-party dependencies or remote services, the trust surface stays
+      minimal. The same strong password is deterministically derived each time from your master
+      password and a per-site keyword (e.g. <code>blue-sky</code> or <code>orange-tiger</code>).
+    </p>
+    <p>
+      Under the chosen scrypt parameters, a brute-force attack would take roughly 10<sup>19</sup>
+      years on a million MacBook Pros to reach the expected halfway point of the keyspace.
+      <em>(I wrote that estimate about 10 years ago.)</em>
+    </p>
+
+    <div class="shrinking">
+    <h3>Revisiting the estimate in 2026</h3>
+    <p>
+      Hardware has moved on, so it's worth redoing the math. The parameters here are
+      <code>logN = 15, r = 8, p = 1</code>, which means each scrypt evaluation touches
+      <code>128 · r · 2<sup>N</sup> = 128 · 8 · 32768 ≈ 32 MB</code> of memory and performs on the
+      order of <code>4 · r · 2<sup>N</sup> ≈ 1.05 · 10<sup>6</sup></code> Salsa20/8 core operations.
+      Because scrypt is memory-hard, throughput is bounded by RAM bandwidth as much as by raw CPU.
+    </p>
+    <p>
+      <strong>2016 baseline.</strong> A mid-range MacBook Pro of that era (Intel Core i7, 4 cores,
+      ~25 GB/s memory bandwidth) ran a single evaluation in roughly 300–400 ms, giving about
+      <strong>10 evaluations/second</strong> when fully parallelised across cores. A million such
+      machines therefore deliver around <code>10<sup>7</sup></code> evaluations/second, or
+      <code>~3 · 10<sup>14</sup></code> per year.
+    </p>
+    <p>
+      <strong>Halfway-point assumption.</strong> The original figure assumed a master-password
+      keyspace of roughly <code>2<sup>110</sup> ≈ 1.3 · 10<sup>33</sup></code> candidates, with
+      brute force expected to find it after searching half:
+      <code>6.5 · 10<sup>32</sup></code> evaluations. Dividing that by <code>3 · 10<sup>14</sup></code>
+      evaluations/year gives <code>~2 · 10<sup>18</sup></code> years — within an order of magnitude
+      of the <code>10<sup>19</sup></code> figure (the original was a back-of-envelope upper bound).
+    </p>
+    <p>
+      <strong>2026 hardware.</strong> A current MacBook Pro (Apple M-series, 10–14 performance
+      cores, ~400 GB/s unified memory bandwidth) completes a single evaluation in roughly
+      <strong>15–25 ms per core</strong>. Multi-core throughput lands around
+      <strong>500 evaluations/second</strong> per machine — call it a
+      <strong>~50× speed-up</strong> over the 2016 baseline, dominated by the jump in memory
+      bandwidth rather than clock speed.
+    </p>
+    <p>
+      <strong>Updated estimate.</strong> A million 2026 MacBook Pros deliver
+      <code>5 · 10<sup>8</sup></code> evaluations/second, or <code>~1.6 · 10<sup>16</sup></code>
+      per year. Searching half the keyspace then takes
+      <code>6.5 · 10<sup>32</sup> / 1.6 · 10<sup>16</sup> ≈ 4 · 10<sup>16</sup></code> years —
+      still about <strong>three million times the age of the universe</strong>.
+    </p>
+    <p>
+      In other words: ten years of hardware progress shaved roughly two orders of magnitude off the
+      number, and the answer is still "not in any human time frame." The memory-hardness of scrypt
+      is doing its job — speed-ups track memory bandwidth, which scales far more slowly than
+      transistor counts.
+    </p>
+    </div>
+
+    <style>
+      .shrinking h3 { font-size: 1.25em; }
+      .shrinking p:nth-of-type(1) { font-size: 1em; }
+      .shrinking p:nth-of-type(2) { font-size: 0.9em; }
+      .shrinking p:nth-of-type(3) { font-size: 0.8em; }
+      .shrinking p:nth-of-type(4) { font-size: 0.7em; }
+      .shrinking p:nth-of-type(5) { font-size: 0.6em; }
+      .shrinking p:nth-of-type(6) { font-size: 0.5em; }
+    </style>
+  </article>
+
+  <script is:inline src="/js/scrypt.js"></script>
+  <script is:inline>
+    (function () {
+      const form = document.getElementById("ppm-form");
+      if (!form) return;
+      const btn = document.getElementById("ppm-btn");
+      const out = document.getElementById("ppm-out");
+      const passwordEl = document.getElementById("password");
+      const keywordEl = document.getElementById("keyword");
+      keywordEl.addEventListener("change", () => (keywordEl.value = keywordEl.value.toLowerCase()));
+
+      function copyToClipboard(text) {
+        if (navigator.clipboard && window.isSecureContext) {
+          return navigator.clipboard.writeText(text);
+        }
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand("copy"); } catch {}
+        document.body.removeChild(ta);
+      }
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const password = passwordEl.value;
+        const keyword = keywordEl.value;
+        btn.disabled = true;
+        btn.textContent = "Wait...";
+        const t1 = Date.now();
+        try {
+          // global from /js/scrypt.js
+          // eslint-disable-next-line no-undef
+          scrypt(
+            password,
+            keyword,
+            { logN: 15, r: 8, p: 1, dkLen: 32, interruptStep: 0, encoding: "hex" },
+            (res) => {
+              const t2 = Date.now() - t1;
+              out.innerHTML =
+                "Time: <b>" + t2 + " ms</b><br>Master password length: " +
+                password.length +
+                '<br><span style="color:cornflowerblue;font-weight:bold">Successfully copied password to clipboard.<br>(the first number occuring in this string might be useful if you pressed Calculate without changing the data).</span>';
+              btn.disabled = false;
+              btn.textContent = "Calculate";
+              copyToClipboard(res);
+            }
+          );
+        } catch (ex) {
+          out.innerHTML = '<span style="color:red">error: ' + ex.message + "</span>";
+          btn.disabled = false;
+          btn.textContent = "Calculate";
+        }
+      });
+    })();
+  </script>
+</BaseLayout>

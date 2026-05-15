@@ -1,0 +1,65 @@
+---
+import { SITE } from "~/config";
+
+interface Props {
+  src?: string;
+  alt?: string;
+  size?: number;
+  progress?: number;
+  class?: string;
+}
+
+const {
+  src = SITE.avatar,
+  alt = SITE.author,
+  size = 32,
+  progress = SITE.avatarProgress,
+  class: className,
+} = Astro.props;
+
+const normalizedProgress = [0, 25, 50, 75, 100].includes(progress) ? progress : 0;
+---
+
+<span
+  class:list={["avatar-frame shrink-0", className]}
+  style={`--avatar-size: ${size}px; --avatar-progress: ${normalizedProgress}%;`}
+  aria-label={`${alt} deployment progress ${normalizedProgress}%`}
+  title={`Deploy marker: ${normalizedProgress}%`}
+>
+  <img
+    src={src}
+    alt={alt}
+    width={size}
+    height={size}
+    class="avatar-frame__image"
+  />
+</span>
+
+<style>
+  .avatar-frame {
+    display: inline-grid;
+    place-items: center;
+    width: var(--avatar-size);
+    height: var(--avatar-size);
+    padding: max(2px, calc(var(--avatar-size) * 0.07));
+    border-radius: 8px;
+    background:
+      conic-gradient(
+        from -90deg,
+        rgb(var(--c-accent, 255 75 35)) 0 var(--avatar-progress),
+        rgb(var(--c-border, 70 22 12)) var(--avatar-progress) 100%
+      );
+    box-shadow:
+      0 0 0 1px rgb(var(--c-bg, 0 0 0) / 0.7),
+      0 0 10px rgb(var(--tron-glow, 255 90 50) / 0.45);
+  }
+
+  .avatar-frame__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 5px;
+    background: rgb(var(--c-card, 18 10 10));
+  }
+</style>

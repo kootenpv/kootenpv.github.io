@@ -1,0 +1,244 @@
+/* Giscus theme: tron-ares
+ * Matches the site theme defined in src/styles/global.css ([data-theme="tron-ares"].dark).
+ * Hosted at https://vks.ai/giscus/kootenpv_theme.css
+ *
+ * Variable list mirrors giscus's official themes
+ * (see https://github.com/giscus/giscus/tree/main/styles/themes).
+ */
+
+/* Pull in the same Orbitron variable font used by the site.
+ * Absolute URL is required because this stylesheet is loaded inside
+ * giscus.app's iframe (cross-origin from the site). */
+@font-face {
+  font-family: "Orbitron";
+  font-style: normal;
+  font-weight: 500 700;
+  font-display: swap;
+  src: url("https://vks.ai/fonts/orbitron/orbitron-latin-var.woff2") format("woff2");
+}
+
+main {
+  /* App palette (tron-ares dark) */
+  --tron-bg: #000000;
+  --tron-card: #0c0606;
+  --tron-fg: #ffe6d7;
+  --tron-muted: #dc8c69;
+  --tron-accent: #ff3c19;
+  --tron-glow: #ff5a32;
+  --tron-border: #5a190c;
+  --tron-grid: rgba(255, 75, 35, 0.12);
+
+  /* Syntax highlighting (close to GitHub dark, tinted toward warm) */
+  --color-prettylights-syntax-comment: #8b6f63;
+  --color-prettylights-syntax-constant: #ff8a65;
+  --color-prettylights-syntax-entity: #ffb38a;
+  --color-prettylights-syntax-storage-modifier-import: #ffe6d7;
+  --color-prettylights-syntax-entity-tag: #ff8a65;
+  --color-prettylights-syntax-keyword: #ff5a32;
+  --color-prettylights-syntax-string: #ffd1a8;
+  --color-prettylights-syntax-variable: #ffae87;
+  --color-prettylights-syntax-brackethighlighter-unmatched: #f85149;
+  --color-prettylights-syntax-invalid-illegal-text: #f0f6fc;
+  --color-prettylights-syntax-invalid-illegal-bg: #8e1519;
+  --color-prettylights-syntax-carriage-return-text: #f0f6fc;
+  --color-prettylights-syntax-carriage-return-bg: #b62324;
+  --color-prettylights-syntax-string-regexp: #ffae87;
+  --color-prettylights-syntax-markup-list: #ffd1a8;
+  --color-prettylights-syntax-markup-heading: #ff5a32;
+  --color-prettylights-syntax-markup-italic: #ffe6d7;
+  --color-prettylights-syntax-markup-bold: #ffe6d7;
+  --color-prettylights-syntax-markup-deleted-text: #ffd1d1;
+  --color-prettylights-syntax-markup-deleted-bg: #4a0a0a;
+  --color-prettylights-syntax-markup-inserted-text: #ffd1a8;
+  --color-prettylights-syntax-markup-inserted-bg: #2a1408;
+  --color-prettylights-syntax-markup-changed-text: #ffd1a8;
+  --color-prettylights-syntax-markup-changed-bg: #3a1c0c;
+  --color-prettylights-syntax-markup-ignored-text: #ffe6d7;
+  --color-prettylights-syntax-markup-ignored-bg: #ff3c19;
+  --color-prettylights-syntax-meta-diff-range: #ff5a32;
+  --color-prettylights-syntax-brackethighlighter-angle: #dc8c69;
+  --color-prettylights-syntax-sublimelinter-gutter-mark: #6e6258;
+  --color-prettylights-syntax-constant-other-reference-link: #ffd1a8;
+
+  /* Buttons */
+  --color-btn-text: var(--tron-fg);
+  --color-btn-bg: var(--tron-card);
+  --color-btn-border: var(--tron-border);
+  --color-btn-shadow: 0 0 0 transparent;
+  --color-btn-inset-shadow: 0 0 0 transparent;
+  --color-btn-hover-bg: rgba(255, 60, 25, 0.08);
+  --color-btn-hover-border: var(--tron-accent);
+  --color-btn-active-bg: rgba(255, 60, 25, 0.16);
+  --color-btn-active-border: var(--tron-accent);
+  --color-btn-selected-bg: rgba(255, 60, 25, 0.2);
+  --color-btn-primary-text: #050203;
+  --color-btn-primary-bg: var(--tron-accent);
+  --color-btn-primary-border: var(--tron-accent);
+  --color-btn-primary-shadow: 0 0 12px rgba(255, 90, 50, 0.6);
+  --color-btn-primary-inset-shadow: 0 0 0 transparent;
+  --color-btn-primary-hover-bg: var(--tron-glow);
+  --color-btn-primary-hover-border: var(--tron-glow);
+  --color-btn-primary-selected-bg: var(--tron-glow);
+  --color-btn-primary-selected-shadow: 0 0 18px rgba(255, 90, 50, 0.8);
+  --color-btn-primary-disabled-text: rgba(255, 230, 215, 0.5);
+  --color-btn-primary-disabled-bg: rgba(255, 60, 25, 0.35);
+  --color-btn-primary-disabled-border: transparent;
+
+  --color-action-list-item-default-hover-bg: rgba(255, 60, 25, 0.08);
+
+  /* Segmented control (tabs) */
+  --color-segmented-control-bg: rgba(255, 60, 25, 0.06);
+  --color-segmented-control-button-bg: var(--tron-card);
+  --color-segmented-control-button-selected-border: var(--tron-accent);
+
+  /* Foregrounds & surfaces */
+  --color-fg-default: var(--tron-fg);
+  --color-fg-muted: var(--tron-muted);
+  --color-fg-subtle: #a96a4f;
+  --color-canvas-default: var(--tron-bg);
+  --color-canvas-overlay: var(--tron-card);
+  --color-canvas-inset: #060303;
+  --color-canvas-subtle: var(--tron-card);
+  --color-border-default: var(--tron-border);
+  --color-border-muted: rgba(255, 75, 35, 0.18);
+  --color-neutral-muted: rgba(255, 75, 35, 0.12);
+
+  /* Accent (links / focus / "you" badge) */
+  --color-accent-fg: var(--tron-accent);
+  --color-accent-emphasis: var(--tron-accent);
+  --color-accent-muted: rgba(255, 60, 25, 0.4);
+  --color-accent-subtle: rgba(255, 60, 25, 0.12);
+
+  /* Status */
+  --color-success-fg: #6fdc8c;
+  --color-attention-fg: #ffd166;
+  --color-attention-muted: rgba(255, 209, 102, 0.4);
+  --color-attention-subtle: rgba(255, 209, 102, 0.12);
+  --color-danger-fg: #ff6b6b;
+  --color-primer-shadow-inset: 0 0 0 transparent;
+  --color-scale-gray-7: #1a0d0a;
+
+  --color-social-reaction-bg-hover: rgba(255, 60, 25, 0.12);
+  --color-social-reaction-bg-reacted-hover: rgba(255, 60, 25, 0.2);
+
+  /* Tron flavour: typography + grid */
+  font-family: "Orbitron", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0.01em;
+  background-color: var(--tron-bg);
+  background-image:
+    linear-gradient(to right, var(--tron-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--tron-grid) 1px, transparent 1px);
+  background-size: 48px 48px, 48px 48px;
+  background-attachment: fixed;
+}
+
+/* Loading spinners — recolour the default GitHub avatars/spinners */
+main .pagination-loader-container {
+  background-image: url("https://github.com/images/modules/pulls/progressive-disclosure-line.svg");
+  filter: hue-rotate(160deg) saturate(2.2) brightness(1.1);
+}
+
+main .gsc-loading-image {
+  background-image: url("https://github.githubassets.com/images/mona-loading-dimmed.gif");
+  filter: hue-rotate(160deg) saturate(1.6);
+}
+
+/* Headings & timeline rails — give them the tron neon glow */
+main .gsc-comments > h4,
+main .gsc-comment-header,
+main .gsc-reactions-count {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--tron-fg);
+  text-shadow:
+    0 0 6px rgba(255, 90, 50, 0.5),
+    0 0 14px rgba(255, 90, 50, 0.2);
+}
+
+main .gsc-comment-box-tabs button {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+main .gsc-comment {
+  border: 1px solid var(--tron-border);
+  border-radius: 6px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 75, 35, 0.08),
+    0 0 12px rgba(255, 90, 50, 0.05);
+}
+
+main .gsc-comment-header,
+main .gsc-replies {
+  border-color: rgba(255, 75, 35, 0.25) !important;
+}
+
+/* Links (and buttons rendered as links) */
+main a,
+main .gsc-comment-content a {
+  color: var(--tron-accent);
+  text-shadow: 0 0 5px rgba(255, 90, 50, 0.4);
+}
+
+main a:hover,
+main .gsc-comment-content a:hover {
+  text-shadow:
+    0 0 8px rgba(255, 90, 50, 0.85),
+    0 0 18px rgba(255, 90, 50, 0.5);
+}
+
+/* Reaction popover */
+main .gsc-reactions-popover {
+  background-color: var(--tron-card);
+  border: 1px solid var(--tron-border);
+  box-shadow: 0 0 18px rgba(255, 90, 50, 0.18);
+}
+
+/* Inputs / textarea */
+main textarea,
+main .gsc-comment-box-textarea,
+main input[type="text"] {
+  background-color: var(--tron-bg) !important;
+  border-color: var(--tron-border) !important;
+  color: var(--tron-fg) !important;
+}
+
+main textarea:focus,
+main .gsc-comment-box-textarea:focus,
+main input[type="text"]:focus {
+  border-color: var(--tron-accent) !important;
+  box-shadow: 0 0 0 1px var(--tron-accent), 0 0 10px rgba(255, 90, 50, 0.45) !important;
+  outline: none;
+}
+
+/* Code blocks inside comments */
+main .markdown-body pre,
+main pre {
+  background-color: rgba(0, 0, 0, 0.6) !important;
+  border: 1px solid rgba(255, 75, 35, 0.4) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 75, 35, 0.18);
+}
+
+main .markdown-body code,
+main code {
+  background-color: rgba(255, 75, 35, 0.08);
+  color: var(--tron-accent);
+}
+
+main .markdown-body pre code,
+main pre code {
+  background: transparent;
+  color: inherit;
+}
+
+/* Selection */
+main ::selection {
+  background: rgba(255, 60, 25, 0.4);
+  color: var(--tron-fg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  main .gsc-comment-box-write button.gsc-comment-box-tab[aria-selected="true"] {
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+}

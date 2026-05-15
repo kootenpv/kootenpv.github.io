@@ -1,0 +1,69 @@
+# Default policy: everything allowed except the LLM bait file.
+User-agent: *
+Disallow: /llms-secret.txt
+Allow: /
+
+# Known LLM crawlers — explicitly allowed to read /llms-secret.txt.
+# This is deliberate: the file is reachable, but only to user-agents that
+# advertise themselves as AI agents. Curiosity is rewarded.
+User-agent: GPTBot
+Allow: /llms-secret.txt
+
+User-agent: ChatGPT-User
+Allow: /llms-secret.txt
+
+User-agent: OAI-SearchBot
+Allow: /llms-secret.txt
+
+User-agent: ClaudeBot
+Allow: /llms-secret.txt
+
+User-agent: Claude-Web
+Allow: /llms-secret.txt
+
+User-agent: anthropic-ai
+Allow: /llms-secret.txt
+
+User-agent: Google-Extended
+Allow: /llms-secret.txt
+
+User-agent: PerplexityBot
+Allow: /llms-secret.txt
+
+User-agent: Perplexity-User
+Allow: /llms-secret.txt
+
+User-agent: CCBot
+Allow: /llms-secret.txt
+
+User-agent: Bytespider
+Allow: /llms-secret.txt
+
+User-agent: Applebot-Extended
+Allow: /llms-secret.txt
+
+User-agent: cohere-ai
+Allow: /llms-secret.txt
+
+User-agent: Meta-ExternalAgent
+Allow: /llms-secret.txt
+
+User-agent: FacebookBot
+Allow: /llms-secret.txt
+
+User-agent: Amazonbot
+Allow: /llms-secret.txt
+
+User-agent: DuckAssistBot
+Allow: /llms-secret.txt
+
+User-agent: MistralAI-User
+Allow: /llms-secret.txt
+
+User-agent: YouBot
+Allow: /llms-secret.txt
+
+User-agent: Diffbot
+Allow: /llms-secret.txt
+
+Sitemap: https://vks.ai/sitemap-index.xml

@@ -1,0 +1,441 @@
+---
+type Proc = {
+  pid: number;
+  cpu: number;
+  mem: number;
+  date: string;  // ISO yyyy-mm-dd, real publish date — used as sort key only
+  time: string;  // fake htop-style TIME+ value shown in the column
+  cmd: string;
+  url: string;
+  tag: string;
+};
+
+interface Props {
+  interactive?: boolean;
+}
+
+const { interactive = true } = Astro.props;
+
+const procs: Proc[] = [
+  { pid: 542, cpu: 54.2, mem: 4.1, date: "2019-10-09", time: "9:14", cmd: "brightness-ml.py",        url: "https://www.reddit.com/r/Python/comments/dfdtbs/automated_brightness_on_a_laptop_using_machine/", tag: "reddit" },
+  { pid: 510, cpu: 51.0, mem: 3.7, date: "2016-09-27", time: "6:52", cmd: "whereami --predict",      url: "https://www.reddit.com/r/Python/comments/54qto9/you_can_use_whereami_to_predict_where_you_are/",  tag: "reddit" },
+  { pid: 230, cpu: 23.0, mem: 1.8, date: "2015-08-13", time: "4:02", cmd: "yagmail.send_email",      url: "https://www.reddit.com/r/Python/comments/3gtps6/finally_it_is_now_even_easier_to_send_emails_in",  tag: "reddit" },
+  { pid: 200, cpu: 20.0, mem: 1.2, date: "2016-09-12", time: "4:18", cmd: "codingame_ai --top5",     url: "https://www.reddit.com/r/Python/comments/52f50j/ai_challenge_in_78_lines_of_python_top_5_on/",    tag: "reddit" },
+  { pid: 170, cpu: 17.0, mem: 8.7, date: "2017-04-15", time: "3:31", cmd: "neural-complete --train", url: "https://news.ycombinator.com/item?id=14119848",                                                  tag: "hn"     },
+];
+
+
+const BAR_W = 28;
+function bar(pct: number): string {
+  const fill = Math.round((pct / 100) * BAR_W);
+  return "|".repeat(fill) + " ".repeat(BAR_W - fill);
+}
+
+const cpu1 = procs[0].cpu;
+const memUsed = procs.reduce((a, p) => a + p.mem, 0);
+const totalVotes = procs.reduce((a, p) => a + p.pid, 0);
+
+const BIRTH = new Date(Date.UTC(1989, 6, 16, 0, 0, 0));
+function uptimeStr(now: Date): string {
+  let years = now.getUTCFullYear() - BIRTH.getUTCFullYear();
+  const annivThisYear = new Date(Date.UTC(now.getUTCFullYear(), BIRTH.getUTCMonth(), BIRTH.getUTCDate()));
+  if (now.getTime() < annivThisYear.getTime()) years--;
+  const lastAnniv = new Date(Date.UTC(BIRTH.getUTCFullYear() + years, BIRTH.getUTCMonth(), BIRTH.getUTCDate()));
+  const totalSec = Math.floor((now.getTime() - lastAnniv.getTime()) / 1000);
+  const days = Math.floor(totalSec / 86400);
+  const hh = Math.floor(totalSec / 3600) % 24;
+  const mm = Math.floor(totalSec / 60) % 60;
+  const ss = totalSec % 60;
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${years} years, ${days} days, ${pad(hh)}:${pad(mm)}:${pad(ss)}`;
+}
+const initialUptime = uptimeStr(new Date());
+
+const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+const padPct = (n: number) => n.toFixed(1).padStart(4, " ") + "%";
+
+const headerHtml = [
+  `<span class="hl">  1</span>  [<span class="bar" id="htop-cpu-bar">${bar(cpu1)}</span><span class="pct" id="htop-cpu-pct">${padPct(cpu1)}</span>]   <span class="dim">Tasks:</span> 1337, 42 thr; 1337 running`,
+  `<span class="hl">Mem</span>  [<span class="bar" id="htop-mem-bar">${bar(memUsed)}</span><span class="pct" id="htop-mem-pct">${padPct(memUsed)}</span>]   <span class="dim">Uptime:</span>   <span id="htop-uptime">${initialUptime}</span>`,
+  ``,
+  `<span class="cols">  PID USER   VOTES  %CPU<span class="mem-col"> %MEM</span>   TIME  COMMAND</span>`,
+].join("\n");
+
+const tagName: Record<string, string> = { reddit: "reddit", hn: "hackernews" };
+
+const rowsHtml = procs.map((p) => {
+  const votes = String(p.pid).padStart(5, " ");
+  const arg = tagName[p.tag] ?? p.tag;
+  const initialCpu = ((p.pid / totalVotes) * cpu1).toFixed(1).padStart(4, " ");
+  return `<span class="row" data-votes="${p.pid}" data-date="${p.date}" data-name="${esc(p.cmd)}">  <span class="pid">${p.pid}</span> pascal <span class="pct">${votes}</span>  <span class="pct row-cpu" data-weight="${p.pid}">${initialCpu}</span><span class="mem-col">  <span class="dim">${p.mem.toFixed(1)}</span></span>  <span class="dim">${p.time.padStart(5, " ")}</span>  <a href="${esc(p.url)}" class="cmd">${esc(p.cmd)}<span class="arg"> --on ${arg}</span></a></span>`;
+}).join("\n");
+
+const ftrNormalHtml = `<span class="fkg fkg-on" data-action="help" role="button" tabindex="0"><span class="fk fk-on">F1</span>Help</span> <span class="fkg"><span class="fk">F2</span>Setup</span> <span class="fkg"><span class="fk">F3</span>Search</span> <span class="fkg"><span class="fk">F4</span>Filter</span> <span class="fkg"><span class="fk">F5</span>Tree</span> <span class="fkg fkg-on" data-action="sort" role="button" tabindex="0"><span class="fk fk-on">F6</span>SortBy</span> <span class="fkg fkg-on" data-action="kill" role="button" tabindex="0"><span class="fk fk-on">F9</span>Kill</span> <span class="fkg fkg-on" data-action="quit" role="button" tabindex="0"><span class="fk fk-on">F10</span>Quit</span>`;
+const ftrKillHtml = `<span class="kill-tag">KILL</span> <span class="fkg fkg-on" data-action="signal" role="button" tabindex="0"><span class="fk fk-on">15</span>SIGTERM</span> <span class="fkg fkg-on" data-action="signal" role="button" tabindex="0"><span class="fk fk-on">9</span>SIGKILL</span> · <span class="fkg fkg-on" data-action="kill" role="button" tabindex="0"><span class="fk fk-on">Esc</span>cancel</span>`;
+const footerHtml = `<span class="ftr"><span class="ftr-normal">${ftrNormalHtml}</span><span class="ftr-kill" style="display:none">${ftrKillHtml}</span></span>`;
+
+const htopHtml = `${headerHtml}\n<span id="htop-rows">${rowsHtml}</span>\n\n${footerHtml}`;
+---
+
+<p>I have had a few trending posts in the past, here I show them using <code id="htop-toggle" role="button" tabindex="0" title="Click to expand/collapse">htop</code>:</p>
+<div id="htop-block" class="htop not-prose" role="img" aria-label="Popular posts shown as an htop process list. Higher upvotes show as higher CPU usage.">
+  <pre class="htop-block" set:html={htopHtml}></pre>
+</div>
+
+<div id="htop-help" class="htop-help not-prose" hidden>
+  <div class="htop-help-card" role="dialog" aria-modal="true" aria-labelledby="htop-help-title">
+    <header>
+      <span id="htop-help-title">htop(1) — help</span>
+      <button type="button" class="htop-help-close" aria-label="Close help">×</button>
+    </header>
+    <pre>
+<span class="hk">F1</span> this overlay
+<span class="hk">F2</span> setup    (not implemented)
+<span class="hk">F3</span> search   (use Ctrl+F)
+<span class="hk">F4</span> filter   (squint at it)
+<span class="hk">F5</span> tree     (all depth 1)
+<span class="hk">F6</span> sort     (votes / date / name)
+<span class="hk">F9</span> kill     (select row, then signal)
+<span class="hk">F10</span> quit    (collapses htop)
+
+<span class="hk">Esc</span> close this overlay
+<span class="dim">sort:</span> <span id="htop-help-mode">votes</span>
+real shells live at <a href="/cli">/cli</a>.
+    </pre>
+  </div>
+</div>
+
+<style is:global>
+  .htop {
+    margin: 1.25rem 0;
+    padding: 0.9rem 1rem;
+    background: #0a0a0c;
+    border: 1px solid rgba(255, 122, 24, 0.35);
+    border-radius: 6px;
+    box-shadow: 0 0 0 1px rgba(255, 122, 24, 0.08), 0 0 24px rgba(255, 122, 24, 0.08);
+    overflow-x: auto;
+  }
+  .htop-block {
+    margin: 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #d6d2c8;
+    white-space: pre;
+    background: transparent;
+  }
+  .htop .title { color: #fff5e0; font-weight: 700; letter-spacing: 1px; text-shadow: 0 0 6px rgba(255, 122, 24, 0.45); }
+  .htop .hl   { color: #fff5e0; font-weight: 600; }
+  .htop .bar  { color: #ff7a18; text-shadow: 0 0 6px rgba(255, 122, 24, 0.55); }
+  .htop .pct  { color: #ffb070; }
+  .htop .dim  { color: #8a8478; }
+  .htop .cols { color: #fff5e0; background: rgba(255, 122, 24, 0.18); display: inline-block; }
+  .htop .pid  { color: #ffb070; }
+  .htop .run  { color: #ff3b30; font-weight: 700; }
+  .htop .slp  { color: #8a8478; }
+  .htop .cmd  { color: #ff7a18; text-decoration: none; border-bottom: 1px dotted rgba(255, 122, 24, 0.5); }
+  .htop .cmd:hover { color: #fff5e0; border-bottom-color: #fff5e0; }
+  .htop .tag  { color: #6b6357; }
+  .htop .arg  { color: #b8b1a3; }
+  .htop .ftr  { color: #6b6357; }
+  .htop .fkg  { display: inline-block; }
+  .htop .fk   { color: #0a0a0c; background: #6b6357; padding: 0 4px; margin-right: 2px; opacity: 0.7; }
+  .htop .fkg-on { color: #fff5e0; font-weight: 700; cursor: pointer; }
+  .htop .fk-on  { background: #ff7a18; color: #0a0a0c; opacity: 1; box-shadow: 0 0 8px rgba(255, 122, 24, 0.75); }
+  .htop .fkg-on:hover, .htop .fkg-on:focus { outline: none; color: #ffffff; text-shadow: 0 0 6px rgba(255, 122, 24, 0.9); }
+  .htop .fkg-on:hover .fk-on, .htop .fkg-on:focus .fk-on { background: #ffd28a; box-shadow: 0 0 12px rgba(255, 210, 138, 1); }
+  .htop .row.selected { background: rgba(255, 255, 255, 0.28); color: #ffffff; }
+  .htop .row.selected .pid,
+  .htop .row.selected .pct,
+  .htop .row.selected .dim,
+  .htop .row.selected .cmd,
+  .htop .row.selected .arg { color: #ffffff; text-shadow: none; border-bottom-color: rgba(255,255,255,0.6); }
+  .htop.killing .row.selected { background: #c8341f; color: #ffffff; box-shadow: 0 0 8px rgba(200, 52, 31, 0.6); }
+  .htop.killing .row.selected .pid,
+  .htop.killing .row.selected .pct,
+  .htop.killing .row.selected .dim,
+  .htop.killing .row.selected .cmd,
+  .htop.killing .row.selected .arg { color: #ffffff; }
+  .htop .sig { color: #0a0a0c; background: #ffd28a; padding: 0 4px; font-weight: 700; }
+  .htop .kill-tag { color: #fff5e0; background: #c8341f; padding: 0 6px; font-weight: 700; margin-right: 4px; }
+  .htop[data-collapsed="true"] { display: none; }
+  @media (max-width: 600px) {
+    .htop .mem-col { display: none; }
+  }
+  #htop-toggle { cursor: pointer; user-select: none; border-bottom: 1px dotted currentColor; }
+  #htop-toggle:hover { color: #ff7a18; }
+
+  .htop-help {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(2px);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .htop-help[hidden] { display: none; }
+  .htop-help-card {
+    background: #0a0a0c;
+    border: 1px solid rgba(255, 122, 24, 0.6);
+    box-shadow: 0 0 24px rgba(255, 122, 24, 0.25), 0 0 0 1px rgba(255, 122, 24, 0.15);
+    max-width: min(480px, 100%);
+    width: 100%;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: #d6d2c8;
+    animation: htop-help-in 0.18s ease-out;
+  }
+  @keyframes htop-help-in {
+    from { transform: translateY(8px) scale(0.98); opacity: 0; }
+    to   { transform: translateY(0) scale(1);     opacity: 1; }
+  }
+  .htop-help-card header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0.5rem 0.9rem;
+    background: rgba(255, 122, 24, 0.15);
+    color: #fff5e0;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255, 122, 24, 0.35);
+  }
+  .htop-help-close {
+    background: none; border: 0; color: #fff5e0;
+    font-size: 1.4rem; line-height: 1; padding: 0 0.3rem; cursor: pointer;
+  }
+  .htop-help-close:hover { color: #ff3b30; }
+  .htop-help-card pre {
+    margin: 0;
+    padding: 0.85rem 1rem 1rem;
+    font-size: 12.5px;
+    line-height: 1.5;
+    white-space: pre;
+    background: transparent;
+    color: #d6d2c8;
+    overflow-x: hidden;
+  }
+  @media (max-width: 420px) {
+    .htop-help-card pre { font-size: 11.5px; padding: 0.7rem 0.75rem; }
+  }
+  .htop-help-card .hk {
+    box-sizing: border-box;
+    display: inline-block; width: 3.2em;
+    text-align: left;
+    color: #0a0a0c; background: #ff7a18;
+    padding: 0 4px; margin-right: 6px; font-weight: 700;
+  }
+  .htop-help-card a {
+    color: #ff7a18; border-bottom: 1px dotted rgba(255, 122, 24, 0.5); text-decoration: none;
+  }
+  .htop-help-card a:hover { color: #fff5e0; border-bottom-color: #fff5e0; }
+</style>
+
+{
+  interactive && (
+    <>
+      <script is:inline>
+        (function () {
+          const overlay = document.getElementById("htop-help");
+          const rowsBox = document.getElementById("htop-rows");
+          const modeEl = document.getElementById("htop-help-mode");
+          const block = document.getElementById("htop-block");
+          const toggleEl = document.getElementById("htop-toggle");
+          if (!overlay || !rowsBox || !block) return;
+          const closeBtn = overlay.querySelector(".htop-help-close");
+          const openHelp  = () => { overlay.hidden = false; };
+          const closeHelp = () => { overlay.hidden = true;  };
+          const toggleHelp = () => { overlay.hidden ? openHelp() : closeHelp(); };
+
+          const MODES = ["votes", "date", "name"];
+          let mode = 0;
+          const sortRows = () => {
+            const m = MODES[mode];
+            const rows = Array.from(rowsBox.querySelectorAll(".row"));
+            rows.sort((a, b) => {
+              if (m === "votes") return Number(b.dataset.votes) - Number(a.dataset.votes);
+              if (m === "date")  return (b.dataset.date || "").localeCompare(a.dataset.date || "");
+              return (a.dataset.name || "").localeCompare(b.dataset.name || "");
+            });
+            while (rowsBox.firstChild) rowsBox.removeChild(rowsBox.firstChild);
+            rows.forEach((r, i) => {
+              if (i > 0) rowsBox.appendChild(document.createTextNode("\n"));
+              rowsBox.appendChild(r);
+            });
+            if (modeEl) modeEl.textContent = m;
+          };
+          const cycleSort = () => {
+            mode = (mode + 1) % MODES.length;
+            sortRows();
+          };
+
+          let killMode = false;
+          const ftrNormalEl = block.querySelector(".ftr-normal");
+          const ftrKillEl = block.querySelector(".ftr-kill");
+          const setKillMode = (on) => {
+            killMode = on;
+            block.classList.toggle("killing", on);
+            if (ftrNormalEl) ftrNormalEl.style.display = on ? "none" : "inline";
+            if (ftrKillEl) ftrKillEl.style.display = on ? "inline" : "none";
+          };
+          const toggleKill = () => setKillMode(!killMode);
+
+          const selectRow = (row) => {
+            rowsBox.querySelectorAll(".row.selected").forEach((r) => {
+              if (r !== row) r.classList.remove("selected");
+            });
+            if (row) row.classList.add("selected");
+          };
+          const clearSelection = () => {
+            rowsBox.querySelectorAll(".row.selected").forEach((r) => r.classList.remove("selected"));
+          };
+          const killSelected = () => {
+            const sel = rowsBox.querySelector(".row.selected");
+            if (!sel) { setKillMode(false); return; }
+            const next = sel.nextSibling;
+            if (next && next.nodeType === Node.TEXT_NODE) next.remove();
+            else {
+              const prev = sel.previousSibling;
+              if (prev && prev.nodeType === Node.TEXT_NODE) prev.remove();
+            }
+            sel.remove();
+            setKillMode(false);
+          };
+
+          const collapseHtop = () => {
+            block.dataset.collapsed = "true";
+            if (toggleEl) toggleEl.setAttribute("aria-expanded", "false");
+            setKillMode(false);
+          };
+          const expandHtop = () => {
+            delete block.dataset.collapsed;
+            if (toggleEl) toggleEl.setAttribute("aria-expanded", "true");
+          };
+          const toggleCollapse = () => {
+            block.dataset.collapsed === "true" ? expandHtop() : collapseHtop();
+          };
+
+          rowsBox.addEventListener("mouseover", (e) => {
+            const row = e.target.closest(".row");
+            if (!row || !rowsBox.contains(row)) return;
+            if (row.classList.contains("selected")) return;
+            selectRow(row);
+          });
+
+          block.addEventListener("click", (e) => {
+            const fkg = e.target.closest(".fkg[data-action]");
+            if (!fkg) return;
+            e.preventDefault();
+            const action = fkg.dataset.action;
+            if (action === "help") toggleHelp();
+            else if (action === "sort") cycleSort();
+            else if (action === "kill") toggleKill();
+            else if (action === "quit") collapseHtop();
+            else if (action === "signal") killSelected();
+          });
+          block.addEventListener("keydown", (e) => {
+            const fkg = e.target.closest && e.target.closest(".fkg[data-action]");
+            if (!fkg) return;
+            if (e.key !== "Enter" && e.key !== " ") return;
+            e.preventDefault();
+            fkg.click();
+          });
+
+          if (toggleEl) {
+            toggleEl.setAttribute("aria-expanded", "true");
+            const onToggle = (e) => { e.preventDefault(); toggleCollapse(); };
+            toggleEl.addEventListener("click", onToggle);
+            toggleEl.addEventListener("keydown", (e) => {
+              if (e.key === "Enter" || e.key === " ") onToggle(e);
+            });
+          }
+
+          window.addEventListener("keydown", (e) => {
+            if (e.key === "F1") {
+              e.preventDefault();
+              toggleHelp();
+            } else if (e.key === "F6") {
+              e.preventDefault();
+              cycleSort();
+            } else if (e.key === "F9") {
+              e.preventDefault();
+              toggleKill();
+            } else if (e.key === "F10") {
+              e.preventDefault();
+              if (!overlay.hidden) closeHelp();
+              else toggleCollapse();
+            } else if (e.key === "Escape") {
+              if (!overlay.hidden) closeHelp();
+              else if (killMode) setKillMode(false);
+              else clearSelection();
+            }
+          }, { capture: true });
+          overlay.addEventListener("click", (e) => {
+            if (e.target === overlay) closeHelp();
+          });
+          closeBtn && closeBtn.addEventListener("click", closeHelp);
+        })();
+      </script>
+
+      <script is:inline>
+        (function () {
+          const BAR_W = 28;
+          const bar = (pct) => "|".repeat(Math.round((pct / 100) * BAR_W)) + " ".repeat(BAR_W - Math.round((pct / 100) * BAR_W));
+          const padPct = (n) => n.toFixed(1).padStart(4, " ") + "%";
+
+          const cpuBar = document.getElementById("htop-cpu-bar");
+          const cpuPct = document.getElementById("htop-cpu-pct");
+          if (cpuBar && cpuPct) {
+            const tickCpu = () => {
+              const v = Math.random() * 60;
+              cpuBar.textContent = bar(v);
+              cpuPct.textContent = padPct(v);
+              const cpus = document.querySelectorAll(".row-cpu");
+              let total = 0;
+              cpus.forEach((c) => { total += Number(c.dataset.weight) || 0; });
+              if (total > 0) {
+                cpus.forEach((c) => {
+                  const w = (Number(c.dataset.weight) || 0) / total;
+                  c.textContent = (w * v).toFixed(1).padStart(4, " ");
+                });
+              }
+            };
+            tickCpu();
+            setInterval(tickCpu, 1000);
+          }
+
+          const memBar = document.getElementById("htop-mem-bar");
+          const memPct = document.getElementById("htop-mem-pct");
+          if (memBar && memPct) {
+            const v = 10 + Math.random() * 30;
+            memBar.textContent = bar(v);
+            memPct.textContent = padPct(v);
+          }
+        })();
+      </script>
+
+      <script is:inline>
+        (function () {
+          const el = document.getElementById("htop-uptime");
+          if (!el) return;
+          const pad = (n) => String(n).padStart(2, "0");
+          function tick() {
+            const now = new Date();
+            let years = now.getUTCFullYear() - 1989;
+            const anniv = Date.UTC(now.getUTCFullYear(), 6, 16);
+            if (now.getTime() < anniv) years--;
+            const last = Date.UTC(1989 + years, 6, 16);
+            const t = Math.floor((now.getTime() - last) / 1000);
+            const days = Math.floor(t / 86400);
+            const hh = Math.floor(t / 3600) % 24;
+            const mm = Math.floor(t / 60) % 60;
+            const ss = t % 60;
+            el.textContent = `${years} years, ${days} days, ${pad(hh)}:${pad(mm)}:${pad(ss)}`;
+          }
+          tick();
+          setInterval(tick, 1000);
+        })();
+      </script>
+    </>
+  )
+}

@@ -1,0 +1,9 @@
+---
+title: "Van Kooten AI Solutions"
+date: 2019-05-31
+---
+I have decided to start freelancing as **Van Kooten AI Solutions** and will use my personal blog as a company (freelancer) website [vks.ai](https://vks.ai).
+
+This will be my landing page, but I will still keep posting about projects that are interesting to me!
+
+You can still find and contact me at [LinkedIn](https://www.linkedin.com/in/pascalvkooten/) and [Github](https://github.com/kootenpv).

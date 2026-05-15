@@ -1,0 +1,245 @@
+/* Giscus theme: kootenpv2_theme
+ * Public URL after deploy: https://vks.ai/giscus/kootenpv2_theme.css
+ * Warm terminal / tron-ares styling for kootenpv.github.io.
+ */
+
+main {
+  color-scheme: dark;
+
+  --k2-bg: #000;
+  --k2-card: #0c0606;
+  --k2-card-2: #160b08;
+  --k2-fg: #ffe6d7;
+  --k2-muted: #dc8c69;
+  --k2-subtle: #9f5f49;
+  --k2-accent: #ff3c19;
+  --k2-accent-2: #ff6a35;
+  --k2-border: rgba(255, 75, 35, 0.42);
+  --k2-border-soft: rgba(255, 75, 35, 0.2);
+  --k2-glow: rgba(255, 90, 50, 0.45);
+  --k2-grid: rgba(255, 75, 35, 0.1);
+
+  --color-prettylights-syntax-comment: #8b6f63;
+  --color-prettylights-syntax-constant: #ff8a65;
+  --color-prettylights-syntax-entity: #ffb38a;
+  --color-prettylights-syntax-storage-modifier-import: #ffe6d7;
+  --color-prettylights-syntax-entity-tag: #ff8a65;
+  --color-prettylights-syntax-keyword: #ff5a32;
+  --color-prettylights-syntax-string: #ffd1a8;
+  --color-prettylights-syntax-variable: #ffae87;
+  --color-prettylights-syntax-brackethighlighter-unmatched: #f85149;
+  --color-prettylights-syntax-invalid-illegal-text: #f0f6fc;
+  --color-prettylights-syntax-invalid-illegal-bg: #8e1519;
+  --color-prettylights-syntax-carriage-return-text: #f0f6fc;
+  --color-prettylights-syntax-carriage-return-bg: #b62324;
+  --color-prettylights-syntax-string-regexp: #ffae87;
+  --color-prettylights-syntax-markup-list: #ffd1a8;
+  --color-prettylights-syntax-markup-heading: #ff5a32;
+  --color-prettylights-syntax-markup-italic: #ffe6d7;
+  --color-prettylights-syntax-markup-bold: #ffe6d7;
+  --color-prettylights-syntax-markup-deleted-text: #ffd1d1;
+  --color-prettylights-syntax-markup-deleted-bg: #4a0a0a;
+  --color-prettylights-syntax-markup-inserted-text: #ffd1a8;
+  --color-prettylights-syntax-markup-inserted-bg: #2a1408;
+  --color-prettylights-syntax-markup-changed-text: #ffd1a8;
+  --color-prettylights-syntax-markup-changed-bg: #3a1c0c;
+  --color-prettylights-syntax-markup-ignored-text: #ffe6d7;
+  --color-prettylights-syntax-markup-ignored-bg: #ff3c19;
+  --color-prettylights-syntax-meta-diff-range: #ff5a32;
+  --color-prettylights-syntax-brackethighlighter-angle: #dc8c69;
+  --color-prettylights-syntax-sublimelinter-gutter-mark: #6e6258;
+  --color-prettylights-syntax-constant-other-reference-link: #ffd1a8;
+
+  --color-btn-text: var(--k2-fg);
+  --color-btn-bg: var(--k2-card);
+  --color-btn-border: var(--k2-border);
+  --color-btn-shadow: 0 0 12px rgba(255, 90, 50, 0.16);
+  --color-btn-inset-shadow: inset 0 0 0 1px rgba(255, 226, 210, 0.04);
+  --color-btn-hover-bg: rgba(255, 60, 25, 0.1);
+  --color-btn-hover-border: var(--k2-accent);
+  --color-btn-active-bg: rgba(255, 60, 25, 0.16);
+  --color-btn-active-border: var(--k2-accent);
+  --color-btn-selected-bg: rgba(255, 60, 25, 0.2);
+  --color-btn-primary-text: #080608;
+  --color-btn-primary-bg: var(--k2-accent);
+  --color-btn-primary-border: var(--k2-accent-2);
+  --color-btn-primary-shadow: 0 0 14px rgba(255, 90, 50, 0.55);
+  --color-btn-primary-inset-shadow: inset 0 0 0 1px rgba(255, 226, 210, 0.18);
+  --color-btn-primary-hover-bg: var(--k2-accent-2);
+  --color-btn-primary-hover-border: #ffc1a6;
+  --color-btn-primary-selected-bg: var(--k2-accent-2);
+  --color-btn-primary-selected-shadow: 0 0 18px rgba(255, 90, 50, 0.75);
+  --color-btn-primary-disabled-text: rgba(8, 6, 8, 0.55);
+  --color-btn-primary-disabled-bg: rgba(255, 60, 25, 0.45);
+  --color-btn-primary-disabled-border: rgba(255, 75, 35, 0.25);
+
+  --color-action-list-item-default-hover-bg: rgba(255, 60, 25, 0.1);
+  --color-segmented-control-bg: rgba(255, 60, 25, 0.08);
+  --color-segmented-control-button-bg: var(--k2-card);
+  --color-segmented-control-button-selected-border: var(--k2-accent);
+  --color-fg-default: var(--k2-fg);
+  --color-fg-muted: var(--k2-muted);
+  --color-fg-subtle: var(--k2-subtle);
+  --color-canvas-default: var(--k2-bg);
+  --color-canvas-overlay: var(--k2-card);
+  --color-canvas-inset: #060303;
+  --color-canvas-subtle: var(--k2-card);
+  --color-border-default: var(--k2-border);
+  --color-border-muted: var(--k2-border-soft);
+  --color-neutral-muted: rgba(255, 75, 35, 0.14);
+  --color-accent-fg: var(--k2-accent);
+  --color-accent-emphasis: var(--k2-accent);
+  --color-accent-muted: rgba(255, 60, 25, 0.4);
+  --color-accent-subtle: rgba(255, 60, 25, 0.12);
+  --color-success-fg: #ffd166;
+  --color-attention-fg: #ffb347;
+  --color-attention-muted: rgba(255, 179, 71, 0.38);
+  --color-attention-subtle: rgba(255, 179, 71, 0.12);
+  --color-danger-fg: #ff6b6b;
+  --color-danger-muted: rgba(255, 107, 107, 0.36);
+  --color-danger-subtle: rgba(255, 107, 107, 0.12);
+  --color-primer-shadow-inset: 0 0 0 transparent;
+  --color-scale-gray-7: #1a0d0a;
+  --color-scale-blue-8: #421507;
+  --color-social-reaction-bg-hover: rgba(255, 60, 25, 0.12);
+  --color-social-reaction-bg-reacted-hover: rgba(255, 60, 25, 0.2);
+
+  font-family: Orbitron, "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0.01em;
+  background-color: var(--k2-bg);
+  background-image:
+    linear-gradient(to bottom, rgba(255, 60, 25, 0.07), transparent 9rem),
+    linear-gradient(to right, var(--k2-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--k2-grid) 1px, transparent 1px);
+  background-size: 100% 100%, 48px 48px, 48px 48px;
+}
+
+main .gsc-main::before {
+  content: "kootenpv2://comments --mapping=pathname";
+  display: block;
+  margin-bottom: 0.75rem;
+  color: var(--k2-muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-shadow: 0 0 8px var(--k2-glow);
+}
+
+main .gsc-comments > .gsc-comment-box {
+  order: 2;
+  margin-bottom: 1rem;
+}
+
+main .gsc-comments > .gsc-timeline {
+  order: 3;
+}
+
+main .gsc-timeline {
+  flex-direction: column-reverse;
+}
+
+main .gsc-header,
+main .gsc-comment-header,
+main .gsc-reactions-count,
+main .gsc-comment-box-tabs button {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+main .gsc-header,
+main .gsc-comment-header {
+  color: var(--k2-fg);
+  text-shadow:
+    0 0 6px rgba(255, 90, 50, 0.5),
+    0 0 14px rgba(255, 90, 50, 0.2);
+}
+
+main .gsc-comment-box,
+main .gsc-comment,
+main .gsc-reactions,
+main .gsc-reply-box,
+main .gsc-reactions-popover {
+  border: 1px solid var(--k2-border);
+  border-radius: 6px;
+  background: linear-gradient(180deg, rgba(18, 10, 10, 0.94), rgba(7, 3, 3, 0.94));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 226, 210, 0.04),
+    0 0 16px rgba(255, 90, 50, 0.1);
+}
+
+main .gsc-comment-header,
+main .gsc-replies,
+main .gsc-comment-box-tabs {
+  border-color: var(--k2-border-soft) !important;
+  background-color: rgba(0, 0, 0, 0.34);
+}
+
+main a,
+main .gsc-comment-content a,
+main .gsc-comment-author {
+  color: var(--k2-accent);
+  text-shadow: 0 0 5px rgba(255, 90, 50, 0.42);
+}
+
+main a:hover,
+main .gsc-comment-content a:hover {
+  color: var(--k2-accent-2);
+  text-shadow:
+    0 0 8px rgba(255, 90, 50, 0.85),
+    0 0 18px rgba(255, 90, 50, 0.5);
+}
+
+main textarea,
+main .gsc-comment-box-textarea,
+main input[type="text"] {
+  background-color: var(--k2-bg) !important;
+  border-color: var(--k2-border) !important;
+  color: var(--k2-fg) !important;
+}
+
+main textarea:focus,
+main .gsc-comment-box-textarea:focus,
+main input[type="text"]:focus {
+  border-color: var(--k2-accent) !important;
+  box-shadow: 0 0 0 1px var(--k2-accent), 0 0 10px rgba(255, 90, 50, 0.45) !important;
+  outline: none;
+}
+
+main .markdown-body blockquote {
+  border-left-color: var(--k2-accent);
+  color: var(--k2-muted);
+  box-shadow: -8px 0 16px -10px var(--k2-glow);
+}
+
+main .markdown-body pre,
+main pre {
+  background-color: rgba(0, 0, 0, 0.62) !important;
+  border: 1px solid rgba(255, 75, 35, 0.4) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 75, 35, 0.18);
+}
+
+main .markdown-body code,
+main code {
+  background-color: rgba(255, 75, 35, 0.08);
+  color: var(--k2-accent);
+}
+
+main .markdown-body pre code,
+main pre code {
+  background: transparent;
+  color: inherit;
+}
+
+main .pagination-loader-container {
+  background-image: linear-gradient(to right, transparent, rgba(255, 75, 35, 0.42), transparent);
+}
+
+main .gsc-loading-image {
+  background-image: url("https://github.githubassets.com/images/mona-loading-dimmed.gif");
+  filter: hue-rotate(160deg) saturate(1.7) drop-shadow(0 0 8px var(--k2-glow));
+}
+
+main ::selection {
+  background: rgba(255, 60, 25, 0.4);
+  color: var(--k2-fg);
+}

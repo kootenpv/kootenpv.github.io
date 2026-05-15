@@ -1,0 +1,1068 @@
+---
+interface Props {
+  contained?: boolean;
+}
+const { contained = false } = Astro.props;
+---
+
+<div
+  class:list={["chat-root", contained && "chat-root-contained"]}
+  id="chat-root"
+  data-os="macos"
+  data-open="false"
+>
+  <button type="button" class="chat-launcher" id="chat-launcher" aria-expanded="false" aria-controls="chat-panel">
+    <span class="chat-launcher-icon" aria-hidden="true">🥚</span>
+    <span class="chat-launcher-text">
+      <span class="chat-launcher-text-long">chat: How many easter eggs do you think this website has?</span>
+      <span class="chat-launcher-text-short">chat: guess a number</span>
+    </span>
+    <span class="chat-launcher-caret" aria-hidden="true">▾</span>
+  </button>
+
+  <aside class="chat" id="chat-panel" aria-label="Easter egg guessing game" aria-hidden="true">
+    {/* macOS chrome */}
+    <div class="chat-chrome chat-chrome-mac">
+      <div class="chat-mac-controls">
+        <button type="button" class="chat-dot chat-dot-red" data-chat-action="close" aria-label="Close"></button>
+        <button type="button" class="chat-dot chat-dot-yellow" data-chat-action="minimize" aria-label="Minimize"></button>
+        <button type="button" class="chat-dot chat-dot-green" data-chat-action="maximize" aria-label="Maximize"></button>
+      </div>
+      <span class="chat-mac-title">easter-egg-hunt — chat</span>
+      <span class="chat-mac-spacer"></span>
+    </div>
+
+    {/* Windows 11 chrome */}
+    <div class="chat-chrome chat-chrome-win">
+      <span class="chat-win-title">
+        <span class="chat-win-icon">▶_</span>
+        <span>Chat — easter-egg-hunt</span>
+      </span>
+      <span class="chat-win-controls">
+        <button type="button" class="chat-win-btn" data-chat-action="minimize" aria-label="Minimize">&#xE921;</button>
+        <button type="button" class="chat-win-btn" data-chat-action="maximize" aria-label="Maximize">&#xE922;</button>
+        <button type="button" class="chat-win-btn chat-win-close" data-chat-action="close" aria-label="Close">&#xE8BB;</button>
+      </span>
+    </div>
+
+    {/* Linux (GNOME) chrome */}
+    <div class="chat-chrome chat-chrome-linux">
+      <span class="chat-linux-title">easter-egg-hunt</span>
+      <span class="chat-linux-controls">
+        <button type="button" class="chat-linux-btn" data-chat-action="minimize" aria-label="Minimize">−</button>
+        <button type="button" class="chat-linux-btn" data-chat-action="maximize" aria-label="Maximize">▢</button>
+        <button type="button" class="chat-linux-btn chat-linux-close" data-chat-action="close" aria-label="Close">×</button>
+      </span>
+    </div>
+
+    {/* iOS chrome */}
+    <div class="chat-chrome chat-chrome-ios">
+      <div class="chat-ios-status">
+        <span class="chat-ios-time">9:41</span>
+        <span class="chat-ios-notch"></span>
+      </div>
+      <div class="chat-ios-navbar">
+        <button type="button" class="chat-ios-back" data-chat-action="close">‹ Back</button>
+        <span class="chat-ios-navtitle">Easter Egg Hunt</span>
+        <span class="chat-ios-actions">
+          <button type="button" class="chat-ios-action" data-chat-action="minimize" aria-label="Minimize">−</button>
+          <button type="button" class="chat-ios-action" data-chat-action="maximize" aria-label="Maximize">▢</button>
+          <button type="button" class="chat-ios-action chat-ios-action-close" data-chat-action="close" aria-label="Close">×</button>
+        </span>
+      </div>
+    </div>
+
+    {/* Android chrome */}
+    <div class="chat-chrome chat-chrome-android">
+      <div class="chat-android-appbar">
+        <button type="button" class="chat-android-menu" data-chat-action="close" aria-label="Close">←</button>
+        <span class="chat-android-title">Easter Egg Hunt</span>
+        <span class="chat-android-actions">
+          <button type="button" class="chat-android-overflow" data-chat-action="minimize" aria-label="Minimize">−</button>
+          <button type="button" class="chat-android-overflow" data-chat-action="maximize" aria-label="Maximize">▢</button>
+          <button type="button" class="chat-android-overflow chat-android-overflow-close" data-chat-action="close" aria-label="Close">×</button>
+        </span>
+      </div>
+    </div>
+
+    <div class="chat-log" id="chat-log" role="log" aria-live="polite">
+      <div class="chat-msg chat-bot">
+        <span class="chat-who">bot</span>
+        <span class="chat-bubble">How many easter eggs do you think this website has?</span>
+      </div>
+    </div>
+
+    <form id="chat-form" class="chat-input" autocomplete="off">
+      <input
+        id="chat-guess"
+        name="guess"
+        type="number"
+        inputmode="numeric"
+        min="0"
+        placeholder="Enter a number…"
+        aria-label="Your guess"
+      />
+      <button type="submit">Guess</button>
+    </form>
+  </aside>
+</div>
+
+<script is:inline>
+  (function () {
+    function detectOS() {
+      const ua = navigator.userAgent || "";
+      const platform = navigator.platform || "";
+      const isIpad = /Macintosh/.test(ua) && navigator.maxTouchPoints > 1;
+      if (/iPad|iPhone|iPod/.test(ua) || isIpad) return "ios";
+      if (/Android/.test(ua)) return "android";
+      if (/Win/i.test(platform) || /Windows/.test(ua)) return "windows";
+      if (/Mac/i.test(platform) || /Mac OS X/.test(ua)) return "macos";
+      if (/Linux|X11/.test(ua) || /Linux/i.test(platform)) return "linux";
+      return "macos";
+    }
+
+    const root = document.getElementById("chat-root");
+    if (root) {
+      let stored = null;
+      try { stored = localStorage.getItem("cli-os"); } catch {}
+      root.dataset.os = stored || detectOS();
+    }
+
+    const launcher = document.getElementById("chat-launcher");
+    const panel = document.getElementById("chat-panel");
+    const input = document.getElementById("chat-guess");
+
+    function setOpen(open) {
+      if (!root || !launcher || !panel) return;
+      root.dataset.open = String(open);
+      launcher.setAttribute("aria-expanded", String(open));
+      panel.setAttribute("aria-hidden", String(!open));
+      if (open && !root.dataset.size) root.dataset.size = "max";
+      if (open && input && !input.disabled) {
+        setTimeout(() => input.focus(), 220);
+      }
+    }
+    if (launcher) launcher.addEventListener("click", () => {
+      if (root.dataset.min === "true") {
+        root.dataset.min = "false";
+        setOpen(true);
+        return;
+      }
+      setOpen(root.dataset.open !== "true");
+    });
+    document.querySelectorAll("[data-chat-action]").forEach((el) => {
+      el.addEventListener("click", (e) => {
+        e.preventDefault();
+        const action = el.getAttribute("data-chat-action");
+        if (action === "close") {
+          setOpen(false);
+          root.dataset.min = "true";
+          return;
+        }
+        if (action === "minimize") {
+          setOpen(false);
+          return;
+        }
+        if (action === "maximize") {
+          const cur = root.dataset.size === "max";
+          root.dataset.size = cur ? "normal" : "max";
+        }
+      });
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && root && root.dataset.open === "true") setOpen(false);
+    });
+
+    const form = document.getElementById("chat-form");
+    if (!form) return;
+    const log = document.getElementById("chat-log");
+    const ANSWER = 99;
+    const STORAGE_KEY = "easter-eggs-found";
+    let solved = false;
+    let attempts = 0;
+    let llmMode = false;
+    let llm = null;
+    let llmBusy = false;
+
+    const wasFound = (() => {
+      try { return localStorage.getItem(STORAGE_KEY) === "true"; } catch { return false; }
+    })();
+    const LLM_ACCEPTED_KEY = "llm-accepted";
+
+    const launcherTextLong = launcher && launcher.querySelector(".chat-launcher-text-long");
+    function setLauncherText(text) {
+      // Long updates with the live bot text; short stays as the fixed
+      // mobile teaser baked into the markup.
+      if (launcherTextLong) launcherTextLong.textContent = "chat: " + text;
+    }
+    const firstBubble = log && log.querySelector(".chat-msg .chat-bubble");
+    if (firstBubble) setLauncherText(firstBubble.textContent || "");
+
+    function append(who, text) {
+      const row = document.createElement("div");
+      row.className = "chat-msg chat-" + who;
+      const label = document.createElement("span");
+      label.className = "chat-who";
+      label.textContent = who;
+      const bubble = document.createElement("span");
+      bubble.className = "chat-bubble";
+      bubble.textContent = text;
+      row.appendChild(label);
+      row.appendChild(bubble);
+      log.appendChild(row);
+      log.scrollTop = log.scrollHeight;
+      setLauncherText(text);
+      return row;
+    }
+
+    function appendLLMOffer() {
+      append("bot", "Want me to fire up a local LLM to answer questions?");
+      const row = document.createElement("div");
+      row.className = "chat-msg chat-bot";
+      const label = document.createElement("span");
+      label.className = "chat-who";
+      label.textContent = "";
+      const bubble = document.createElement("span");
+      bubble.className = "chat-bubble chat-actions";
+      const yes = document.createElement("button");
+      yes.type = "button";
+      yes.className = "chat-action-btn";
+      yes.textContent = "Yes";
+      const no = document.createElement("button");
+      no.type = "button";
+      no.className = "chat-action-btn chat-action-no";
+      no.textContent = "No";
+      bubble.appendChild(yes);
+      bubble.appendChild(no);
+      row.appendChild(label);
+      row.appendChild(bubble);
+      log.appendChild(row);
+      log.scrollTop = log.scrollHeight;
+
+      yes.addEventListener("click", () => {
+        row.remove();
+        append("you", "Yes");
+        setTimeout(startLLM, 350);
+      });
+      no.addEventListener("click", async () => {
+        row.remove();
+        append("you", "No");
+        const had = await hasCachedModel();
+        await deleteModelCache();
+        setTimeout(
+          () => append(
+            "bot",
+            had
+              ? "OK — cleared the cached model. I'll ask again next time."
+              : "Sure! I'll ask again next time you visit."
+          ),
+          350
+        );
+      });
+    }
+
+    function startLLM() {
+      try { localStorage.setItem(LLM_ACCEPTED_KEY, "true"); } catch {}
+      const dlRow = append("bot", "Downloading the data…");
+      const dlBubble = dlRow.querySelector(".chat-bubble");
+      let secondShown = false;
+      let dotsTimer = null;
+      let dotsBubble = null;
+      const startDotsAnimation = (bubble, base) => {
+        let i = 0;
+        const frames = ["", ".", "..", "..."];
+        const tick = () => {
+          if (!bubble || !bubble.isConnected) return;
+          bubble.textContent = base + frames[i % frames.length];
+          i += 1;
+        };
+        tick();
+        return setInterval(tick, 400);
+      };
+      const stopDotsAnimation = () => {
+        if (dotsTimer) { clearInterval(dotsTimer); dotsTimer = null; }
+      };
+      const onProgress = (ev) => {
+        if (!ev) return;
+        if (ev.phase === "download" && typeof ev.pct === "number") {
+          const text = `Downloading the data… ${ev.pct}%`;
+          if (dlBubble) dlBubble.textContent = text;
+          setLauncherText(text);
+          log.scrollTop = log.scrollHeight;
+        } else if (
+          (ev.phase === "model_ready" || ev.phase === "encoding") &&
+          !secondShown
+        ) {
+          secondShown = true;
+          const row = append("bot", "Just one more second while I load the model");
+          dotsBubble = row.querySelector(".chat-bubble");
+          dotsTimer = startDotsAnimation(dotsBubble, "Just one more second while I load the model");
+        }
+      };
+      import("/js/distilltiny/index.js")
+        .then((mod) => {
+          llm = mod;
+          return mod.init({ onProgress });
+        })
+        .then(() => {
+          stopDotsAnimation();
+          if (dotsBubble) dotsBubble.textContent = "Just one more second while I load the model…";
+          append("bot", "Ready — ask me anything.");
+          enableLLMMode();
+        })
+        .catch((err) => {
+          stopDotsAnimation();
+          console.error(err);
+          append("bot", "Failed to load the local model: " + (err && err.message || err));
+        });
+    }
+
+    async function hasCachedModel() {
+      try {
+        if (typeof caches !== "undefined" && caches.keys) {
+          const keys = await caches.keys();
+          if (keys.some((k) => /transformers|onnx|huggingface|xenova/i.test(k))) return true;
+        }
+      } catch {}
+      try {
+        if (typeof indexedDB !== "undefined" && indexedDB.databases) {
+          const dbs = await indexedDB.databases();
+          if (dbs.some((d) => d.name && /transformers|onnx|huggingface|xenova/i.test(d.name))) return true;
+        }
+      } catch {}
+      return false;
+    }
+
+    async function deleteModelCache() {
+      try { localStorage.removeItem(LLM_ACCEPTED_KEY); } catch {}
+      try {
+        if (typeof caches !== "undefined" && caches.keys) {
+          const keys = await caches.keys();
+          await Promise.all(
+            keys
+              .filter((k) => /transformers|onnx|huggingface|xenova/i.test(k))
+              .map((k) => caches.delete(k))
+          );
+        }
+      } catch (e) {
+        console.warn("model cache delete failed", e);
+      }
+      try {
+        if (typeof indexedDB !== "undefined" && indexedDB.databases) {
+          const dbs = await indexedDB.databases();
+          await Promise.all(
+            dbs
+              .filter((d) => d.name && /transformers|onnx|huggingface|xenova/i.test(d.name))
+              .map((d) => new Promise((resolve) => {
+                const r = indexedDB.deleteDatabase(d.name);
+                r.onsuccess = r.onerror = r.onblocked = () => resolve();
+              }))
+          );
+        }
+      } catch (e) {
+        console.warn("idb delete failed", e);
+      }
+    }
+
+    function enableLLMMode() {
+      llmMode = true;
+      input.disabled = false;
+      input.type = "text";
+      input.removeAttribute("inputmode");
+      input.removeAttribute("min");
+      input.placeholder = "Ask anything…";
+      input.value = "";
+      const btn = form.querySelector("button");
+      if (btn) { btn.disabled = false; btn.textContent = "Send"; }
+      input.focus();
+    }
+
+    if (wasFound) {
+      const firstMsg = log && log.querySelector(".chat-msg.chat-bot");
+      if (firstMsg) firstMsg.remove();
+      solved = true;
+      input.disabled = true;
+      const btn = form.querySelector("button");
+      if (btn) btn.disabled = true;
+      append("bot", "Welcome back — you already know there are 99 easter eggs hiding here.");
+      appendLLMOffer();
+    }
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const raw = input.value.trim();
+      if (raw === "") return;
+
+      if (llmMode) {
+        if (llmBusy || !llm) return;
+        append("you", raw);
+        input.value = "";
+        const thinking = append("bot", "Thinking…");
+        const thinkingBubble = thinking.querySelector(".chat-bubble");
+        llmBusy = true;
+        input.disabled = true;
+        const btn = form.querySelector("button");
+        if (btn) btn.disabled = true;
+        const askStart = Date.now();
+        const MIN_THINK_MS = 1000;
+        llm.ask(raw)
+          .then(async (res) => {
+            if (res.confident && res.classId === "website:delete_model") {
+              await deleteModelCache();
+            }
+            const elapsed = Date.now() - askStart;
+            if (elapsed < MIN_THINK_MS) {
+              await new Promise((r) => setTimeout(r, MIN_THINK_MS - elapsed));
+            }
+            if (thinkingBubble) thinkingBubble.textContent = res.answer;
+            setLauncherText(res.answer);
+            log.scrollTop = log.scrollHeight;
+          })
+          .catch((err) => {
+            console.error(err);
+            if (thinkingBubble) thinkingBubble.textContent = "error: " + (err && err.message || err);
+          })
+          .finally(() => {
+            llmBusy = false;
+            input.disabled = false;
+            if (btn) btn.disabled = false;
+            input.focus();
+          });
+        return;
+      }
+
+      if (solved) return;
+      const guess = Number(raw);
+      if (!Number.isFinite(guess)) {
+        append("bot", "That's not a number I can compare.");
+        input.value = "";
+        return;
+      }
+      attempts += 1;
+      append("you", String(guess));
+      input.value = "";
+
+      if (guess === ANSWER) {
+        solved = true;
+        try { localStorage.setItem(STORAGE_KEY, "true"); } catch {}
+        append(
+          "bot",
+          `Correct — ${ANSWER}! Found in ${attempts} ${attempts === 1 ? "guess" : "guesses"}. Now go find them.`
+        );
+        input.disabled = true;
+        const btn = form.querySelector("button");
+        if (btn) btn.disabled = true;
+        setTimeout(appendLLMOffer, 700);
+        return;
+      }
+      append("bot", guess < ANSWER ? "Higher." : "Lower.");
+    });
+  })();
+</script>
+
+<style is:global>
+  .chat-root {
+    position: fixed;
+    /* Anchor next to the centered max-w-3xl (768px) main column on wide
+       viewports — same formula as #tron-toast-container. When the viewport
+       is too narrow, fall back to 12px from the right edge. */
+    right: max(12px, calc(50vw - 836px));
+    bottom: 24px;
+    z-index: 60;
+    display: flex;
+    /* The panel sits above the launcher in source order — flip the visual
+       order so the launcher stays anchored at the bottom while the panel
+       expands upward. */
+    flex-direction: column-reverse;
+    align-items: flex-end;
+    gap: 0;
+    max-width: min(440px, calc(100vw - 24px));
+    font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
+  }
+  .chat-root[data-open="true"] { gap: 10px; }
+
+  /* Contained variant: stay inside the parent container instead of escaping
+     to the viewport. Used by the /mix collage page so the chat piece doesn't
+     break out of its draggable frame. Compound selector keeps specificity
+     high enough to beat later .chat-root mobile overrides. */
+  .chat-root.chat-root-contained {
+    position: relative;
+    inset: auto;
+    z-index: auto;
+    max-width: 100%;
+    width: 100%;
+    align-items: stretch;
+  }
+
+  /* ---------- Launcher (collapsed peek — tron-toast aesthetic) ---------- */
+  .chat-launcher {
+    position: relative;
+    appearance: none;
+    display: inline-flex;
+    align-items: stretch;
+    gap: 0;
+    padding: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.92);
+    border: 1px solid rgb(var(--c-accent, 255 75 35));
+    color: rgb(var(--c-fg));
+    font: inherit;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-align: left;
+    cursor: pointer;
+    overflow: hidden;
+    backdrop-filter: blur(2px);
+    box-shadow:
+      0 0 0 1px rgb(var(--c-accent, 255 75 35) / 0.25),
+      0 0 20px rgb(var(--tron-glow, 255 90 50) / 0.45),
+      inset 0 0 18px rgb(var(--tron-glow, 255 90 50) / 0.06);
+    transform: translateX(120%);
+    opacity: 0;
+    animation: chat-toast-in 0.55s cubic-bezier(.2,.8,.3,1) 0.4s forwards;
+    transition: box-shadow 0.18s ease, transform 0.18s ease;
+  }
+  .chat-launcher::before,
+  .chat-launcher::after {
+    content: "";
+    position: absolute;
+    width: 8px; height: 8px;
+    border: 1px solid rgb(var(--c-accent, 255 75 35));
+    box-shadow: 0 0 6px rgb(var(--tron-glow, 255 90 50) / 0.6);
+    pointer-events: none;
+  }
+  .chat-launcher::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; }
+  .chat-launcher::after  { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+  .chat-launcher:hover {
+    box-shadow:
+      0 0 0 1px rgb(var(--c-accent, 255 75 35) / 0.45),
+      0 0 26px rgb(var(--tron-glow, 255 90 50) / 0.7),
+      inset 0 0 22px rgb(var(--tron-glow, 255 90 50) / 0.1);
+  }
+  .chat-launcher-icon {
+    flex: none;
+    width: 4px;
+    background: rgb(var(--c-accent, 255 75 35));
+    box-shadow: 0 0 8px rgb(var(--tron-glow, 255 90 50) / 0.85);
+    align-self: stretch;
+    /* hide the emoji visually — the bar replaces it */
+    font-size: 0;
+    color: transparent;
+  }
+  .chat-launcher-text {
+    flex: 1;
+    padding: 10px 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-shadow: 0 0 4px rgb(var(--tron-glow, 255 90 50) / 0.45);
+  }
+  .chat-launcher-text-long  { display: inline; }
+  .chat-launcher-text-short { display: none; }
+  .chat-launcher-caret {
+    flex: none;
+    align-self: center;
+    padding: 0 12px 0 4px;
+    color: rgb(var(--c-accent));
+    font-size: 12px;
+    line-height: 1;
+    transition: transform 0.2s ease;
+    text-shadow: 0 0 6px rgb(var(--tron-glow, 255 90 50) / 0.6);
+  }
+  .chat-root[data-open="true"] .chat-launcher-caret { transform: rotate(180deg); }
+
+  /* ---------- Minimized state (after explicit close) ----------
+     Glues to the right edge of the centered max-w-3xl content column,
+     overlapping it by 10px. On narrow viewports falls back to flush right. */
+  .chat-root[data-min="true"] {
+    right: max(4px, calc(50vw - 384px - 10px));
+    /* Sit above the Ticker (which is ~32–36px tall) so it doesn't overlap. */
+    bottom: 36px;
+    max-width: none;
+  }
+  .chat-root[data-min="true"] .chat-launcher {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 8px;
+    animation: none;
+    transform: none;
+    opacity: 1;
+  }
+  .chat-root[data-min="true"] .chat-launcher::before,
+  .chat-root[data-min="true"] .chat-launcher::after { display: none; }
+  .chat-root[data-min="true"] .chat-launcher-icon {
+    /* Reset every base-state override so this is just a plain text node. */
+    flex: none;
+    align-self: auto;
+    width: auto;
+    height: auto;
+    margin: 8px 0 0;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+    color: inherit;
+    font-size: 20px;
+    line-height: 1;
+  }
+  .chat-root[data-min="true"] .chat-launcher-text,
+  .chat-root[data-min="true"] .chat-launcher-caret { display: none; }
+  @keyframes chat-toast-in {
+    from { opacity: 0; transform: translateX(120%); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .chat-launcher { animation: none; opacity: 1; transform: none; }
+  }
+
+  /* ---------- Panel (expanded) ---------- */
+  .chat {
+    width: min(380px, calc(100vw - 32px));
+    background: #000;
+    color: rgb(var(--c-fg));
+    border: 1px solid rgb(var(--c-border));
+    overflow: hidden;
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 1.45;
+    box-shadow:
+      0 12px 36px rgb(0 0 0 / 0.55),
+      0 0 24px rgb(var(--tron-glow, 255 90 50) / 0.22);
+    transform-origin: bottom right;
+    transform: translateY(8px) scale(0.96);
+    opacity: 0;
+    pointer-events: none;
+    /* Collapse to 0 height when closed so the launcher sits flush at the
+       bottom and the panel takes no layout space. */
+    max-height: 0;
+    border-width: 0;
+    transition:
+      transform 0.18s ease,
+      opacity 0.18s ease,
+      max-height 0.22s ease;
+  }
+  .chat-root[data-open="true"] .chat {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    pointer-events: auto;
+    max-height: 80vh;
+    border-width: 1px;
+  }
+
+  /* hide every chrome by default; show only the active OS */
+  .chat .chat-chrome { display: none; }
+  .chat-root[data-os="macos"]   .chat-chrome-mac     { display: flex; }
+  .chat-root[data-os="windows"] .chat-chrome-win     { display: flex; }
+  .chat-root[data-os="linux"]   .chat-chrome-linux   { display: flex; }
+  .chat-root[data-os="ios"]     .chat-chrome-ios     { display: block; }
+  .chat-root[data-os="android"] .chat-chrome-android { display: block; }
+
+  /* ---------- macOS ---------- */
+  .chat-root[data-os="macos"] .chat { border-radius: 10px; }
+  .chat-chrome-mac {
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: linear-gradient(to bottom, #3a3a3d, #2c2c2e);
+    border-bottom: 1px solid #1d1d1f;
+  }
+  .chat-mac-controls { display: inline-flex; gap: 8px; }
+  .chat-dot {
+    width: 12px; height: 12px; border-radius: 50%;
+    display: inline-block;
+    box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.25);
+    border: 0;
+    padding: 0;
+    cursor: default;
+  }
+  button.chat-dot { cursor: pointer; }
+  .chat-dot-red    { background: #ff5f56; }
+  .chat-dot-yellow { background: #ffbd2e; }
+  .chat-dot-green  { background: #27c93f; }
+  .chat-mac-title {
+    flex: 1;
+    text-align: center;
+    font-size: 12px;
+    color: #c7c7cc;
+    font-family: -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif;
+  }
+  .chat-mac-spacer { width: 52px; }
+
+  /* ---------- Windows 11 ---------- */
+  .chat-root[data-os="windows"] .chat { border-radius: 6px; border-color: #2a2a2a; }
+  .chat-chrome-win {
+    align-items: stretch;
+    padding: 0;
+    background: #1f1f1f;
+    border-bottom: 1px solid #0a0a0a;
+    font-family: "Segoe UI", system-ui, sans-serif;
+  }
+  .chat-win-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    color: #e6e6e6;
+    font-size: 12px;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .chat-win-title > span:last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+  .chat-win-icon {
+    font-family: var(--font-mono);
+    color: #4cc2ff;
+    font-size: 11px;
+  }
+  .chat-win-controls { display: inline-flex; }
+  .chat-win-btn {
+    width: 40px; height: 30px;
+    background: transparent;
+    border: 0;
+    color: #e6e6e6;
+    font-family: "Segoe MDL2 Assets", "Segoe Fluent Icons", "Segoe UI Symbol", sans-serif;
+    font-size: 10px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .chat-win-btn:hover { background: #2d2d2d; }
+  .chat-win-close:hover { background: #c42b1c; color: #fff; }
+
+  /* ---------- Linux (GNOME) ---------- */
+  .chat-root[data-os="linux"] .chat { border-radius: 8px; border-color: #1b1b1b; }
+  .chat-chrome-linux {
+    align-items: center;
+    padding: 6px 8px;
+    background: linear-gradient(to bottom, #3c3c3c, #2c2c2c);
+    border-bottom: 1px solid #1b1b1b;
+    font-family: "Cantarell", "Ubuntu", system-ui, sans-serif;
+  }
+  .chat-linux-title {
+    flex: 1;
+    text-align: center;
+    font-size: 12px;
+    color: #e0e0e0;
+    font-weight: 600;
+  }
+  .chat-linux-controls { display: inline-flex; gap: 4px; }
+  .chat-linux-btn {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 0;
+    background: #4d4d4d;
+    color: #e0e0e0;
+    font-size: 11px;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .chat-linux-btn:hover { background: #5a5a5a; }
+  .chat-linux-close:hover { background: #e95420; color: #fff; }
+
+  /* ---------- iOS ---------- */
+  .chat-root[data-os="ios"] .chat {
+    border-radius: 24px;
+    border: 3px solid #111;
+    box-shadow:
+      0 0 0 1px #2a2a2a,
+      0 12px 36px rgb(0 0 0 / 0.55),
+      0 0 24px rgb(var(--tron-glow, 255 90 50) / 0.18);
+  }
+  .chat-chrome-ios {
+    background: #000;
+    color: #fff;
+    font-family: -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif;
+  }
+  .chat-ios-status {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 22px 4px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .chat-ios-notch {
+    position: absolute;
+    left: 50%;
+    top: 4px;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 22px;
+    background: #000;
+    border-radius: 12px;
+    border: 1px solid #1a1a1a;
+  }
+  .chat-ios-navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 14px 8px;
+    border-bottom: 0.5px solid #2a2a2a;
+    font-size: 13px;
+  }
+  .chat-ios-back {
+    background: transparent;
+    border: 0;
+    color: #0a84ff;
+    font: inherit;
+    cursor: pointer;
+    padding: 0;
+  }
+  .chat-ios-navtitle { font-weight: 600; }
+  .chat-ios-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .chat-ios-action {
+    width: 24px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 0;
+    border-radius: 50%;
+    color: #0a84ff;
+    font: inherit;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+  .chat-ios-action:hover { background: rgba(255, 255, 255, 0.18); }
+  .chat-ios-action-close { color: #ff453a; }
+
+  /* ---------- Android ---------- */
+  .chat-root[data-os="android"] .chat { border-radius: 14px; border-color: #111; }
+  .chat-chrome-android {
+    background: #1b1b1f;
+    color: #e6e1e5;
+    font-family: "Roboto", "Inter", system-ui, sans-serif;
+  }
+  .chat-android-appbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: #25232a;
+    border-bottom: 1px solid #0e0e10;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+  .chat-android-menu {
+    background: transparent;
+    border: 0;
+    font-size: 18px;
+    line-height: 1;
+    color: #e6e1e5;
+    cursor: pointer;
+    padding: 0;
+  }
+  .chat-android-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .chat-android-overflow {
+    width: 28px;
+    height: 28px;
+    background: transparent;
+    border: 0;
+    font-size: 14px;
+    line-height: 1;
+    color: #e6e1e5;
+    cursor: pointer;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+  .chat-android-overflow:hover { background: rgba(230, 225, 229, 0.12); }
+  .chat-android-overflow-close:hover { background: #c42b1c; color: #fff; }
+  .chat-android-title {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  /* ---------- log + input ---------- */
+  .chat-log {
+    padding: 12px;
+    min-height: 280px;
+    max-height: 320px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    /* Functional scrolling, but hide the visible scrollbar for a cleaner look */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .chat-log::-webkit-scrollbar { width: 0; height: 0; display: none; }
+  .chat-root[data-size="max"] .chat { width: min(460px, calc(100vw - 32px)); }
+  .chat-root[data-size="max"] .chat-log { min-height: 360px; max-height: 520px; }
+  .chat-msg {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .chat-msg.chat-you {
+    flex-direction: row-reverse;
+    text-align: right;
+  }
+  .chat-who {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding-top: 6px;
+    min-width: 28px;
+    color: rgb(var(--c-accent));
+  }
+  .chat-bubble {
+    background: rgb(var(--tron-grid, 255 75 35) / 0.06);
+    border: 1px solid rgb(var(--tron-grid, 255 75 35) / 0.25);
+    padding: 6px 10px;
+    border-radius: 4px;
+    max-width: 80%;
+    word-wrap: break-word;
+  }
+  .chat-msg.chat-you .chat-bubble {
+    background: rgb(var(--tron-grid, 255 75 35) / 0.14);
+    border-color: rgb(var(--tron-grid, 255 75 35) / 0.5);
+    color: rgb(var(--c-fg));
+    box-shadow: 0 0 8px rgb(var(--tron-glow, 255 90 50) / 0.18);
+  }
+  .chat-bubble.chat-actions {
+    display: inline-flex;
+    gap: 8px;
+    background: transparent;
+    border: 0;
+    padding: 0;
+  }
+  .chat-action-btn {
+    appearance: none;
+    border: 1px solid rgb(var(--c-accent));
+    background: rgb(var(--c-accent) / 0.12);
+    color: rgb(var(--c-fg));
+    font: inherit;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s ease, box-shadow 0.15s ease;
+  }
+  .chat-action-btn:hover {
+    background: rgb(var(--c-accent) / 0.25);
+    box-shadow: 0 0 10px rgb(var(--tron-glow, 255 90 50) / 0.55);
+  }
+  .chat-action-btn.chat-action-no {
+    border-color: rgb(var(--c-border));
+    background: transparent;
+    color: rgb(var(--c-muted, 180 180 180));
+  }
+  .chat-action-btn.chat-action-no:hover {
+    background: rgb(255 255 255 / 0.05);
+    box-shadow: none;
+  }
+  .chat-input {
+    display: flex;
+    gap: 6px;
+    padding: 10px;
+    border-top: 1px solid rgb(var(--c-border));
+    background: rgb(0 0 0 / 0.6);
+  }
+  .chat-input input {
+    flex: 1;
+    min-width: 0;
+    background: rgb(var(--tron-grid, 255 75 35) / 0.05);
+    border: 1px solid rgb(var(--tron-grid, 255 75 35) / 0.4);
+    color: rgb(var(--c-fg));
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 13px;
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+  .chat-input input::-webkit-outer-spin-button,
+  .chat-input input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .chat-input input:focus {
+    outline: none;
+    border-color: rgb(var(--c-accent));
+    box-shadow: 0 0 8px rgb(var(--tron-glow, 255 90 50) / 0.45);
+  }
+  .chat-input input:disabled { opacity: 0.5; }
+  .chat-input button {
+    background: rgb(var(--c-accent));
+    color: #0a0a0c;
+    border: 1px solid rgb(var(--c-accent));
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-family: inherit;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-size: 12px;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgb(var(--tron-glow, 255 90 50) / 0.35);
+  }
+  .chat-input button:hover {
+    box-shadow: 0 0 14px rgb(var(--tron-glow, 255 90 50) / 0.7);
+  }
+  .chat-input button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  @media (max-width: 640px) {
+    .chat-root {
+      right: 8px;
+      bottom: 4px;
+      left: auto;
+      max-width: calc(100vw - 16px);
+      align-items: flex-end;
+    }
+    .chat-root[data-min="true"] {
+      right: 0;
+      bottom: 32px;
+    }
+    .chat-launcher {
+      width: auto;
+      font-size: 11px;
+      /* On mobile, slide up from below instead of in from the right. */
+      transform: translateY(140%);
+      animation: chat-toast-up 0.55s cubic-bezier(.2,.8,.3,1) 0.4s forwards;
+    }
+    .chat-launcher-text { padding: 8px 12px; max-width: 180px; }
+    .chat-launcher-text-long  { display: none; }
+    .chat-launcher-text-short { display: inline; }
+    .chat { width: min(360px, calc(100vw - 16px)); }
+  }
+  @keyframes chat-toast-up {
+    from { opacity: 0; transform: translateY(140%); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>

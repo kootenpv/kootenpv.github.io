@@ -1,0 +1,58 @@
+---
+import { SITE } from "~/config";
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  type?: "website" | "article";
+  date?: Date;
+  updated?: Date;
+  canonicalUrl?: string;
+  jsonLd?: Record<string, unknown>;
+}
+
+const {
+  title,
+  description = SITE.description,
+  image,
+  type = "website",
+  date,
+  updated,
+  canonicalUrl,
+  jsonLd,
+} = Astro.props;
+
+const pageTitle = title ? `${title} · ${SITE.title}` : SITE.title;
+const canonical = canonicalUrl ?? new URL(Astro.url.pathname, SITE.url).toString();
+const ogImage = new URL(image ?? SITE.avatarFrame, SITE.url).toString();
+---
+
+<title>{pageTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+<meta name="generator" content={Astro.generator} />
+
+<meta property="og:type" content={type} />
+<meta property="og:title" content={title ?? SITE.title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:site_name" content={SITE.title} />
+<meta property="og:image" content={ogImage} />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title ?? SITE.title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />
+
+{date && <meta property="article:published_time" content={date.toISOString()} />}
+{updated && <meta property="article:modified_time" content={updated.toISOString()} />}
+
+<link rel="alternate" type="application/rss+xml" title={`${SITE.title} RSS`} href="/rss.xml" />
+<link rel="icon" href={SITE.avatarFrame} />
+
+{
+  jsonLd && (
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  )
+}

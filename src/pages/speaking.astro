@@ -1,0 +1,80 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+
+const done = [
+  { event: "Big Data Vilnius 2018 Conference", title: "When To Use Machine Learning: Tips, Tricks And Warnings", when: "Lithuania, November 2018", url: "http://www.bigdataconference.lt" },
+  { event: "PiterPy 2018", title: "High-Frequency Cryptocurrency Trading using AsyncIO", when: "St. Petersburg, November 2018", url: "https://piterpy.com/materials/2452" },
+  { event: "O'Reilly And Intel AI Conference", title: "Demo: Deep Webcare Chatbot", when: "London, October 2018", url: "https://conferences.oreilly.com/artificial-intelligence/ai-eu/schedule/2018-10-09" },
+  { event: "PyCode Conference 2018", title: "High-Frequency Cryptocurrency Trading using AsyncIO", when: "Poland, October 2018", url: "https://pycode-conference.org/" },
+  { event: "EuroPython 2018", title: "When To Use Machine Learning: Tips, Tricks And Warnings", when: "Scotland, 2018", url: "https://ep2018.europython.eu/" },
+  { event: "Intel AI Event: Copenhagen", title: "Automated Machine Learning – from X to y", when: "Denmark, 2017" },
+  { event: "Intel AI Event: Gdansk", title: "Automated Machine Learning – from X to y", when: "Poland, 2017" },
+  { event: "source{d}: Machine Learning in Moscow", title: "A neural network trained to write neural network code using autocomplete", when: "Moscow, 2017", url: "https://talks.sourced.tech/machine-learning-2017/" },
+  { event: "PyData Barcelona", title: "Deep Care Chatbot - Generating answers to customers using Deep Learning and NLP", when: "Spain, 2017", url: "https://pydata.org/barcelona2017/" },
+  { event: "Amsterdam Python Meetup", title: "SQL Injection: processing 1.8 billion links searching for SQL vulnerabilities", when: "Netherlands, 2015" },
+];
+
+const planned: { event: string; title: string; when: string; url?: string }[] = [];
+---
+
+<BaseLayout title="Speaking" description="Talks given by Pascal van Kooten">
+  <article class="prose max-w-none">
+    <h1>Speaking</h1>
+
+    <img
+      src="/img/speaking-globe.png"
+      alt="Pixel-art globe centered on Europe with markers for cities where talks were given"
+      width="1600"
+      height="800"
+      style="image-rendering: pixelated; width: 100%; height: auto; max-width: 100%;"
+    />
+
+    <h2>Done</h2>
+    <table>
+      <thead>
+        <tr><th>Event</th><th>Title</th><th>When</th></tr>
+      </thead>
+      <tbody>
+        {done.map((t) => (
+          <tr>
+            <td>{t.url ? <a href={t.url}>{t.event}</a> : t.event}</td>
+            <td>{t.title}</td>
+            <td>{t.when}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+
+    <h2>Upcoming</h2>
+
+    <p>
+      In case you are interested in me speaking at an event, reach out to me at:
+      <a href="mailto:kootenpv@gm**l.c*m">kootenpv@gm**l.c*m</a>.
+    </p>
+    <p>
+      What number can be found in the text BELOW where you can give a star to the repo (requires being logged in)?
+      <span style="color:cornflowerblue">and yeah... that's a soft ask as well ;)</span>
+      <a href="https://github.com/kootenpv/kootenpv.github.io" style="overflow-wrap:anywhere;word-break:break-word;">https://github.com/kootenpv/kootenpv.github.io</a>
+    </p>
+
+    {planned.length > 0 && (
+      <>
+        <h2>Planned (or not yet promoted)</h2>
+        <table>
+          <thead>
+            <tr><th>Event</th><th>Title</th><th>When</th></tr>
+          </thead>
+          <tbody>
+            {planned.map((t) => (
+              <tr>
+                <td>{t.url ? <a href={t.url}>{t.event}</a> : t.event}</td>
+                <td>{t.title}</td>
+                <td>{t.when}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </>
+    )}
+  </article>
+</BaseLayout>

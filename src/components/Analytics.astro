@@ -1,0 +1,13 @@
+---
+import { ANALYTICS } from "~/config";
+const isProd = import.meta.env.PROD;
+const gc = ANALYTICS.goatcounter;
+const enabled = isProd && gc.enabled && gc.code;
+const endpoint = enabled ? `https://${gc.code}.goatcounter.com/count` : "";
+---
+
+{
+  enabled && (
+    <script is:inline async data-goatcounter={endpoint} src={gc.src} />
+  )
+}

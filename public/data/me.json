@@ -1,0 +1,538 @@
+[
+  {
+    "id": "name",
+    "category": "identity",
+    "questions": [
+      "who is pascal",
+      "who is the author",
+      "who runs this site",
+      "who made this site",
+      "whose site is this",
+      "name of the author",
+      "what's the author's name",
+      "tell me about pascal"
+    ],
+    "answer": "Pascal van Kooten — software enthusiast, ex-HFT quant developer, MSc in Methods & Statistics."
+  },
+  {
+    "id": "what_pascal_does",
+    "category": "identity",
+    "questions": [
+      "what does pascal do",
+      "what is pascal's job",
+      "pascal's profession",
+      "what is pascal's role",
+      "what does the author do",
+      "what does he work on",
+      "what's pascal up to these days"
+    ],
+    "answer": "Software enthusiast — most recently a quant developer in HFT, now back to open source and interesting projects."
+  },
+  {
+    "id": "tagline",
+    "category": "identity",
+    "questions": [
+      "describe pascal in a few words",
+      "pascal's tagline",
+      "pascal's elevator pitch",
+      "short bio of pascal",
+      "summarize pascal"
+    ],
+    "answer": "Software enthusiast — MSc in Methods & Statistics, ex-HFT quant developer, Python and Rust primarily."
+  },
+  {
+    "id": "location",
+    "category": "identity",
+    "questions": [
+      "where does pascal live",
+      "where is pascal based",
+      "what country is pascal in",
+      "where is pascal from",
+      "pascal's location",
+      "is pascal in europe"
+    ],
+    "answer": "Pascal is based in the Netherlands (Europe/Amsterdam time zone)."
+  },
+  {
+    "id": "age",
+    "category": "identity",
+    "questions": [
+      "how old is pascal",
+      "what is pascal's age",
+      "pascal's age",
+      "when was pascal born",
+      "pascal's birthday",
+      "pascal's date of birth"
+    ],
+    "answer": "Pascal was born July 16, 1989."
+  },
+  {
+    "id": "education",
+    "category": "background",
+    "questions": [
+      "what did pascal study",
+      "what is pascal's education",
+      "does pascal have a degree",
+      "where did pascal go to university",
+      "pascal's academic background"
+    ],
+    "answer": "Pascal holds an MSc in Methods & Statistics."
+  },
+  {
+    "id": "career_hft",
+    "category": "background",
+    "questions": [
+      "pascal's work history",
+      "tell me about pascal's career",
+      "what did pascal do before",
+      "has pascal worked in finance",
+      "has pascal worked in trading",
+      "did pascal work in hft"
+    ],
+    "answer": "Pascal spent several years as a quant developer in high-frequency trading. Everything he wrote there was proprietary — open source took a back seat, and he's back at it now."
+  },
+  {
+    "id": "open_source_now",
+    "category": "background",
+    "questions": [
+      "is pascal doing open source",
+      "is pascal back to open source",
+      "does pascal write open source code"
+    ],
+    "answer": "Yes — after the HFT years Pascal is back to open source with renewed energy and sharper tools."
+  },
+  {
+    "id": "freelance",
+    "category": "work",
+    "questions": [
+      "does pascal take freelance work",
+      "is pascal available for freelance",
+      "can i hire pascal",
+      "does pascal do contracting",
+      "pascal's freelance availability"
+    ],
+    "answer": "Pascal no longer takes on freelance work. He's open to interesting projects and judges them on their own merits."
+  },
+  {
+    "id": "interesting_projects",
+    "category": "work",
+    "questions": [
+      "what projects is pascal open to",
+      "what work is pascal interested in",
+      "does pascal take on new projects",
+      "what should i pitch pascal"
+    ],
+    "answer": "Whatever interesting projects cross his path — Pascal picks them up on their own merits."
+  },
+  {
+    "id": "languages_primary",
+    "category": "stack",
+    "questions": [
+      "what programming languages does pascal use",
+      "pascal's tech stack",
+      "what languages does pascal write",
+      "pascal's favorite language",
+      "what does pascal code in"
+    ],
+    "answer": "Primarily Python and Rust. Pascal lets LLMs handle C, HTML, and JavaScript."
+  },
+  {
+    "id": "python",
+    "category": "stack",
+    "questions": [
+      "does pascal write python",
+      "is pascal a python developer",
+      "pascal's python experience"
+    ],
+    "answer": "Yes — Python is one of Pascal's two primary languages."
+  },
+  {
+    "id": "rust",
+    "category": "stack",
+    "questions": [
+      "does pascal write rust",
+      "does pascal use rust",
+      "pascal's rust experience"
+    ],
+    "answer": "Yes — Rust is one of Pascal's two primary languages alongside Python."
+  },
+  {
+    "id": "llm_assisted_coding",
+    "category": "stack",
+    "questions": [
+      "does pascal use ai to code",
+      "does pascal use llms",
+      "what about pascal and vibe coding",
+      "does pascal let ai write his code"
+    ],
+    "answer": "He enjoys vibe coding, but cares just as much about using AI to ship genuinely high-quality output."
+  },
+  {
+    "id": "editor",
+    "category": "stack",
+    "questions": [
+      "what editor does pascal use",
+      "does pascal use vim or emacs",
+      "does pascal use vscode",
+      "pascal's ide",
+      "pascal's editor"
+    ],
+    "answer": "Emacs — though, as Pascal puts it, who really uses an editor anymore for coding?"
+  },
+  {
+    "id": "os",
+    "category": "stack",
+    "questions": [
+      "what os does pascal use",
+      "what operating system does pascal use",
+      "does pascal use linux",
+      "what os is pascal on",
+      "pascal's daily driver os",
+      "what does he run on his machine"
+    ],
+    "answer": "Arch Linux, of course."
+  },
+  {
+    "id": "ml_history",
+    "category": "background",
+    "questions": [
+      "tell me about pascal's ml background",
+      "does pascal do machine learning",
+      "pascal's experience with machine learning",
+      "has pascal done kaggle",
+      "pascal's ml competitions"
+    ],
+    "answer": "In the mid-2010s Pascal was deep in machine learning competitions and gave talks on neural networks."
+  },
+  {
+    "id": "ml_competitions",
+    "category": "background",
+    "questions": [
+      "did pascal do machine learning competitions",
+      "has pascal done kaggle competitions",
+      "pascal's online ml competitions"
+    ],
+    "answer": "Yes — Pascal used to pour his competitive streak into online machine learning and AI competitions."
+  },
+  {
+    "id": "genai_skeptic",
+    "category": "background",
+    "questions": [
+      "what does pascal think of generative ai",
+      "is pascal a genai skeptic",
+      "pascal's view on generative ai",
+      "does pascal use chatgpt"
+    ],
+    "answer": "Pascal was a long-time generative-AI skeptic — he couldn't imagine anyone breaking copyright at the scale required to train these models. Reality had other plans."
+  },
+  {
+    "id": "values",
+    "category": "philosophy",
+    "questions": [
+      "what motivates pascal",
+      "what does pascal care about",
+      "pascal's philosophy",
+      "what does pascal love most"
+    ],
+    "answer": "What Pascal loves most is empowering humans with machine capabilities."
+  },
+  {
+    "id": "competitive",
+    "category": "philosophy",
+    "questions": [
+      "is pascal competitive",
+      "is pascal ambitious"
+    ],
+    "answer": "Yes, highly — he used to channel that into ML and AI competitions."
+  },
+  {
+    "id": "speaking_history",
+    "category": "speaking",
+    "questions": [
+      "has pascal given talks",
+      "does pascal speak at conferences",
+      "pascal's speaking history",
+      "any conference talks by pascal"
+    ],
+    "answer": "Yes — Pascal has spoken at conferences including EuroPython, PiterPy, PyCode, PyData Barcelona, source{d}, the O'Reilly/Intel AI Conference, and Big Data Vilnius. Full list on the Speaking page."
+  },
+  {
+    "id": "speaking_invite",
+    "category": "speaking",
+    "questions": [
+      "can pascal speak at our event",
+      "speaking engagement with pascal",
+      "invite pascal to speak",
+      "have pascal give a talk at my conference"
+    ],
+    "answer": "Sure — reach out at kootenpv@gm**l.c*m."
+  },
+  {
+    "id": "speaking_topics",
+    "category": "speaking",
+    "questions": [
+      "what topics does pascal talk about",
+      "what does pascal give talks on",
+      "pascal's speaking topics"
+    ],
+    "answer": "Mostly machine learning, NLP, neural networks, automated ML, and high-frequency trading with Python."
+  },
+  {
+    "id": "europython",
+    "category": "speaking",
+    "questions": [
+      "has pascal spoken at europython",
+      "pascal europython talk"
+    ],
+    "answer": "Yes — at EuroPython 2018 in Scotland: \"When To Use Machine Learning: Tips, Tricks And Warnings\"."
+  },
+  {
+    "id": "pydata",
+    "category": "speaking",
+    "questions": [
+      "has pascal spoken at pydata",
+      "pascal pydata talk"
+    ],
+    "answer": "Yes — at PyData Barcelona 2017: \"Deep Care Chatbot — Generating answers to customers using Deep Learning and NLP\"."
+  },
+  {
+    "id": "projects_overview",
+    "category": "projects",
+    "questions": [
+      "what projects has pascal built",
+      "what are pascal's projects",
+      "show me pascal's projects",
+      "what has pascal made",
+      "pascal's portfolio"
+    ],
+    "answer": "Open-source projects include yagmail, whereami, shrynk, neural_complete, textsearch, nostalgia, sky, sysdm, gittyleaks, and brightml. Full list on the Projects page."
+  },
+  {
+    "id": "yagmail",
+    "category": "projects",
+    "questions": [
+      "what is yagmail",
+      "tell me about yagmail",
+      "yagmail"
+    ],
+    "answer": "yagmail — send emails in Python without the SMTP/MIME boilerplate. github.com/kootenpv/yagmail"
+  },
+  {
+    "id": "whereami",
+    "category": "projects",
+    "questions": [
+      "what is whereami",
+      "tell me about whereami"
+    ],
+    "answer": "whereami — predict where you are indoors using machine learning. github.com/kootenpv/whereami"
+  },
+  {
+    "id": "shrynk",
+    "category": "projects",
+    "questions": [
+      "what is shrynk",
+      "tell me about shrynk"
+    ],
+    "answer": "shrynk — using machine learning to choose how to compress files. github.com/kootenpv/shrynk"
+  },
+  {
+    "id": "neural_complete",
+    "category": "projects",
+    "questions": [
+      "what is neural_complete",
+      "tell me about neural complete",
+      "the autocomplete project"
+    ],
+    "answer": "neural_complete — a neural network trained to autocomplete Python source code. github.com/kootenpv/neural_complete"
+  },
+  {
+    "id": "textsearch",
+    "category": "projects",
+    "questions": [
+      "what is textsearch",
+      "tell me about textsearch"
+    ],
+    "answer": "textsearch — fast and configurable multi-string search for NLP. github.com/kootenpv/textsearch"
+  },
+  {
+    "id": "nostalgia",
+    "category": "projects",
+    "questions": [
+      "what is nostalgia",
+      "tell me about nostalgia"
+    ],
+    "answer": "nostalgia — utilize your personal data like Google. github.com/nostalgia-dev/nostalgia"
+  },
+  {
+    "id": "sky",
+    "category": "projects",
+    "questions": [
+      "what is sky",
+      "tell me about sky",
+      "pascal's web crawler"
+    ],
+    "answer": "sky — a web crawler designed to extract data from many sites. github.com/kootenpv/sky"
+  },
+  {
+    "id": "sysdm",
+    "category": "projects",
+    "questions": [
+      "what is sysdm",
+      "tell me about sysdm"
+    ],
+    "answer": "sysdm — a friendly TUI for managing systemd services. github.com/kootenpv/sysdm"
+  },
+  {
+    "id": "gittyleaks",
+    "category": "projects",
+    "questions": [
+      "what is gittyleaks",
+      "tell me about gittyleaks"
+    ],
+    "answer": "gittyleaks — detect leaked secrets and credentials in git history. github.com/kootenpv/gittyleaks"
+  },
+  {
+    "id": "brightml",
+    "category": "projects",
+    "questions": [
+      "what is brightml",
+      "tell me about brightml"
+    ],
+    "answer": "brightml — automatic laptop screen brightness using machine learning. github.com/kootenpv/brightml"
+  },
+  {
+    "id": "ppm",
+    "category": "projects",
+    "questions": [
+      "what is ppm",
+      "tell me about pascal's password manager",
+      "pascal's password tool",
+      "ppm project"
+    ],
+    "answer": "PPM (Pascal Password Manager) — a password manager Pascal built and used between 2016 and 2018. All cryptography runs locally in your browser; nothing is transmitted or stored. Python and Android implementations also exist."
+  },
+  {
+    "id": "sql_injection_talk",
+    "category": "presentations",
+    "questions": [
+      "the sql injection talk",
+      "what about pascal and sql injection",
+      "tell me about the 1.8 billion links project"
+    ],
+    "answer": "Pascal gave a talk on SQL injection — processing 1.8 billion links searching for SQL vulnerabilities (Amsterdam Python Meetup, 2015)."
+  },
+  {
+    "id": "email",
+    "category": "contact",
+    "questions": [
+      "what is pascal's email",
+      "how can i email pascal",
+      "pascal's email address",
+      "pascal's contact email"
+    ],
+    "answer": "kootenpv@gm**l.c*m"
+  },
+  {
+    "id": "github",
+    "category": "contact",
+    "questions": [
+      "what is pascal's github",
+      "pascal's github profile",
+      "pascal's github username",
+      "pascal's github link"
+    ],
+    "answer": "github.com/kootenpv"
+  },
+  {
+    "id": "linkedin",
+    "category": "contact",
+    "questions": [
+      "what is pascal's linkedin",
+      "pascal's linkedin profile",
+      "pascal's linkedin"
+    ],
+    "answer": "linkedin.com/in/pascalvkooten"
+  },
+  {
+    "id": "twitter",
+    "category": "contact",
+    "questions": [
+      "what is pascal's twitter",
+      "pascal's twitter handle",
+      "pascal's x account",
+      "is pascal on twitter"
+    ],
+    "answer": "@kootenpv on Twitter/X."
+  },
+  {
+    "id": "stackoverflow",
+    "category": "contact",
+    "questions": [
+      "pascal's stack overflow profile",
+      "pascal's stackoverflow",
+      "does pascal use stackoverflow"
+    ],
+    "answer": "stackoverflow.com/users/1575066/pascalvkooten"
+  },
+  {
+    "id": "contact_general",
+    "category": "contact",
+    "questions": [
+      "how do i contact pascal",
+      "how can i reach pascal",
+      "best way to get in touch with pascal",
+      "pascal's contact info"
+    ],
+    "answer": "Email is best: kootenpv@gm**l.c*m. You'll also find Pascal on GitHub, LinkedIn, Stack Overflow, and Twitter/X."
+  },
+  {
+    "id": "collab",
+    "category": "contact",
+    "questions": [
+      "want to collaborate with pascal",
+      "can i work with pascal",
+      "partnership with pascal"
+    ],
+    "answer": "Email kootenpv@gm**l.c*m — Pascal is open to interesting collaborations."
+  },
+  {
+    "id": "podcast_invite",
+    "category": "contact",
+    "questions": [
+      "have pascal on my podcast",
+      "podcast guest pascal",
+      "interview pascal"
+    ],
+    "answer": "Sure — drop a line at kootenpv@gm**l.c*m."
+  },
+  {
+    "id": "press",
+    "category": "contact",
+    "questions": [
+      "press inquiry for pascal",
+      "media inquiry pascal"
+    ],
+    "answer": "Press is welcome — kootenpv@gm**l.c*m."
+  },
+  {
+    "id": "site_url",
+    "category": "site",
+    "questions": [
+      "what is pascal's website",
+      "pascal's site url",
+      "pascal's homepage",
+      "pascal's personal site"
+    ],
+    "answer": "vks.ai"
+  },
+  {
+    "id": "blog",
+    "category": "site",
+    "questions": [
+      "does pascal have a blog",
+      "where is pascal's blog",
+      "does pascal write online"
+    ],
+    "answer": "Yes — the blog is at /blog on vks.ai."
+  }
+]

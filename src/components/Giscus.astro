@@ -1,0 +1,36 @@
+---
+import { COMMENTS } from "~/config";
+const g = COMMENTS.giscus;
+---
+
+{
+  g.enabled && g.repoId && g.categoryId && (
+    <section class="mt-12">
+      <script
+        is:inline
+        src="https://giscus.app/client.js"
+        data-repo={g.repo}
+        data-repo-id={g.repoId}
+        data-category={g.category}
+        data-category-id={g.categoryId}
+        data-mapping={g.mapping}
+        data-strict="0"
+        data-reactions-enabled={g.reactionsEnabled}
+        data-emit-metadata={g.emitMetadata}
+        data-input-position={g.inputPosition}
+        data-theme={g.theme}
+        data-lang={g.lang}
+        data-loading={g.loading}
+        crossorigin="anonymous"
+        async
+      />
+    </section>
+  )
+}
+{
+  g.enabled && (!g.repoId || !g.categoryId) && (
+    <p class="mt-12 text-sm text-muted italic">
+      Comments disabled: Giscus repoId/categoryId not configured.
+    </p>
+  )
+}

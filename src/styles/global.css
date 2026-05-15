@@ -1,0 +1,334 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Self-hosted Orbitron (variable, latin subset). License: SIL OFL 1.1 — see /fonts/orbitron/OFL.txt */
+@font-face {
+  font-family: "Orbitron";
+  font-style: normal;
+  font-weight: 500 700;
+  font-display: swap;
+  src: url("/fonts/orbitron/orbitron-latin-var.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ----- Theme: clean (default) ----- */
+:root,
+[data-theme="clean"] {
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-serif: Georgia, "Times New Roman", serif;
+
+  --c-bg: 255 255 255;
+  --c-fg: 24 24 27;
+  --c-muted: 113 113 122;
+  --c-accent: 37 99 235;
+  --c-border: 228 228 231;
+  --c-card: 250 250 250;
+}
+
+[data-theme="clean"].dark,
+.dark[data-theme="clean"] {
+  --c-bg: 9 9 11;
+  --c-fg: 244 244 245;
+  --c-muted: 161 161 170;
+  --c-accent: 96 165 250;
+  --c-border: 39 39 42;
+  --c-card: 24 24 27;
+}
+
+/* ----- Theme: terminal ----- */
+[data-theme="terminal"] {
+  --font-sans: "JetBrains Mono", ui-monospace, monospace;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-serif: "JetBrains Mono", ui-monospace, monospace;
+
+  --c-bg: 12 12 12;
+  --c-fg: 224 224 224;
+  --c-muted: 140 140 140;
+  --c-accent: 80 250 123;
+  --c-border: 40 40 40;
+  --c-card: 20 20 20;
+}
+
+[data-theme="terminal"].dark {
+  --c-bg: 0 0 0;
+  --c-fg: 230 230 230;
+  --c-muted: 140 140 140;
+  --c-accent: 80 250 123;
+  --c-border: 30 30 30;
+  --c-card: 12 12 12;
+}
+
+/* ----- Theme: modern ----- */
+[data-theme="modern"] {
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-serif: "Playfair Display", Georgia, serif;
+
+  --c-bg: 250 250 252;
+  --c-fg: 17 24 39;
+  --c-muted: 107 114 128;
+  --c-accent: 124 58 237;
+  --c-border: 226 232 240;
+  --c-card: 255 255 255;
+}
+
+[data-theme="modern"].dark {
+  --c-bg: 15 15 25;
+  --c-fg: 240 240 250;
+  --c-muted: 156 163 175;
+  --c-accent: 167 139 250;
+  --c-border: 39 39 60;
+  --c-card: 24 24 38;
+}
+
+/* ----- Theme: tron-ares ----- */
+/* Dark by default; the dark variant deepens the blacks further. */
+[data-theme="tron-ares"] {
+  --font-sans: "Orbitron", "JetBrains Mono", ui-monospace, monospace;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-serif: "Orbitron", ui-sans-serif, sans-serif;
+
+  --c-bg: 8 6 8;
+  --c-fg: 255 226 210;
+  --c-muted: 200 130 100;
+  --c-accent: 255 75 35;
+  --c-border: 70 22 12;
+  --c-card: 18 10 10;
+
+  --tron-grid: 255 75 35;
+  --tron-glow: 255 90 50;
+  --tron-grid-size: 48px;
+  --tron-grid-alpha: 0.08;
+}
+
+[data-theme="tron-ares"].dark {
+  --c-bg: 0 0 0;
+  --c-fg: 255 230 215;
+  --c-muted: 220 140 105;
+  --c-accent: 255 60 25;
+  --c-border: 90 25 12;
+  --c-card: 12 6 6;
+
+  --tron-grid-alpha: 0.12;
+}
+
+[data-theme="tron-ares"] body {
+  background-color: rgb(var(--c-bg));
+  background-image:
+    linear-gradient(
+      to bottom,
+      rgba(255, 60, 25, 0.06),
+      rgba(0, 0, 0, 0) 40%
+    ),
+    linear-gradient(
+      to right,
+      rgba(var(--tron-grid) / var(--tron-grid-alpha)) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(var(--tron-grid) / var(--tron-grid-alpha)) 1px,
+      transparent 1px
+    );
+  background-size:
+    100% 100%,
+    var(--tron-grid-size) var(--tron-grid-size),
+    var(--tron-grid-size) var(--tron-grid-size);
+  background-attachment: fixed;
+}
+
+[data-theme="tron-ares"] {
+  letter-spacing: 0.01em;
+}
+
+[data-theme="tron-ares"] header {
+  background-color: rgb(var(--c-bg) / 0.7) !important;
+  border-bottom: 1px solid rgb(var(--tron-grid) / 0.5);
+  box-shadow: 0 0 24px rgb(var(--tron-glow) / 0.18);
+}
+
+[data-theme="tron-ares"] footer {
+  border-top: 1px solid rgb(var(--tron-grid) / 0.4);
+}
+
+[data-theme="tron-ares"] h1,
+[data-theme="tron-ares"] h2,
+[data-theme="tron-ares"] h3 {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-shadow:
+    0 0 8px rgb(var(--tron-glow) / 0.55),
+    0 0 18px rgb(var(--tron-glow) / 0.25);
+}
+
+[data-theme="tron-ares"] a {
+  color: rgb(var(--c-accent));
+  text-shadow: 0 0 6px rgb(var(--tron-glow) / 0.45);
+}
+
+[data-theme="tron-ares"] a:hover {
+  text-shadow:
+    0 0 8px rgb(var(--tron-glow) / 0.85),
+    0 0 18px rgb(var(--tron-glow) / 0.55);
+}
+
+[data-theme="tron-ares"] button,
+[data-theme="tron-ares"] input,
+[data-theme="tron-ares"] .prose pre,
+[data-theme="tron-ares"] [class*="border-border"] {
+  border-color: rgb(var(--tron-grid) / 0.5) !important;
+}
+
+[data-theme="tron-ares"] .prose pre {
+  background-color: rgb(0 0 0 / 0.6);
+  box-shadow: inset 0 0 0 1px rgb(var(--tron-grid) / 0.4);
+}
+
+[data-theme="tron-ares"] .prose code {
+  background-color: rgb(var(--tron-grid) / 0.08);
+  color: rgb(var(--c-accent));
+}
+
+[data-theme="tron-ares"] .prose pre code {
+  background: transparent;
+  color: inherit;
+}
+
+[data-theme="tron-ares"] img {
+  filter: contrast(1.05) saturate(1.1);
+}
+
+[data-theme="tron-ares"] #ppm-btn,
+[data-theme="tron-ares"] button.bg-accent {
+  color: rgb(var(--c-bg)) !important;
+  background-color: rgb(var(--c-accent)) !important;
+  box-shadow: 0 0 12px rgb(var(--tron-glow) / 0.6);
+}
+
+[data-theme="tron-ares"] #theme-toggle {
+  filter: drop-shadow(0 0 4px rgb(var(--tron-glow) / 0.6));
+}
+
+[data-theme="tron-ares"] ::selection {
+  background: rgb(var(--c-accent) / 0.35);
+  color: rgb(var(--c-fg));
+}
+
+[data-theme="tron-ares"] .prose blockquote {
+  border-left-color: rgb(var(--c-accent));
+  box-shadow: -8px 0 16px -8px rgb(var(--tron-glow) / 0.5);
+}
+
+/* Tron-ares: red scan beam that sweeps across the screen on a loop.
+   Sits behind static content but above the body's grid background. */
+[data-theme="tron-ares"] main,
+[data-theme="tron-ares"] footer {
+  position: relative;
+  z-index: 1;
+}
+
+[data-theme="tron-ares"] .tron-scanline {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgb(var(--tron-glow) / 0.0) 6%,
+    rgb(var(--tron-glow) / 0.72) 50%,
+    rgb(var(--tron-glow) / 0.0) 94%,
+    transparent 100%
+  );
+  box-shadow:
+    0 0 5px rgb(var(--c-accent) / 0.58),
+    0 0 14px rgb(var(--tron-glow) / 0.22);
+  animation: tron-scan 22s linear infinite;
+  animation-delay: -17s; /* first beam fires 5s after load */
+}
+
+@keyframes tron-scan {
+  0%   { opacity: 0;    transform: translateY(-2vh); }
+  1%   { opacity: 0.72; transform: translateY(0); }
+  9%   { opacity: 0.68; transform: translateY(100vh); }
+  10%  { opacity: 0;    transform: translateY(104vh); }
+  100% { opacity: 0;    transform: translateY(104vh); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="tron-ares"] .tron-scanline {
+    display: none;
+  }
+}
+
+/* ----- Base ----- */
+html {
+  background-color: rgb(var(--c-bg));
+  color: rgb(var(--c-fg));
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: rgb(var(--c-accent));
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* prose adjustments */
+.prose pre {
+  background-color: rgb(var(--c-card));
+  border: 1px solid rgb(var(--c-border));
+  border-radius: 0.5rem;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+.prose code {
+  background-color: rgb(var(--c-card));
+  padding: 0.15em 0.35em;
+  border-radius: 0.25rem;
+  font-size: 0.9em;
+}
+
+.prose pre code {
+  background: transparent;
+  padding: 0;
+}
+
+.prose .heading-anchor {
+  margin-left: 0.4rem;
+  opacity: 0;
+  transition: opacity 0.15s;
+  text-decoration: none;
+}
+
+.prose h1:hover .heading-anchor,
+.prose h2:hover .heading-anchor,
+.prose h3:hover .heading-anchor,
+.prose h4:hover .heading-anchor,
+.prose h5:hover .heading-anchor,
+.prose h6:hover .heading-anchor {
+  opacity: 0.6;
+}
+
+/* Shiki dark/light switching via .dark on html */
+.dark .astro-code,
+.dark .astro-code span {
+  color: var(--shiki-dark) !important;
+  background-color: var(--shiki-dark-bg) !important;
+}
