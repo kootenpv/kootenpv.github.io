@@ -65,7 +65,7 @@ cliche stays under 50 ms even in large packages because of two design choices:
 
 A nice side-effect: `@cli` is a runtime no-op. You can unit-test your decorated functions as plain Python - no framework mocks, no fake argparse, nothing to stub.
 
-Although it currently also does the help messages and wrong format parsing using C, which can be like a 20-50x speedup from using Python.
+Although it currently also does the help messages and wrong format parsing using C, which can be like a 20-50x speedup from using Python, to under 10ms.
 
 ### Help that renders well
 
@@ -74,6 +74,8 @@ Docstrings *are* the help text. The first line becomes the command summary, each
 <center><img src="/img/cliche/cliche_rendered.png" style="width: 100%;" alt="rendered help output"/></center>
 
 Nothing to keep in sync: update the docstring, `--help` updates on next run.
+
+It supports the 3 main flavors of param styling: sphinx, google and numpy style.
 
 ### Optimized for humans *and* LLMs
 
