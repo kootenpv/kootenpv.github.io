@@ -3,39 +3,81 @@ import BaseLayout from "./BaseLayout.astro";
 import Giscus from "~/components/Giscus.astro";
 import { SITE } from "~/config";
 import type { Post } from "~/lib/posts";
-import { readingTime } from "~/lib/posts";
+import { postUrl, readingTime } from "~/lib/posts";
 
 interface Props {
   entry: Post;
   body: string;
+  updatedAt?: Date | null;
 }
 
-const { entry, body } = Astro.props;
-const { title, subtitle, description, date, updated, tags, comments, image } = entry.data;
+const { entry, body, updatedAt } = Astro.props;
+const { title, subtitle, description, date, tags, comments, image } = entry.data;
 const minutes = readingTime(body);
 
-const jsonLd = {
+function sameUtcDay(a: Date, b: Date) {
+  return (
+    a.getUTCFullYear() === b.getUTCFullYear() &&
+    a.getUTCMonth() === b.getUTCMonth() &&
+    a.getUTCDate() === b.getUTCDate()
+  );
+}
+const effectiveUpdated =
+  updatedAt && updatedAt > date && !sameUtcDay(updatedAt, date) ? updatedAt : null;
+
+const wordCount = body.trim().split(/\s+/).filter(Boolean).length;
+const pageUrl = new URL(Astro.url.pathname, SITE.url).toString();
+const markdownUrl = new URL(`${postUrl(entry)}.md`, SITE.url).toString();
+
+const blogPosting = {
   "@context": "https://schema.org",
   "@type": "BlogPosting",
   headline: title,
   description: description ?? subtitle ?? SITE.description,
   datePublished: date.toISOString(),
-  ...(updated && { dateModified: updated.toISOString() }),
+  ...(effectiveUpdated && { dateModified: effectiveUpdated.toISOString() }),
   author: {
     "@type": "Person",
     name: SITE.author,
     url: SITE.url,
   },
-  mainEntityOfPage: new URL(Astro.url.pathname, SITE.url).toString(),
+  publisher: {
+    "@type": "Person",
+    name: SITE.author,
+    url: SITE.url,
+  },
+  mainEntityOfPage: pageUrl,
+  url: pageUrl,
+  wordCount,
+  inLanguage: SITE.locale,
+  ...(tags.length > 0 && {
+    keywords: tags.join(", "),
+    articleSection: tags[0],
+  }),
   ...(image && { image: new URL(image, SITE.url).toString() }),
 };
 
-const dateFmt = date.toLocaleDateString("en-US", {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-  timeZone: SITE.timezone,
-});
+const breadcrumbs = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: SITE.url },
+    { "@type": "ListItem", position: 2, name: "Blog", item: new URL("/blog", SITE.url).toString() },
+    { "@type": "ListItem", position: 3, name: title, item: pageUrl },
+  ],
+};
+
+const jsonLd = [blogPosting, breadcrumbs];
+
+const fmtDate = (d: Date) =>
+  d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: SITE.timezone,
+  });
+const dateFmt = fmtDate(date);
+const updatedFmt = effectiveUpdated ? fmtDate(effectiveUpdated) : null;
 ---
 
 <BaseLayout
@@ -44,8 +86,10 @@ const dateFmt = date.toLocaleDateString("en-US", {
   image={image}
   type="article"
   date={date}
-  updated={updated}
+  updated={effectiveUpdated ?? undefined}
   jsonLd={jsonLd}
+  tags={tags}
+  markdownUrl={markdownUrl}
 >
   <article class="prose max-w-none prose-headings:scroll-mt-20">
     <header class="not-prose mb-6">
@@ -53,6 +97,14 @@ const dateFmt = date.toLocaleDateString("en-US", {
       {subtitle && <p class="mt-2 text-lg text-muted">{subtitle}</p>}
       <div class="mt-3 text-sm text-muted flex flex-wrap items-center gap-3">
         <time datetime={date.toISOString()}>{dateFmt}</time>
+        {
+          effectiveUpdated && (
+            <span>
+              · Updated{" "}
+              <time datetime={effectiveUpdated.toISOString()}>{updatedFmt}</time>
+            </span>
+          )
+        }
         <span>· {minutes} min read</span>
         {
           tags.length > 0 && (

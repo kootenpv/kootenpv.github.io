@@ -19,7 +19,9 @@ interface Props {
   date?: Date;
   updated?: Date;
   canonicalUrl?: string;
-  jsonLd?: Record<string, unknown>;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  tags?: string[];
+  markdownUrl?: string;
   bodyClass?: string;
 }
 
@@ -32,6 +34,8 @@ const {
   updated,
   canonicalUrl,
   jsonLd,
+  tags,
+  markdownUrl,
   bodyClass = "",
 } = Astro.props;
 ---
@@ -62,6 +66,8 @@ const {
       updated={updated}
       canonicalUrl={canonicalUrl}
       jsonLd={jsonLd}
+      tags={tags}
+      markdownUrl={markdownUrl}
     />
     <Analytics />
     <script is:inline>

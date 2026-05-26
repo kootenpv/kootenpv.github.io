@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "~/layouts/BaseLayout.astro";
-import { SITE } from "~/config";
+import { SITE, SOCIAL } from "~/config";
 import { getPublishedPosts, postUrl } from "~/lib/posts";
 
 const posts = (await getPublishedPosts()).slice(0, 5);
@@ -12,9 +12,40 @@ const dateFmt = (d: Date) =>
     day: "numeric",
     timeZone: SITE.timezone,
   });
+
+const sameAs = [
+  SOCIAL.github && `https://github.com/${SOCIAL.github}`,
+  SOCIAL.linkedin && `https://linkedin.com/${SOCIAL.linkedin}`,
+  SOCIAL.stackoverflow && `https://stackoverflow.com/${SOCIAL.stackoverflow}`,
+  SOCIAL.twitter && `https://twitter.com/${SOCIAL.twitter}`,
+].filter((u): u is string => Boolean(u));
+
+const person = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "@id": `${SITE.url}#person`,
+  name: SITE.author,
+  url: SITE.url,
+  image: new URL(SITE.avatar, SITE.url).toString(),
+  description: SITE.description,
+  sameAs,
+};
+
+const website = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": `${SITE.url}#website`,
+  url: SITE.url,
+  name: SITE.title,
+  description: SITE.description,
+  inLanguage: SITE.locale,
+  publisher: { "@id": `${SITE.url}#person` },
+};
+
+const jsonLd = [person, website];
 ---
 
-<BaseLayout title={undefined} description={SITE.description}>
+<BaseLayout title={undefined} description={SITE.description} jsonLd={jsonLd}>
   <section class="mb-10">
     <h1 class="text-4xl font-bold">{SITE.title}</h1>
     <p class="mt-2 text-lg text-muted">{SITE.tagline}</p>

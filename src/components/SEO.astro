@@ -1,5 +1,5 @@
 ---
-import { SITE } from "~/config";
+import { SITE, SOCIAL } from "~/config";
 
 interface Props {
   title?: string;
@@ -9,7 +9,9 @@ interface Props {
   date?: Date;
   updated?: Date;
   canonicalUrl?: string;
-  jsonLd?: Record<string, unknown>;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  tags?: string[];
+  markdownUrl?: string;
 }
 
 const {
@@ -21,11 +23,21 @@ const {
   updated,
   canonicalUrl,
   jsonLd,
+  tags,
+  markdownUrl,
 } = Astro.props;
 
 const pageTitle = title ? `${title} · ${SITE.title}` : SITE.title;
 const canonical = canonicalUrl ?? new URL(Astro.url.pathname, SITE.url).toString();
 const ogImage = new URL(image ?? SITE.avatarFrame, SITE.url).toString();
+const ogImageAlt = title ?? SITE.title;
+const ogLocale = SITE.locale === "en" ? "en_US" : SITE.locale;
+const twitterHandle = SOCIAL.twitter ? `@${SOCIAL.twitter}` : null;
+const jsonLdArr = jsonLd
+  ? Array.isArray(jsonLd)
+    ? jsonLd
+    : [jsonLd]
+  : [];
 ---
 
 <title>{pageTitle}</title>
@@ -38,21 +50,31 @@ const ogImage = new URL(image ?? SITE.avatarFrame, SITE.url).toString();
 <meta property="og:description" content={description} />
 <meta property="og:url" content={canonical} />
 <meta property="og:site_name" content={SITE.title} />
+<meta property="og:locale" content={ogLocale} />
 <meta property="og:image" content={ogImage} />
+<meta property="og:image:alt" content={ogImageAlt} />
+<meta property="og:image:width" content="460" />
+<meta property="og:image:height" content="460" />
 
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={title ?? SITE.title} />
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={ogImage} />
+<meta name="twitter:image:alt" content={ogImageAlt} />
+{twitterHandle && <meta name="twitter:site" content={twitterHandle} />}
+{twitterHandle && <meta name="twitter:creator" content={twitterHandle} />}
 
+{type === "article" && <meta property="article:author" content={SITE.url} />}
 {date && <meta property="article:published_time" content={date.toISOString()} />}
 {updated && <meta property="article:modified_time" content={updated.toISOString()} />}
+{tags && tags.map((t) => <meta property="article:tag" content={t} />)}
 
 <link rel="alternate" type="application/rss+xml" title={`${SITE.title} RSS`} href="/rss.xml" />
+{markdownUrl && <link rel="alternate" type="text/markdown" href={markdownUrl} />}
 <link rel="icon" href={SITE.avatarFrame} />
 
 {
-  jsonLd && (
-    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
-  )
+  jsonLdArr.map((obj) => (
+    <script type="application/ld+json" set:html={JSON.stringify(obj)} />
+  ))
 }

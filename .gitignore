@@ -9,3 +9,4 @@ dist/
 *.log
 scripts/encrypt-unlock.mjs
 secret_message.txt
+resume/CV*

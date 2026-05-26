@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pascal van Kooten — CV</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --panel: #ffffff;
+    --ink: #1a1a1a;
+    --muted: #5a6472;
+    --accent: #1d4ed8;
+    --accent-soft: #e0e7ff;
+    --border: #e4e6eb;
+    --chip: #eef1f5;
+    --chip-on: #1d4ed8;
+    --chip-on-ink: #ffffff;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+  a { color: var(--accent); text-decoration: none; }
+
+  .app {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 16px;
+    padding: 16px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .sidebar, .main {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .sidebar { position: sticky; top: 16px; align-self: start; max-height: calc(100vh - 32px); overflow: auto; }
+
+  h1 { font-size: 18px; margin: 0 0 8px; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 16px 0 8px; }
+  h3 { font-size: 15px; margin: 0; }
+
+  .search {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font: inherit;
+  }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: var(--chip); color: var(--ink);
+    padding: 4px 10px; border-radius: 999px;
+    font-size: 12px; cursor: pointer; user-select: none;
+    border: 1px solid transparent;
+  }
+  .chip:hover { border-color: var(--border); }
+  .chip.on { background: var(--chip-on); color: var(--chip-on-ink); }
+  .chip .count { opacity: .6; font-size: 11px; }
+
+  .toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+  .toolbar .spacer { flex: 1; }
+  button {
+    background: var(--accent); color: #fff; border: 0; padding: 8px 14px;
+    border-radius: 8px; font: inherit; cursor: pointer;
+  }
+  button.secondary { background: var(--chip); color: var(--ink); }
+  button:hover { filter: brightness(1.05); }
+
+  .meta { color: var(--muted); font-size: 12px; }
+  .error { color: #b00020; font-size: 13px; }
+
+  .cv { padding: 8px 4px; }
+  .cv-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid var(--ink); padding-bottom: 8px; margin-bottom: 12px; gap: 16px; }
+  .cv-header .name { font-size: 24px; font-weight: 700; }
+  .cv-header .role { color: var(--muted); font-size: 13px; }
+  .cv-header .contact { text-align: right; font-size: 12px; color: var(--muted); }
+
+  .cv-section { margin-bottom: 14px; }
+  .cv-section h2 { color: var(--ink); border-bottom: 1px solid var(--border); padding-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+  .section-toggle { display: inline-flex; align-items: center; cursor: pointer; }
+  .section-toggle input { transform: scale(1.0); cursor: pointer; margin: 0; }
+  .cv-section.section-hidden > *:not(h2) { opacity: 0.3; }
+  .cv-section.section-hidden h2 { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--muted); }
+  .cv-section.section-hidden h2 .section-toggle { text-decoration: none; }
+
+  .job { padding: 8px 10px; border-radius: 8px; margin-bottom: 8px; border: 1px solid transparent; }
+  .job.included { background: #fff; border-color: var(--border); }
+  .job.excluded { opacity: .35; }
+  .job-head { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+  .job-title { font-weight: 600; }
+  .job-when { color: var(--muted); font-size: 12px; white-space: nowrap; }
+  .job-where { color: var(--muted); font-size: 12px; }
+  .job-bullets { margin: 6px 0 4px; padding-left: 18px; }
+  .job-bullets li { margin: 2px 0; }
+  .job-tech { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .job-tech strong { color: var(--ink); font-weight: 600; }
+  .job-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+  .job-tags .tag { font-size: 11px; color: var(--muted); background: var(--chip); padding: 1px 6px; border-radius: 4px; }
+  .job-tags .tag.match { background: var(--accent-soft); color: var(--accent); }
+
+  .toggle-row { display: flex; align-items: center; gap: 8px; }
+  .toggle-row input { transform: scale(1.1); }
+
+  .plain-list { margin: 0; padding-left: 18px; }
+  .plain-list li { margin: 2px 0; }
+
+  .os-row { display: grid; grid-template-columns: 48px 160px 1fr; gap: 8px; font-size: 13px; margin: 2px 0; align-items: baseline; }
+  .os-row .stars { color: var(--accent); font-weight: 600; }
+  .os-row .name { font-weight: 600; }
+  .os-row .desc { color: var(--muted); }
+
+  .skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 16px; }
+  .skill-row { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; }
+  .skill-row .lvl { color: var(--muted); }
+
+  .editable { outline: none; }
+  .editable:focus { background: #fffbe6; }
+
+  @media print {
+    @page { size: A4; margin: 14mm; }
+    body { background: #fff; }
+    .sidebar, .toolbar, .no-print { display: none !important; }
+    .app { display: block; padding: 0; max-width: none; }
+    .main { border: 0; padding: 0; border-radius: 0; }
+    .job.excluded { display: none; }
+    .job.included { border: 0; background: transparent; padding: 4px 0; break-inside: avoid; }
+    .cv-section { break-inside: avoid; }
+    .cv-section.section-hidden { display: none !important; }
+    .job-tags { display: none; }
+    a { color: inherit; text-decoration: none; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar no-print">
+    <h1>CV Builder</h1>
+    <p class="meta">Filter experience to match a job posting, then export to PDF.</p>
+
+    <input id="search" class="search" placeholder="Search jobs, skills, keywords…">
+
+    <h2>Actions</h2>
+    <div class="toolbar">
+      <button id="printBtn">Export PDF</button>
+      <button class="secondary" id="clearBtn">Clear filters</button>
+      <button class="secondary" id="includeAllBtn">Include all</button>
+      <button class="secondary" id="excludeAllBtn">Exclude all</button>
+    </div>
+
+    <h2>Flavor</h2>
+    <div id="flavorPresets" class="chips"></div>
+
+    <h2>Filter by area</h2>
+    <div id="tagFilters" class="chips"></div>
+
+    <h2>Options</h2>
+    <label class="toggle-row"><input type="checkbox" id="optAuto" checked> Auto-include jobs matching any selected area</label>
+    <label class="toggle-row"><input type="checkbox" id="optHighlight" checked> Highlight matching tags</label>
+    <label class="toggle-row"><input type="checkbox" id="optShowExcluded"> Show excluded jobs (greyed)</label>
+
+    <p class="meta">Tip: Click a job card to toggle its inclusion manually.</p>
+    <p id="loadError" class="error"></p>
+  </aside>
+
+  <main class="main">
+    <div class="toolbar no-print">
+      <strong id="counter"></strong>
+      <span class="spacer"></span>
+      <span class="meta">Click a job to include/exclude</span>
+    </div>
+
+    <div class="cv">
+      <header class="cv-header">
+        <div>
+          <div id="name" class="name editable" contenteditable="true"></div>
+          <div id="role" class="role editable" contenteditable="true"></div>
+        </div>
+        <div id="contact" class="contact editable" contenteditable="true"></div>
+      </header>
+
+      <section class="cv-section">
+        <h2>Profile</h2>
+        <div id="profile"></div>
+      </section>
+
+      <section class="cv-section">
+        <h2>Experience</h2>
+        <div id="jobs"></div>
+      </section>
+
+      <section class="cv-section">
+        <h2>Skills</h2>
+        <div id="skills" class="skills-grid"></div>
+      </section>
+
+      <section class="cv-section">
+        <h2>Languages</h2>
+        <div id="languages"></div>
+      </section>
+
+      <section class="cv-section">
+        <h2>Education</h2>
+        <div id="education"></div>
+      </section>
+
+      <section class="cv-section">
+        <h2>Certifications</h2>
+        <ul id="certifications" class="plain-list"></ul>
+      </section>
+
+      <section class="cv-section">
+        <h2>Publications</h2>
+        <ul id="publications" class="plain-list"></ul>
+      </section>
+
+      <section class="cv-section">
+        <h2>Open source — github.com/kootenpv</h2>
+        <div id="openSource"></div>
+      </section>
+
+      <section class="cv-section">
+        <h2>Interests</h2>
+        <ul id="interests" class="plain-list"></ul>
+      </section>
+
+      <section class="cv-section">
+        <h2>Speaking</h2>
+        <ul id="talks" class="plain-list"></ul>
+      </section>
+
+      <section class="cv-section">
+        <h2>Competitions</h2>
+        <ul id="competitions" class="plain-list"></ul>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script>
+  const $ = sel => document.querySelector(sel);
+
+  // Allow override via ?data=... so it's easy to re-host (e.g. inside kootenpv_github_io).
+  const dataUrl = new URLSearchParams(location.search).get("data") || "data.json";
+
+  const state = {
+    data: null,
+    selectedTags: new Set(),
+    manualInclude: new Set(),
+    manualExclude: new Set(),
+    searchTerm: "",
+    activeFlavor: null
+  };
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;"
+    }[c]));
+  }
+
+  function computeTagCounts(data) {
+    const counts = {};
+    for (const j of data.jobs)  for (const t of j.tags || []) counts[t] = (counts[t] || 0) + 1;
+    for (const s of data.skills) for (const t of s.tags || []) counts[t] = (counts[t] || 0) + 1;
+    return counts;
+  }
+
+  function renderHeader() {
+    const h = state.data.header;
+    $("#name").textContent = h.name;
+    $("#role").textContent = h.default_role;
+    const linksHtml = h.links.map(l => `<a href="${escapeHtml(l.href)}">${escapeHtml(l.label)}</a>`).join(" · ");
+    $("#contact").innerHTML = `
+      ${escapeHtml(h.email)} · ${escapeHtml(h.phone)}<br>
+      ${linksHtml}<br>
+      ${escapeHtml(h.location)}
+    `;
+    const profileParas = Array.isArray(state.data.profile) ? state.data.profile : [state.data.profile];
+    $("#profile").innerHTML = profileParas.map(p =>
+      `<p>${escapeHtml(p)}</p>`
+    ).join("");
+  }
+
+  function renderFlavorPresets() {
+    const c = $("#flavorPresets");
+    c.innerHTML = "";
+    for (const [key, f] of Object.entries(state.data.flavors || {})) {
+      const el = document.createElement("span");
+      el.className = "chip" + (state.activeFlavor === key ? " on" : "");
+      el.textContent = f.label;
+      el.onclick = () => applyFlavor(key);
+      c.appendChild(el);
+    }
+  }
+
+  function applyFlavor(key) {
+    const f = state.data.flavors[key];
+    if (!f) return;
+    state.activeFlavor = state.activeFlavor === key ? null : key;
+    state.selectedTags.clear();
+    state.manualInclude.clear();
+    state.manualExclude.clear();
+    if (state.activeFlavor) {
+      f.tags.forEach(t => state.selectedTags.add(t));
+      $("#role").textContent = f.role;
+    } else {
+      $("#role").textContent = state.data.header.default_role;
+    }
+    render();
+  }
+
+  function renderTagFilters() {
+    const counts = computeTagCounts(state.data);
+    const allTags = Object.keys(counts).sort((a, b) => counts[b] - counts[a] || a.localeCompare(b));
+    const c = $("#tagFilters");
+    c.innerHTML = "";
+    for (const t of allTags) {
+      const el = document.createElement("span");
+      el.className = "chip" + (state.selectedTags.has(t) ? " on" : "");
+      el.innerHTML = `${escapeHtml(t)} <span class="count">${counts[t]}</span>`;
+      el.onclick = () => {
+        state.selectedTags.has(t) ? state.selectedTags.delete(t) : state.selectedTags.add(t);
+        render();
+      };
+      c.appendChild(el);
+    }
+  }
+
+  function jobMatchesSearch(j) {
+    if (!state.searchTerm) return true;
+    const hay = (j.title + " " + j.company + " " + (j.where || "") + " " + (j.bullets || []).join(" ") + " " + (j.tech || []).join(" ") + " " + (j.tags || []).join(" ")).toLowerCase();
+    return hay.includes(state.searchTerm);
+  }
+
+  function isJobIncluded(j) {
+    if (state.manualExclude.has(j.id)) return false;
+    if (state.manualInclude.has(j.id)) return true;
+    if (!$("#optAuto").checked) return jobMatchesSearch(j);
+    if (state.selectedTags.size === 0) return jobMatchesSearch(j);
+    return (j.tags || []).some(t => state.selectedTags.has(t)) && jobMatchesSearch(j);
+  }
+
+  function renderJobs() {
+    const wrap = $("#jobs");
+    wrap.innerHTML = "";
+    const highlight = $("#optHighlight").checked;
+    const showExcluded = $("#optShowExcluded").checked;
+    let included = 0;
+    for (const j of state.data.jobs) {
+      const inc = isJobIncluded(j);
+      if (inc) included++;
+      if (!inc && !showExcluded) continue;
+
+      const el = document.createElement("div");
+      el.className = "job " + (inc ? "included" : "excluded");
+      el.onclick = (e) => {
+        // Allow editing bullets without toggling include state.
+        if (e.target.closest("[contenteditable=true]")) return;
+        if (state.manualInclude.has(j.id)) { state.manualInclude.delete(j.id); state.manualExclude.add(j.id); }
+        else if (state.manualExclude.has(j.id)) { state.manualExclude.delete(j.id); }
+        else if (isJobIncluded(j)) state.manualExclude.add(j.id);
+        else state.manualInclude.add(j.id);
+        render();
+      };
+
+      const tagsHtml = (j.tags || []).map(t => {
+        const match = state.selectedTags.has(t);
+        return `<span class="tag${highlight && match ? " match" : ""}">${escapeHtml(t)}</span>`;
+      }).join("");
+
+      const bulletsHtml = (j.bullets || []).map(b =>
+        `<li contenteditable="true" class="editable">${escapeHtml(b)}</li>`
+      ).join("");
+
+      const techHtml = (j.tech && j.tech.length)
+        ? `<div class="job-tech"><strong>Tech:</strong> ${j.tech.map(escapeHtml).join(", ")}</div>`
+        : "";
+
+      const subhead = [j.company, j.where].filter(Boolean).map(escapeHtml).join(" · ");
+
+      el.innerHTML = `
+        <div class="job-head">
+          <div>
+            <div class="job-title">${escapeHtml(j.title)}</div>
+            <div class="job-where">${subhead}</div>
+          </div>
+          <div class="job-when">${escapeHtml(j.when)}</div>
+        </div>
+        ${bulletsHtml ? `<ul class="job-bullets">${bulletsHtml}</ul>` : ""}
+        ${techHtml}
+        <div class="job-tags no-print">${tagsHtml}</div>
+      `;
+      wrap.appendChild(el);
+    }
+    $("#counter").textContent = `${included} / ${state.data.jobs.length} jobs included`;
+  }
+
+  function renderSkills() {
+    const wrap = $("#skills");
+    wrap.innerHTML = "";
+    const filtered = state.data.skills.filter(s =>
+      state.selectedTags.size === 0 || (s.tags || []).some(t => state.selectedTags.has(t))
+    );
+    for (const s of filtered) {
+      const row = document.createElement("div");
+      row.className = "skill-row";
+      const matched = (s.tags || []).filter(t => state.selectedTags.has(t));
+      row.innerHTML = `<span>${escapeHtml(s.name)}</span><span class="lvl">${matched.map(escapeHtml).join(", ")}</span>`;
+      wrap.appendChild(row);
+    }
+  }
+
+  function renderLanguages() {
+    const wrap = $("#languages");
+    wrap.innerHTML = (state.data.languages || []).map(l =>
+      `<div class="skill-row"><span>${escapeHtml(l.name)}</span><span class="lvl">${escapeHtml(l.level)}</span></div>`
+    ).join("");
+  }
+
+  function renderEducation() {
+    const wrap = $("#education");
+    wrap.innerHTML = state.data.education.map(e => `
+      <div class="job included">
+        <div class="job-head">
+          <div><div class="job-title">${escapeHtml(e.title)}</div><div class="job-where">${escapeHtml(e.org)}</div></div>
+          <div class="job-when">${escapeHtml(e.when)}</div>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  function renderStatic() {
+    $("#certifications").innerHTML = (state.data.certifications || []).map(c => `<li>${escapeHtml(c)}</li>`).join("");
+    $("#publications").innerHTML = (state.data.publications || []).map(p => `<li>${escapeHtml(p)}</li>`).join("");
+    $("#openSource").innerHTML = (state.data.open_source || []).map(o => {
+      const owner = o.owner || "kootenpv";
+      const href = `https://github.com/${owner}/${o.name}`;
+      return `<div class="os-row" data-repo="${escapeHtml(o.name)}" data-owner="${escapeHtml(owner)}"><span class="stars">★ ${escapeHtml(o.stars)}</span><span class="name"><a href="${escapeHtml(href)}">${escapeHtml(o.name)}</a></span><span class="desc">${escapeHtml(o.desc)}</span></div>`;
+    }).join("");
+    refreshGithubStars();
+    $("#interests").innerHTML = (state.data.interests || []).map(i => `<li>${escapeHtml(i)}</li>`).join("");
+    $("#talks").innerHTML = (state.data.talks || []).map(t => `<li>${escapeHtml(t)}</li>`).join("");
+    $("#competitions").innerHTML = (state.data.competitions || []).map(c => `<li>${escapeHtml(c)}</li>`).join("");
+  }
+
+  function formatStars(n) {
+    if (n >= 10000) return (n / 1000).toFixed(0) + "k";
+    if (n >= 1000)  return (n / 1000).toFixed(1) + "k";
+    return String(n);
+  }
+
+  async function fetchStarsCached(repo, owner = "kootenpv", ttlMs = 60 * 60 * 1000) {
+    const key = `gh-stars:${owner}/${repo}`;
+    try {
+      const hit = JSON.parse(localStorage.getItem(key) || "null");
+      if (hit && Date.now() - hit.t < ttlMs) return hit.n;
+    } catch (_) {}
+    const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    const n = json.stargazers_count;
+    try { localStorage.setItem(key, JSON.stringify({ t: Date.now(), n })); } catch (_) {}
+    return n;
+  }
+
+  async function refreshGithubStars() {
+    const rows = document.querySelectorAll(".os-row[data-repo]");
+    rows.forEach(async (row) => {
+      const repo = row.getAttribute("data-repo");
+      const owner = row.getAttribute("data-owner") || "kootenpv";
+      try {
+        const n = await fetchStarsCached(repo, owner);
+        row.querySelector(".stars").textContent = `★ ${formatStars(n)}`;
+      } catch (_) { /* keep fallback value from JSON */ }
+    });
+  }
+
+  function render() {
+    renderFlavorPresets();
+    renderTagFilters();
+    renderJobs();
+    renderSkills();
+    renderLanguages();
+    renderEducation();
+  }
+
+  function attachSectionToggles() {
+    document.querySelectorAll(".cv-section").forEach((sec, i) => {
+      const h2 = sec.querySelector("h2");
+      if (!h2 || h2.querySelector(".section-toggle")) return;
+      const slug = (h2.textContent || `s-${i}`)
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+      const key = `section-included:${slug}`;
+      const stored = localStorage.getItem(key);
+      const included = stored === null ? true : stored === "1";
+
+      const label = document.createElement("label");
+      label.className = "section-toggle no-print";
+      label.title = "Include this section in the PDF export";
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = included;
+      cb.addEventListener("change", () => {
+        sec.classList.toggle("section-hidden", !cb.checked);
+        localStorage.setItem(key, cb.checked ? "1" : "0");
+      });
+      label.appendChild(cb);
+      h2.prepend(label);
+      sec.classList.toggle("section-hidden", !included);
+    });
+  }
+
+  function wireControls() {
+    $("#search").addEventListener("input", e => { state.searchTerm = e.target.value.toLowerCase().trim(); render(); });
+    $("#optAuto").addEventListener("change", render);
+    $("#optHighlight").addEventListener("change", render);
+    $("#optShowExcluded").addEventListener("change", render);
+    $("#printBtn").addEventListener("click", () => window.print());
+    $("#clearBtn").addEventListener("click", () => {
+      state.selectedTags.clear();
+      state.manualInclude.clear();
+      state.manualExclude.clear();
+      state.activeFlavor = null;
+      $("#search").value = "";
+      state.searchTerm = "";
+      $("#role").textContent = state.data.header.default_role;
+      render();
+    });
+    $("#includeAllBtn").addEventListener("click", () => {
+      state.manualExclude.clear();
+      state.data.jobs.forEach(j => state.manualInclude.add(j.id));
+      render();
+    });
+    $("#excludeAllBtn").addEventListener("click", () => {
+      state.manualInclude.clear();
+      state.data.jobs.forEach(j => state.manualExclude.add(j.id));
+      render();
+    });
+  }
+
+  async function boot() {
+    try {
+      const res = await fetch(dataUrl, { cache: "no-cache" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      state.data = await res.json();
+    } catch (err) {
+      $("#loadError").textContent = `Failed to load ${dataUrl}: ${err.message}. If opened via file:// most browsers block fetch — serve the folder over HTTP (e.g. python -m http.server).`;
+      return;
+    }
+    renderHeader();
+    renderStatic();
+    wireControls();
+    attachSectionToggles();
+    render();
+  }
+
+  boot();
+</script>
+</body>
+</html>

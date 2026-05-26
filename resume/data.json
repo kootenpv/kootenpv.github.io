@@ -1,0 +1,379 @@
+{
+  "header": {
+    "name": "MSc. Pascal van Kooten",
+    "default_role": "Quantitative Trading, Research and Development",
+    "email": "kootenpv@gmail.com",
+    "phone": "+31 6 575 46 242",
+    "links": [
+      { "label": "github.com/kootenpv", "href": "https://github.com/kootenpv" },
+      { "label": "linkedin.com/in/pascalvkooten", "href": "https://linkedin.com/in/pascalvkooten" },
+      { "label": "vks.ai", "href": "https://vks.ai" }
+    ],
+    "location": "Amsterdam, The Netherlands"
+  },
+
+  "profile": [
+    "MSc in Methods & Statistics. Two years on blockchain, eight across data science and software engineering — including a chatbot chapter just before LLMs landed — then several years as a quant developer in HFT, including running my own company for the last few. Now looking for a new challenge to invest my time and money in.",
+    "These days I write 99% of my code with AI — though the real output goes well beyond coding."
+  ],
+
+  "languages": [
+    { "name": "Dutch",   "level": "Native or bilingual proficiency" },
+    { "name": "English", "level": "Full professional proficiency" }
+  ],
+
+  "jobs": [
+    {
+      "id": "founder-quant",
+      "title": "Founder, Quantitative Trading",
+      "company": "Self-employed",
+      "where": "",
+      "when": "2023-01 — present",
+      "bullets": [],
+      "tags": ["quant", "trading", "finance", "engineering", "founder"]
+    },
+    {
+      "id": "mgnr",
+      "title": "Quantitative Trading, Research and Development (vks)",
+      "company": "mgnr.io",
+      "where": "",
+      "when": "2020-10 — 2022-11",
+      "bullets": [],
+      "tags": ["quant", "trading", "finance", "engineering", "research", "python"]
+    },
+    {
+      "id": "vks-solutions",
+      "title": "AI / Machine Learning Freelancer",
+      "company": "Van Kooten AI Solutions",
+      "where": "",
+      "when": "2019-06 — 2020-09",
+      "bullets": [
+        "Used machine learning, NLP, data science and Python to deliver for clients including TrainTool, LeasePlan Digital and Liberty Global."
+      ],
+      "tags": ["data science", "machine learning", "nlp", "consulting", "python"]
+    },
+    {
+      "id": "liberty",
+      "title": "Lead Software Engineer",
+      "company": "Liberty Global — Discovery & API",
+      "where": "via Van Kooten AI Solutions",
+      "when": "2020-01 — 2020-05",
+      "bullets": [
+        "Created an overarching API to manage devices."
+      ],
+      "tech": ["Python", "FastAPI", "Test Driven Development"],
+      "tags": ["engineering", "backend", "api", "python"]
+    },
+    {
+      "id": "leaseplan",
+      "title": "Freelance Data Scientist",
+      "company": "LeasePlan Digital — Predictive Analytics",
+      "where": "via Van Kooten AI Solutions",
+      "when": "2019-06 — 2020-12",
+      "bullets": [
+        "Delivering value by giving the business insight in how to set Service Level Agreements.",
+        "Created a Python Dash app with a custom ML model. Explainability is very important in this case."
+      ],
+      "tags": ["data science", "machine learning", "consulting"]
+    },
+    {
+      "id": "faculty",
+      "title": "NLP Specialist",
+      "company": "Faculty of Skills — Text Analytics",
+      "where": "via Van Kooten AI Solutions",
+      "when": "2019-06 — 2020-12",
+      "bullets": [
+        "Advised on using Text Analytics for extracting information from answers as part of automating \"grading participants\"."
+      ],
+      "tags": ["nlp", "consulting"]
+    },
+    {
+      "id": "rvo",
+      "title": "Lead Data Scientist & Scrum Master",
+      "company": "Rijksdienst voor Ondernemend Nederland (RVO) — Chatbot",
+      "where": "via Van Kooten AI Solutions",
+      "when": "2019-06 — 2020-12",
+      "bullets": [
+        "Built a chatbot using open-source and deployed it in production in less than 2 months."
+      ],
+      "tech": ["Microsoft Azure", "Open-source RASA", "BERT", "word2vec", "intent recognition", "GUI", "JavaScript"],
+      "tags": ["nlp", "chatbot", "machine learning", "cloud", "azure", "leadership", "consulting"]
+    },
+    {
+      "id": "viqtor-davis",
+      "title": "Lead Consultant Data Scientist",
+      "company": "VIQTOR DAVIS",
+      "where": "",
+      "when": "2019-01 — 2019-06",
+      "bullets": [
+        "Technical advisor for an acquisition / merger.",
+        "Built out Cognitive AI propositions (Technical Design, Planning & Execution).",
+        "Responsible for delivery and maintenance of production applications.",
+        "Trained employees in Natural Language Processing."
+      ],
+      "tags": ["nlp", "machine learning", "leadership", "consulting"]
+    },
+    {
+      "id": "jibes",
+      "title": "Lead Consultant Data Scientist",
+      "company": "Jibes Data Analytics",
+      "where": "",
+      "when": "2018-04 — 2019-01",
+      "bullets": [
+        "Youngest to become Lead Data Scientist.",
+        "Involved in the hiring of over 10 new colleagues.",
+        "Traveled abroad for visiting clients, hackathons, and speaking at conferences.",
+        "Trained employees in the application of machine learning."
+      ],
+      "tags": ["machine learning", "leadership", "consulting", "hiring"]
+    },
+    {
+      "id": "vektis",
+      "title": "Lead Data Scientist & Scrum Master",
+      "company": "Vektis — Chatbot",
+      "where": "",
+      "when": "2017-11 — 2019-01",
+      "bullets": [
+        "Implementing / continuing with the Python design we have made using machine learning and other AI information retrieval techniques to answer customers questions.",
+        "I've been leading the team resulting in our fastest deployment in production at the customer which required creating and guiding them to a Microsoft Azure environment.",
+        "We have given workshops to educate data scientists and trained maintainers of our own system."
+      ],
+      "tech": ["Microsoft Azure", "FLAT clustering", "intent recognition"],
+      "tags": ["nlp", "chatbot", "machine learning", "cloud", "azure", "leadership", "consulting"]
+    },
+    {
+      "id": "rabo-furhat",
+      "title": "Solution Architect / Lead Data Scientist",
+      "company": "Rabobank & Furhat Robotics — Social Artificial Intelligence",
+      "where": "",
+      "when": "2017-09 — 2018-01",
+      "bullets": [
+        "Innovative project to discover how customers experience a physical robot capable of communication (chat) and interpreting emotions.",
+        "My job was to deliver a prototype of machine intelligence: for people to experience a machine as intellectual as possible.",
+        "The project has reached the national newspaper, radio and television."
+      ],
+      "tech": ["Java", "Kotlin", "NLP"],
+      "tags": ["nlp", "machine learning", "leadership", "consulting", "robotics"]
+    },
+    {
+      "id": "achmea-chatbot",
+      "title": "Solution Architect / Lead Data Scientist",
+      "company": "Achmea Insurance — Chatbot",
+      "where": "",
+      "when": "2016-10 — 2017-07",
+      "bullets": [
+        "Technical lead (architecture); presented our Proof of Concept system resulting in one of our largest projects as of yet.",
+        "We have beaten 4 other competitors, among a Microsoft + internal team.",
+        "The goal was to show how machine learning can aid in helping customers and resulted in a chatbot program. This has since become their 2nd largest client.",
+        "We have given workshops and trained data scientists at Achmea with NLP techniques."
+      ],
+      "tech": ["Python", "Neo4J", "ElasticSearch", "LSTM", "NN", "NLP", "intent matching", "word2vec", "NER"],
+      "tags": ["nlp", "chatbot", "machine learning", "deep learning", "leadership", "consulting", "c-level"]
+    },
+    {
+      "id": "achmea-cv",
+      "title": "Senior Machine Learning Engineer",
+      "company": "Achmea Insurance — Computer Vision",
+      "where": "",
+      "when": "2015-10 — 2016-04",
+      "bullets": [
+        "Helped the organization discover the use of computer vision through the design and implementation of the state-of-the-art Inception neural network using Tensorflow.",
+        "Applied to automatically detect damages on cars and made it work on a phone."
+      ],
+      "tech": ["Python", "Tensorflow", "Inception v3", "Android", "Neural Networks", "CNN"],
+      "tags": ["computer vision", "deep learning", "machine learning", "consulting"]
+    },
+    {
+      "id": "rabo-fintech",
+      "title": "Data Scientist",
+      "company": "Rabobank — FinTech Radar",
+      "where": "",
+      "when": "2015-10 — 2016-04",
+      "bullets": [
+        "Built a fintech radar for discovering new trends in the field of financial technology, using NLP machine learning techniques (Python).",
+        "Involved with requirements analysis, designing and developing the application (both back- and front-end)."
+      ],
+      "tech": ["Python", "scikit-learn", "NLTK", "Frog", "JavaScript"],
+      "tags": ["nlp", "data science", "machine learning", "finance", "consulting"]
+    },
+    {
+      "id": "rabo-blockchain",
+      "title": "Full-stack / Blockchain Engineer",
+      "company": "Rabobank — RFC Blockchain Application",
+      "where": "",
+      "when": "2015-01 — 2016-06",
+      "bullets": [
+        "Created a blockchain RFC application as the sole developer (full-stack) using the Eris Blockchain.",
+        "The main purpose was for gaining blockchain knowledge in the organization. Due to (technical) success, I've delivered multiple iterations."
+      ],
+      "tags": ["blockchain", "engineering", "consulting"]
+    },
+    {
+      "id": "pon",
+      "title": "Data Analytics Specialist / Data Scientist",
+      "company": "PON Equipment",
+      "where": "global IBM Award for \"Best Cognitive Solution\"",
+      "when": "2014-09 — 2015-03",
+      "bullets": [
+        "Setting up a Competitive Intelligence solution with a combination of Watson Explorer and Content Analytics.",
+        "Involved with the gathering of external information about the competitors in the market (such as the acquisition of new machines) and translating business rules to insights."
+      ],
+      "tech": ["Python", "Scrapy", "scikit-learn", "Watson Content Analytics", "Search Engine", "Django"],
+      "tags": ["data science", "nlp", "machine learning", "consulting", "award"]
+    },
+    {
+      "id": "cito",
+      "title": "Statistical Software Developer",
+      "company": "CITO",
+      "where": "",
+      "when": "2013-04 — 2014-05",
+      "bullets": [
+        "Expert scoring: created a Python GUI to enable experts to rate national exam questions. Worked closely together with the manager to ensure the end users got the product they felt comfortable with.",
+        "Handling large missing data: C++ and the Qt framework were utilised to create an application to handle big \"missing\" data as an extension for the expert scoring system."
+      ],
+      "tags": ["engineering", "statistics"]
+    },
+    {
+      "id": "uu",
+      "title": "Research Assistant",
+      "company": "University of Utrecht",
+      "where": "",
+      "when": "2013-09 — 2014-06",
+      "bullets": [
+        "Applied Bayesian Meta-analysis on several heterogeneous studies on Trust (from the Sociological perspective).",
+        "Informative inequality hypotheses were formulated for the predicting of trust. For example, the effect of past relationships between a trustor and an organization better predicts trust behaviour than the expectation of a future relationship.",
+        "Used R for computation."
+      ],
+      "tags": ["research", "statistics", "bayesian", "data science"]
+    },
+    {
+      "id": "hellomamas",
+      "title": "Developer and Statistical Consultant",
+      "company": "HelloMamas (freelance)",
+      "where": "",
+      "when": "2013",
+      "bullets": [
+        "General advice and development of a matching algorithm. Individually responsible for delivering an R-based solution including: individual and reciprocal matching, handling missing data, location-based filters (geocoding), and weighting of questions based on individual and global preferences."
+      ],
+      "tags": ["statistics", "consulting", "engineering"]
+    },
+    {
+      "id": "happiness",
+      "title": "Freelance Excerpter",
+      "company": "World Database of Happiness",
+      "where": "",
+      "when": "2011 — 2012",
+      "bullets": [
+        "Added scientific happiness-related (quantitative) research findings to the database."
+      ],
+      "tags": ["research", "statistics"]
+    }
+  ],
+
+  "skills": [
+    { "name": "Python (scikit-learn, tensorflow, keras, pytorch)", "tags": ["python", "data science", "machine learning", "deep learning", "nlp"] },
+    { "name": "Rust",                                               "tags": ["engineering", "quant"] },
+    { "name": "LLM / Agentic AI (Claude Code > Codex > Local Qwen > Gemini; built multi-model ensemble + code-review tools)", "tags": ["llm", "agentic ai", "machine learning", "engineering"] },
+    { "name": "R",                                                  "tags": ["statistics", "data science", "bayesian", "research"] },
+    { "name": "NodeJS",                                             "tags": ["engineering"] },
+    { "name": "Kotlin, Java, Android",                              "tags": ["engineering"] },
+    { "name": "C++",                                                "tags": ["engineering"] },
+    { "name": "Go",                                                 "tags": ["engineering"] },
+    { "name": "Angular",                                            "tags": ["engineering"] },
+    { "name": "Apache Airflow",                                     "tags": ["engineering", "data science"] },
+    { "name": "Flask",                                              "tags": ["engineering", "backend"] },
+    { "name": "Git, Gitlab CI/CD, Travis CI",                       "tags": ["devops", "engineering"] },
+    { "name": "Docker, Spark",                                      "tags": ["cloud", "devops", "engineering"] },
+    { "name": "AWS, Azure, GCE",                                    "tags": ["cloud", "devops", "engineering"] },
+    { "name": "Neural Networks",                                    "tags": ["deep learning", "machine learning"] },
+    { "name": "BERT, Glove",                                        "tags": ["nlp", "deep learning"] },
+    { "name": "GLM, Ensemble trees, Clustering",                    "tags": ["machine learning", "data science", "statistics"] },
+    { "name": "Bayesian Meta Analysis",                             "tags": ["statistics", "bayesian", "research"] },
+    { "name": "seq2seq (RNN), LSTM, CNN",                           "tags": ["deep learning", "nlp", "computer vision"] },
+    { "name": "Time Series, Tree-based ML",                         "tags": ["machine learning", "data science"] },
+    { "name": "Postgres, Microsoft SQL",                            "tags": ["data science", "backend"] },
+    { "name": "ElasticSearch (based on solr)",                      "tags": ["data science", "backend", "nlp"] },
+    { "name": "BigQuery, neo4j",                                    "tags": ["data science", "backend"] }
+  ],
+
+  "education": [
+    { "title": "MSc in Methods and Statistics",  "org": "University of Utrecht",  "when": "2012 — 2014", "tags": ["statistics", "research", "bayesian"] },
+    { "title": "BSc in Sociology",                "org": "University of Utrecht",  "when": "2009 — 2012", "tags": ["research"] },
+    { "title": "Foundation Degree in Commerce",   "org": "Hogeschool Utrecht",     "when": "2008 — 2009", "tags": [] }
+  ],
+
+  "certifications": [
+    "Intel® Software Innovator for Artificial Intelligence — issued by Intel, May 2017",
+    "Scrum Master PSM I — 94% (scrum.org, 2017)",
+    "Kaggle Master (kaggle.com, 2015)",
+    "Data Mining Elective (University Utrecht, 2014)",
+    "Stanford Machine Learning — 100/100 (Coursera, 2014)"
+  ],
+
+  "publications": [
+    "Hoijtink, H., Van Kooten, P. & Hulsker, K. (2014). Why Bayesian Psychologists Should Change the Way they Use the Bayes Factor. Multivariate Behavioral Research."
+  ],
+
+  "interests": [
+    "Vibe coding, UI/UX and product development — 15+ personal tools I use daily.",
+    "LLM tooling — Claude Code > Codex > Local Qwen > Gemini; built internal multi-model ensemble and code-review tools.",
+    "Playing and coaching squash."
+  ],
+
+  "open_source": [
+    { "name": "whereami",         "stars": "—", "desc": "Predict where you are indoors using machine learning." },
+    { "name": "shrynk",           "stars": "—", "desc": "Using machine learning to choose how to compress files." },
+    { "name": "yagmail",          "stars": "—", "desc": "Send emails in Python without the SMTP / MIME boilerplate." },
+    { "name": "neural_complete",  "stars": "—", "desc": "A neural network trained to autocomplete Python source code." },
+    { "name": "textsearch",       "stars": "—", "desc": "Fast and configurable multi-string search for NLP." },
+    { "name": "nostalgia",        "owner": "nostalgia-dev", "stars": "—", "desc": "Utilize your personal data like Google." },
+    { "name": "sky",              "stars": "—", "desc": "A web crawler designed to extract data from many sites." },
+    { "name": "sysdm",            "stars": "—", "desc": "A friendly TUI for managing systemd services." },
+    { "name": "gittyleaks",       "stars": "—", "desc": "Detect leaked secrets and credentials in git history." },
+    { "name": "brightml",         "stars": "—", "desc": "Automatic laptop screen brightness using machine learning." }
+  ],
+
+  "talks": [
+    "Keynote — PyCode Conference 2018, Warsaw, Poland: High-Frequency Cryptocurrency Trading using AsyncIO",
+    "Intel AI Conference 2018, London, England: Demo — Deep Webcare Chatbot (Intel AI booth as Intel AI Innovator)",
+    "EuroPython 2018, Scotland: When To Use Machine Learning — Tips, Tricks And Warnings (also Big Data Vilnius 2018)",
+    "source{d}: Machine Learning 2017, Moscow, Russia: Neural Complete",
+    "PyData Barcelona 2017, Spain: DeepCare Chatbot — Generating answers to customers using Deep Learning and NLP",
+    "Amsterdam Python Meetup 2015, Netherlands: SQL Injection — processing 1.8 billion links searching for SQL vulnerabilities"
+  ],
+
+  "competitions": [
+    "3rd / 250 — Kaggle text mining competition \"Partly Sunny with a Chance of Hashtags\" (November 2013) — stacked machine learning ensemble for tweet sentiment.",
+    "4th / 176 — Warlight (Risk-like) AI bot programming competition (June 2014).",
+    "1st / 12 — Dutch Open Hackathon 2015 (Travel category) with the NLP chatbot \"TripTeaze\".",
+    "1st / 8 — Internal AI Robotics Hackathon at Furhat Robotics, Stockholm, Sweden (2018)."
+  ],
+
+  "flavors": {
+    "quant": {
+      "label": "Quant / HFT (current)",
+      "role": "Quantitative Trading, Research and Development",
+      "tags": ["quant", "trading", "finance", "engineering", "python", "research"]
+    },
+    "ml-consultant": {
+      "label": "ML Consultant",
+      "role": "Lead Consultant Data Science",
+      "tags": ["data science", "machine learning", "consulting", "leadership"]
+    },
+    "ml-developer": {
+      "label": "ML + Developer",
+      "role": "Lead Consultant Data Science",
+      "tags": ["data science", "machine learning", "engineering", "consulting", "python"]
+    },
+    "engineer-ds": {
+      "label": "Engineer + Data Scientist",
+      "role": "Lead Data Scientist & Consultant",
+      "tags": ["engineering", "backend", "api", "machine learning", "data science", "python"]
+    },
+    "data-engineer-nlp": {
+      "label": "Data Engineer & NLP",
+      "role": "Senior Data Scientist & Data Engineer",
+      "tags": ["nlp", "chatbot", "data science", "machine learning", "cloud", "devops", "engineering"]
+    }
+  }
+}

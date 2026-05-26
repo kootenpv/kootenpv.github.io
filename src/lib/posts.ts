@@ -1,6 +1,46 @@
+import { spawnSync } from "node:child_process";
+import { statSync } from "node:fs";
 import { getCollection, type CollectionEntry } from "astro:content";
 
 export type Post = CollectionEntry<"posts">;
+
+function existsInHead(filePath: string): boolean {
+  const r = spawnSync("git", ["ls-tree", "HEAD", "--", filePath], { encoding: "utf8" });
+  return r.status === 0 && r.stdout.trim() !== "";
+}
+
+export function lastModified(filePath: string | undefined): Date | null {
+  if (!filePath) return null;
+  const r = spawnSync("git", ["log", "-1", "--format=%cI", "--", filePath], {
+    encoding: "utf8",
+  });
+  const iso = (r.stdout || "").trim();
+  if (r.status === 0 && iso) {
+    const d = new Date(iso);
+    if (!Number.isNaN(d.getTime())) return d;
+  }
+  // No git log entry. Either:
+  //  - file is in HEAD but the relevant commit is unreachable (shallow CI clone) → null
+  //  - file isn't in HEAD (uncommitted, staged or untracked) → fs mtime
+  if (existsInHead(filePath)) return null;
+  try {
+    return statSync(filePath).mtime;
+  } catch {
+    return null;
+  }
+}
+
+export function postUpdatedAt(entry: Post): Date | null {
+  if (entry.data.updated) return entry.data.updated;
+  return lastModified(entry.filePath);
+}
+
+// Always returns a Date — used by RSS/sitemap so every post has a value.
+// Falls back to the publish date when no later update is known.
+export function postLastModified(entry: Post): Date {
+  const u = postUpdatedAt(entry);
+  return u && u > entry.data.date ? u : entry.data.date;
+}
 
 export function postSlug(entry: Post): string {
   const d = entry.data.date;

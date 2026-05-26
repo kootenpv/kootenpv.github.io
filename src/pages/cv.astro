@@ -1,0 +1,955 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { SITE } from "~/config";
+
+const title = "CV";
+const description = "Pascal van Kooten — interactive CV builder.";
+---
+
+<BaseLayout title={title} description={description} bodyClass="cv-body">
+  <div class="cv-mobile-notice" role="note">
+    <h1>CV Builder</h1>
+    <p>
+      The interactive CV builder is designed for larger screens — the sidebar,
+      filters and PDF preview don't fit on a phone.
+    </p>
+    <p class="meta">Open this page on a desktop or tablet to use it.</p>
+  </div>
+
+  <div class="cv-app">
+    <aside class="cv-sidebar no-print">
+      <h1>CV Builder</h1>
+      <p class="meta">Filter experience to match a job posting, then export to PDF.</p>
+
+      <input id="search" class="cv-search" placeholder="Search jobs, skills, keywords…" />
+
+      <h2>Actions</h2>
+      <div class="cv-toolbar">
+        <button id="printBtn">Export PDF</button>
+        <button class="secondary" id="clearBtn">Clear filters</button>
+        <button class="secondary" id="includeAllBtn">Include all</button>
+        <button class="secondary" id="excludeAllBtn">Exclude all</button>
+      </div>
+
+      <h2>Flavor</h2>
+      <div id="flavorPresets" class="chips"></div>
+
+      <h2>Filter by area</h2>
+      <div id="tagFilters" class="chips"></div>
+
+      <h2>Options</h2>
+      <label class="toggle-row"><input type="checkbox" id="optAuto" checked /> Auto-include jobs matching any selected area</label>
+      <label class="toggle-row"><input type="checkbox" id="optHighlight" checked /> Highlight matching tags</label>
+      <label class="toggle-row"><input type="checkbox" id="optShowExcluded" /> Show excluded jobs (greyed)</label>
+
+      <p class="meta">Tip: Click a job card to toggle its inclusion manually.</p>
+      <p id="loadError" class="error"></p>
+    </aside>
+
+    <div class="cv-right">
+      <div class="cv-status no-print">
+        <strong id="counter"></strong>
+        <span class="spacer"></span>
+        <span class="meta">Click a job to include/exclude</span>
+      </div>
+
+      <main class="cv-main">
+      <div class="cv">
+        <header class="cv-header">
+          <img
+            src={SITE.avatar}
+            alt={SITE.author}
+            width="84"
+            height="84"
+            class="cv-avatar"
+          />
+          <div class="cv-header-id">
+            <div id="name" class="name"></div>
+            <div id="role" class="role"></div>
+          </div>
+          <div id="contact" class="contact"></div>
+        </header>
+
+        <section class="cv-section">
+          <h2>Profile</h2>
+          <div id="profile"></div>
+        </section>
+
+        <section class="cv-section">
+          <h2>Experience</h2>
+          <div id="jobs"></div>
+        </section>
+
+        <section class="cv-section">
+          <h2>Skills</h2>
+          <div id="skills" class="skills-grid"></div>
+        </section>
+
+        <section class="cv-section">
+          <h2>Languages</h2>
+          <div id="languages"></div>
+        </section>
+
+        <section class="cv-section">
+          <h2>Education</h2>
+          <div id="education"></div>
+        </section>
+
+        <section class="cv-section">
+          <h2>Certifications</h2>
+          <ul id="certifications" class="plain-list"></ul>
+        </section>
+
+        <section class="cv-section">
+          <h2>Publications</h2>
+          <ul id="publications" class="plain-list"></ul>
+        </section>
+
+        <section class="cv-section">
+          <h2>Open source — github.com/kootenpv</h2>
+          <div id="openSource"></div>
+        </section>
+
+        <section class="cv-section">
+          <h2>Interests</h2>
+          <ul id="interests" class="plain-list"></ul>
+        </section>
+
+        <section class="cv-section">
+          <h2>Speaking</h2>
+          <ul id="talks" class="plain-list"></ul>
+        </section>
+
+        <section class="cv-section">
+          <h2>Competitions</h2>
+          <ul id="competitions" class="plain-list"></ul>
+        </section>
+      </div>
+      </main>
+    </div>
+  </div>
+</BaseLayout>
+
+<style is:global>
+  /* Break the CV out of BaseLayout's max-w-3xl so the sidebar+main grid fits. */
+  body.cv-body > main {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  /* Mobile notice: hidden by default, shown below the breakpoint where the
+     sidebar+sheet layout collapses. */
+  .cv-mobile-notice { display: none; }
+  @media (max-width: 800px) {
+    .cv-mobile-notice {
+      display: block;
+      max-width: 520px;
+      margin: 48px auto;
+      padding: 24px 20px;
+      border: 1px solid rgb(var(--c-border));
+      border-radius: 12px;
+      background: rgb(var(--c-card));
+      color: rgb(var(--c-fg));
+      box-shadow: 0 0 0 1px rgb(var(--c-accent) / 0.08),
+                  0 0 20px rgb(var(--tron-glow, 255 90 50) / 0.1);
+      text-align: center;
+    }
+    .cv-mobile-notice h1 {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: rgb(var(--c-accent));
+      margin: 0 0 12px;
+      text-shadow: 0 0 8px rgb(var(--tron-glow, 255 90 50) / 0.45);
+    }
+    .cv-mobile-notice p {
+      margin: 0 0 8px;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+    .cv-mobile-notice .meta {
+      color: rgb(var(--c-muted));
+      font-size: 12px;
+    }
+    .cv-app { display: none !important; }
+  }
+
+  .cv-app {
+    display: grid;
+    grid-template-columns: minmax(280px, 320px) 1fr;
+    gap: 16px;
+    padding: 16px;
+    max-width: 1400px;
+    margin: 0 auto;
+    color: rgb(var(--c-fg));
+  }
+
+  .cv-sidebar {
+    background: rgb(var(--c-card));
+    border: 1px solid rgb(var(--c-border));
+    border-radius: 10px;
+    padding: 16px;
+    box-shadow: 0 0 0 1px rgb(var(--c-accent) / 0.06),
+                0 0 18px rgb(var(--tron-glow, 255 90 50) / 0.06);
+    position: sticky;
+    top: 72px;
+    align-self: start;
+    max-height: calc(100vh - 88px);
+    overflow: auto;
+  }
+
+  /* --- Main content: keep PDF-style white sheet with the original system font. --- */
+  .cv-main {
+    --pdf-bg: #ffffff;
+    --pdf-ink: #1a1a1a;
+    --pdf-muted: #5a6472;
+    --pdf-accent: #1d4ed8;
+    --pdf-accent-soft: #e0e7ff;
+    --pdf-border: #e4e6eb;
+    --pdf-chip: #eef1f5;
+
+    background: var(--pdf-bg);
+    color: var(--pdf-ink);
+    border: 1px solid var(--pdf-border);
+    border-radius: 10px;
+    padding: 24px;
+    font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    box-shadow: 0 0 0 1px rgb(var(--c-accent) / 0.08),
+                0 8px 28px rgba(0, 0, 0, 0.35),
+                0 0 24px rgb(var(--tron-glow, 255 90 50) / 0.08);
+  }
+  .cv-main * { font-family: inherit; }
+  .cv-main a { color: var(--pdf-accent); text-decoration: none; text-shadow: none; }
+  .cv-main a:hover { text-decoration: underline; }
+
+  /* Neutralize site-wide tron-ares overrides that leak into the white sheet:
+     - header { dark backdrop }, h1/h2/h3 { uppercase + glow }, a { glow } */
+  [data-theme="tron-ares"] .cv-main header,
+  [data-theme="tron-ares"] .cv-main .cv-header {
+    background: transparent !important;
+    border-bottom: 2px solid var(--pdf-ink) !important;
+    box-shadow: none !important;
+    position: static;
+  }
+  [data-theme="tron-ares"] .cv-main h1,
+  [data-theme="tron-ares"] .cv-main h2,
+  [data-theme="tron-ares"] .cv-main h3 {
+    text-transform: none;
+    letter-spacing: 0;
+    text-shadow: none;
+  }
+  [data-theme="tron-ares"] .cv-main a {
+    color: var(--pdf-accent);
+    text-shadow: none;
+  }
+
+  .cv-sidebar h1 {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: rgb(var(--c-accent));
+    margin: 0 0 10px;
+    text-shadow: 0 0 8px rgb(var(--tron-glow, 255 90 50) / 0.45);
+  }
+  .cv-sidebar > .meta:first-of-type {
+    margin: 0 0 16px;
+    line-height: 1.5;
+  }
+  .cv-sidebar h2 {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgb(var(--c-muted));
+    margin: 16px 0 8px;
+  }
+
+  .cv-search {
+    width: 100%;
+    padding: 5px 9px;
+    border: 1px solid rgb(var(--c-border));
+    border-radius: 7px;
+    background: rgb(var(--c-bg));
+    color: rgb(var(--c-fg));
+    font: inherit;
+    font-size: 12.5px;
+  }
+  .cv-search:focus {
+    outline: none;
+    border-color: rgb(var(--c-accent) / 0.7);
+    box-shadow: 0 0 0 1px rgb(var(--c-accent) / 0.4),
+                0 0 12px rgb(var(--tron-glow, 255 90 50) / 0.35);
+  }
+
+  /* Flavor radio list (replaces chip-style for Flavor section). */
+  #flavorPresets {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .flavor-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: rgb(var(--c-fg));
+    cursor: pointer;
+    user-select: none;
+    border: 1px solid transparent;
+    transition: background 0.12s, border-color 0.12s, color 0.12s;
+  }
+  .flavor-row:hover { background: rgb(var(--c-accent) / 0.08); }
+  .flavor-row.on {
+    border-color: rgb(var(--c-accent) / 0.5);
+    color: rgb(var(--c-accent));
+    background: rgb(var(--c-accent) / 0.08);
+  }
+  .flavor-row input[type="radio"] {
+    accent-color: rgb(var(--c-accent));
+    margin: 0;
+    flex: none;
+  }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgb(var(--c-bg));
+    color: rgb(var(--c-fg));
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    cursor: pointer;
+    user-select: none;
+    border: 1px solid rgb(var(--c-border));
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+  }
+  .chip:hover {
+    border-color: rgb(var(--c-accent) / 0.7);
+    color: rgb(var(--c-accent));
+  }
+  .chip.on {
+    background: rgb(var(--c-accent));
+    color: #0b0606;
+    border-color: rgb(var(--c-accent));
+    box-shadow: 0 0 10px rgb(var(--tron-glow, 255 90 50) / 0.55);
+  }
+  .chip .count { opacity: 0.65; font-size: 11px; }
+
+  .cv-toolbar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .cv-toolbar .spacer { flex: 1; }
+
+  /* Sidebar buttons stay on-theme (orange). */
+  .cv-sidebar button {
+    background: rgb(var(--c-accent));
+    color: #0b0606;
+    border: 0;
+    padding: 6px 12px;
+    border-radius: 7px;
+    font: inherit;
+    font-size: 12.5px;
+    line-height: 1.25;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgb(var(--tron-glow, 255 90 50) / 0.3);
+    transition: filter 0.15s, transform 0.05s;
+  }
+  .cv-sidebar button.secondary {
+    background: rgb(var(--c-bg));
+    color: rgb(var(--c-fg));
+    border: 1px solid rgb(var(--c-border));
+    box-shadow: none;
+  }
+  .cv-sidebar button:hover { filter: brightness(1.08); }
+  .cv-sidebar button:active { transform: translateY(1px); }
+
+  /* Generic meta/toggle styles default to sidebar (dark) palette. */
+  .cv-sidebar .meta { color: rgb(var(--c-muted)); font-size: 12px; }
+  .error { color: #ff5c2c; font-size: 13px; }
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: rgb(var(--c-fg));
+    margin: 10px 0;
+    line-height: 1.35;
+  }
+  .toggle-row + .toggle-row { margin-top: 12px; }
+  .toggle-row input { transform: scale(1.05); accent-color: rgb(var(--c-accent)); }
+
+  /* --- Status strip above the white sheet (themed) --- */
+  .cv-right { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .cv-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 8px 14px;
+    border: 1px solid rgb(var(--c-border));
+    border-radius: 8px;
+    background: rgb(var(--c-card));
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: rgb(var(--c-muted));
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    box-shadow: inset 0 0 12px rgb(var(--tron-glow, 255 90 50) / 0.06);
+  }
+  .cv-status .spacer { flex: 1; }
+  .cv-status strong {
+    color: rgb(var(--c-accent));
+    text-shadow: 0 0 6px rgb(var(--tron-glow, 255 90 50) / 0.45);
+  }
+  .cv-status .meta { color: rgb(var(--c-muted)); font-size: 12px; }
+
+  /* --- CV main content: PDF-style (white sheet) --- */
+  .cv-main .cv { padding: 8px 4px 4px; }
+  .cv-main .cv-header {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 20px;
+    border-bottom: 2px solid var(--pdf-ink);
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+  }
+  .cv-main .cv-header-id { min-width: 0; }
+  .cv-main .cv-avatar {
+    align-self: center;
+    width: 84px;
+    height: 84px;
+    object-fit: cover;
+    border-radius: 6px;
+    background: #fff;
+  }
+  .cv-main .cv-header .name {
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--pdf-ink);
+    letter-spacing: -0.01em;
+    text-shadow: none;
+    margin-bottom: 2px;
+  }
+  .cv-main .cv-header .role {
+    color: var(--pdf-accent);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+  .cv-main .cv-header .contact {
+    text-align: right;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--pdf-muted);
+    white-space: nowrap;
+  }
+  .cv-main .cv-header .contact a { color: var(--pdf-accent); }
+  .cv-main .cv-header .contact a:hover { text-decoration: underline; }
+
+  .cv-main .cv-section { margin-bottom: 14px; }
+  .cv-main .cv-section > h2 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--pdf-ink);
+    border-bottom: 1px solid var(--pdf-border);
+    padding-bottom: 4px;
+    margin: 16px 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+  }
+  .cv-main h3 { font-size: 15px; margin: 0; color: var(--pdf-ink); }
+  .section-toggle { display: inline-flex; align-items: center; cursor: pointer; }
+  .section-toggle input { transform: scale(1); cursor: pointer; margin: 0; accent-color: var(--pdf-accent); }
+  .cv-main .cv-section.section-hidden > *:not(h2) { opacity: 0.3; }
+  .cv-main .cv-section.section-hidden h2 {
+    color: var(--pdf-muted);
+    text-decoration: line-through;
+    text-decoration-color: var(--pdf-muted);
+  }
+  .cv-main .cv-section.section-hidden h2 .section-toggle { text-decoration: none; }
+
+  .cv-main .job {
+    padding: 8px 10px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    border: 1px solid transparent;
+  }
+  .cv-main .job.included {
+    background: #fff;
+    border-color: var(--pdf-border);
+  }
+  .cv-main .job.excluded { opacity: 0.35; }
+  .cv-main .job-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: baseline;
+  }
+  .cv-main .job-title { font-weight: 600; color: var(--pdf-ink); }
+  .cv-main .job-when { color: var(--pdf-muted); font-size: 12px; white-space: nowrap; }
+  .cv-main .job-where { color: var(--pdf-muted); font-size: 12px; }
+  .cv-main .job-bullets { margin: 6px 0 4px; padding-left: 18px; }
+  .cv-main .job-bullets li { margin: 2px 0; }
+  .cv-main .job-tech { font-size: 12px; color: var(--pdf-muted); margin-top: 4px; }
+  .cv-main .job-tech strong { color: var(--pdf-ink); font-weight: 600; }
+  .cv-main .job-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+  .cv-main .job-tags .tag {
+    font-size: 11px;
+    color: var(--pdf-muted);
+    background: var(--pdf-chip);
+    border: 1px solid transparent;
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+  .cv-main .job-tags .tag.match {
+    background: var(--pdf-accent-soft);
+    color: var(--pdf-accent);
+    border-color: transparent;
+  }
+
+  .cv-main .plain-list { margin: 0; padding-left: 18px; }
+  .cv-main .plain-list li { margin: 2px 0; }
+
+  .cv-main .os-row {
+    display: grid;
+    grid-template-columns: 60px 180px 1fr;
+    gap: 8px;
+    font-size: 13px;
+    margin: 2px 0;
+    align-items: baseline;
+  }
+  .cv-main .os-row .stars { color: var(--pdf-accent); font-weight: 600; }
+  .cv-main .os-row .name { font-weight: 600; }
+  .cv-main .os-row .desc { color: var(--pdf-muted); }
+  .cv-main .os-row a { color: var(--pdf-accent); }
+  .cv-main .os-row a:hover { text-decoration: underline; }
+
+  .cv-main .skills-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px 24px;
+  }
+  .cv-main .skill-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: baseline;
+    font-size: 13px;
+    line-height: 1.35;
+    padding: 2px 0;
+    border-bottom: 1px dotted var(--pdf-border);
+  }
+  .cv-main .skill-row > span:first-child { overflow-wrap: anywhere; }
+  .cv-main .skill-row .skill-detail {
+    color: var(--pdf-muted);
+    font-size: 11px;
+    font-weight: 400;
+  }
+  .cv-main .skill-row .lvl {
+    color: var(--pdf-muted);
+    font-size: 11px;
+    text-align: right;
+  }
+
+
+  @media print {
+    @page { size: A4; margin: 14mm; }
+    html, body { background: #fff !important; color: #1a1a1a !important; }
+    body > header, body > footer, .cv-sidebar, .cv-toolbar, .no-print,
+    .tron-scanline, .ticker, .chat-root, .special-fx-panel { display: none !important; }
+    body > main { padding: 0 !important; }
+    .cv-app { display: block; padding: 0; max-width: none; }
+    .cv-main { border: 0; padding: 0; border-radius: 0; background: #fff !important; box-shadow: none !important; }
+    .cv-main, .cv-main * { color: #1a1a1a !important; text-shadow: none !important; }
+    .cv-header { border-bottom: 2px solid #1a1a1a !important; }
+    .cv-section > h2 { border-bottom-color: #e4e6eb !important; }
+    .cv-header .role, .cv-header .contact,
+    .job-where, .job-when, .job-tech, .meta { color: #5a6472 !important; }
+    .cv-header .contact a, .os-row .stars { color: #1d4ed8 !important; }
+    .job.excluded { display: none; }
+    .job.included { border: 0; background: transparent; padding: 4px 0; break-inside: avoid; }
+    .cv-section { break-inside: avoid; }
+    .cv-section.section-hidden { display: none !important; }
+    .job-tags { display: none; }
+    a { color: inherit; text-decoration: none; }
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    const $ = (sel) => document.querySelector(sel);
+
+    // Allow override via ?data=... so it's easy to re-host.
+    const dataUrl = new URLSearchParams(location.search).get("data") || "/cv/data.json";
+
+    const state = {
+      data: null,
+      selectedTags: new Set(),
+      manualInclude: new Set(),
+      manualExclude: new Set(),
+      searchTerm: "",
+      activeFlavor: null,
+    };
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, (c) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+      }[c]));
+    }
+
+    function computeTagCounts(data) {
+      const counts = {};
+      for (const j of data.jobs) for (const t of j.tags || []) counts[t] = (counts[t] || 0) + 1;
+      for (const s of data.skills) for (const t of s.tags || []) counts[t] = (counts[t] || 0) + 1;
+      return counts;
+    }
+
+    function renderHeader() {
+      const h = state.data.header;
+      $("#name").textContent = h.name;
+      $("#role").textContent = h.default_role;
+      const linksHtml = h.links
+        .map((l) => `<a href="${escapeHtml(l.href)}">${escapeHtml(l.label)}</a>`)
+        .join(" · ");
+      $("#contact").innerHTML = `
+        ${escapeHtml(h.email)} · ${escapeHtml(h.phone)}<br>
+        ${linksHtml}<br>
+        ${escapeHtml(h.location)}
+      `;
+      const profileParas = Array.isArray(state.data.profile) ? state.data.profile : [state.data.profile];
+      $("#profile").innerHTML = profileParas.map((p) => `<p>${escapeHtml(p)}</p>`).join("");
+    }
+
+    function renderFlavorPresets() {
+      const c = $("#flavorPresets");
+      c.innerHTML = "";
+      const entries = [
+        ["__default__", { label: "Default (no preset)" }],
+        ...Object.entries(state.data.flavors || {}),
+      ];
+      for (const [key, f] of entries) {
+        const checked = key === "__default__"
+          ? state.activeFlavor === null
+          : state.activeFlavor === key;
+        const id = `flavor-${key}`;
+        const label = document.createElement("label");
+        label.className = "flavor-row" + (checked ? " on" : "");
+        label.setAttribute("for", id);
+        label.innerHTML = `
+          <input type="radio" name="flavor" id="${id}" ${checked ? "checked" : ""}>
+          <span>${escapeHtml(f.label)}</span>
+        `;
+        label.querySelector("input").onchange = () => applyFlavor(key);
+        c.appendChild(label);
+      }
+    }
+
+    function applyFlavor(key) {
+      state.manualInclude.clear();
+      state.manualExclude.clear();
+      state.selectedTags.clear();
+      if (key === "__default__") {
+        state.activeFlavor = null;
+        $("#role").textContent = state.data.header.default_role;
+      } else {
+        const f = state.data.flavors[key];
+        if (!f) return;
+        state.activeFlavor = key;
+        f.tags.forEach((t) => state.selectedTags.add(t));
+        $("#role").textContent = f.role;
+      }
+      render();
+    }
+
+    function renderTagFilters() {
+      const counts = computeTagCounts(state.data);
+      const allTags = Object.keys(counts).sort((a, b) => counts[b] - counts[a] || a.localeCompare(b));
+      const c = $("#tagFilters");
+      c.innerHTML = "";
+      for (const t of allTags) {
+        const el = document.createElement("span");
+        el.className = "chip" + (state.selectedTags.has(t) ? " on" : "");
+        el.innerHTML = `${escapeHtml(t)} <span class="count">${counts[t]}</span>`;
+        el.onclick = () => {
+          state.selectedTags.has(t) ? state.selectedTags.delete(t) : state.selectedTags.add(t);
+          render();
+        };
+        c.appendChild(el);
+      }
+    }
+
+    function jobMatchesSearch(j) {
+      if (!state.searchTerm) return true;
+      const hay = (
+        j.title + " " + j.company + " " + (j.where || "") + " " +
+        (j.bullets || []).join(" ") + " " + (j.tech || []).join(" ") + " " +
+        (j.tags || []).join(" ")
+      ).toLowerCase();
+      return hay.includes(state.searchTerm);
+    }
+
+    function isJobIncluded(j) {
+      if (state.manualExclude.has(j.id)) return false;
+      if (state.manualInclude.has(j.id)) return true;
+      if (!$("#optAuto").checked) return jobMatchesSearch(j);
+      if (state.selectedTags.size === 0) return jobMatchesSearch(j);
+      return (j.tags || []).some((t) => state.selectedTags.has(t)) && jobMatchesSearch(j);
+    }
+
+    function renderJobs() {
+      const wrap = $("#jobs");
+      wrap.innerHTML = "";
+      const highlight = $("#optHighlight").checked;
+      const showExcluded = $("#optShowExcluded").checked;
+      let included = 0;
+      for (const j of state.data.jobs) {
+        const inc = isJobIncluded(j);
+        if (inc) included++;
+        if (!inc && !showExcluded) continue;
+
+        const el = document.createElement("div");
+        el.className = "job " + (inc ? "included" : "excluded");
+        el.onclick = () => {
+          if (state.manualInclude.has(j.id)) {
+            state.manualInclude.delete(j.id);
+            state.manualExclude.add(j.id);
+          } else if (state.manualExclude.has(j.id)) {
+            state.manualExclude.delete(j.id);
+          } else if (isJobIncluded(j)) {
+            state.manualExclude.add(j.id);
+          } else {
+            state.manualInclude.add(j.id);
+          }
+          render();
+        };
+
+        const tagsHtml = (j.tags || [])
+          .map((t) => {
+            const match = state.selectedTags.has(t);
+            return `<span class="tag${highlight && match ? " match" : ""}">${escapeHtml(t)}</span>`;
+          })
+          .join("");
+
+        const bulletsHtml = (j.bullets || [])
+          .map((b) => `<li>${escapeHtml(b)}</li>`)
+          .join("");
+
+        const techHtml = j.tech && j.tech.length
+          ? `<div class="job-tech"><strong>Tech:</strong> ${j.tech.map(escapeHtml).join(", ")}</div>`
+          : "";
+
+        const subhead = [j.company, j.where].filter(Boolean).map(escapeHtml).join(" · ");
+
+        el.innerHTML = `
+          <div class="job-head">
+            <div>
+              <div class="job-title">${escapeHtml(j.title)}</div>
+              <div class="job-where">${subhead}</div>
+            </div>
+            <div class="job-when">${escapeHtml(j.when)}</div>
+          </div>
+          ${bulletsHtml ? `<ul class="job-bullets">${bulletsHtml}</ul>` : ""}
+          ${techHtml}
+          <div class="job-tags no-print">${tagsHtml}</div>
+        `;
+        wrap.appendChild(el);
+      }
+      $("#counter").textContent = `${included} / ${state.data.jobs.length} jobs included`;
+    }
+
+    function renderSkillName(name) {
+      const i = name.indexOf(" (");
+      if (i === -1) return escapeHtml(name);
+      const head = name.slice(0, i);
+      const tail = name.slice(i + 1);
+      return `${escapeHtml(head)} <span class="skill-detail">${escapeHtml(tail)}</span>`;
+    }
+
+    function renderSkills() {
+      const wrap = $("#skills");
+      wrap.innerHTML = "";
+      const filtered = state.data.skills.filter(
+        (s) => state.selectedTags.size === 0 || (s.tags || []).some((t) => state.selectedTags.has(t))
+      );
+      for (const s of filtered) {
+        const row = document.createElement("div");
+        row.className = "skill-row";
+        const matched = (s.tags || []).filter((t) => state.selectedTags.has(t));
+        row.innerHTML = `<span>${renderSkillName(s.name)}</span><span class="lvl">${matched.map(escapeHtml).join(", ")}</span>`;
+        wrap.appendChild(row);
+      }
+    }
+
+    function renderLanguages() {
+      const wrap = $("#languages");
+      wrap.innerHTML = (state.data.languages || [])
+        .map((l) => `<div class="skill-row"><span>${escapeHtml(l.name)}</span><span class="lvl">${escapeHtml(l.level)}</span></div>`)
+        .join("");
+    }
+
+    function renderEducation() {
+      const wrap = $("#education");
+      wrap.innerHTML = state.data.education
+        .map((e) => `
+          <div class="job included">
+            <div class="job-head">
+              <div><div class="job-title">${escapeHtml(e.title)}</div><div class="job-where">${escapeHtml(e.org)}</div></div>
+              <div class="job-when">${escapeHtml(e.when)}</div>
+            </div>
+          </div>
+        `)
+        .join("");
+    }
+
+    function renderStatic() {
+      $("#certifications").innerHTML = (state.data.certifications || []).map((c) => `<li>${escapeHtml(c)}</li>`).join("");
+      $("#publications").innerHTML = (state.data.publications || []).map((p) => `<li>${escapeHtml(p)}</li>`).join("");
+      $("#openSource").innerHTML = (state.data.open_source || [])
+        .map((o) => {
+          const owner = o.owner || "kootenpv";
+          const href = `https://github.com/${owner}/${o.name}`;
+          return `<div class="os-row" data-repo="${escapeHtml(o.name)}" data-owner="${escapeHtml(owner)}"><span class="stars">★ ${escapeHtml(o.stars)}</span><span class="name"><a href="${escapeHtml(href)}">${escapeHtml(o.name)}</a></span><span class="desc">${escapeHtml(o.desc)}</span></div>`;
+        })
+        .join("");
+      refreshGithubStars();
+      $("#interests").innerHTML = (state.data.interests || []).map((i) => `<li>${escapeHtml(i)}</li>`).join("");
+      $("#talks").innerHTML = (state.data.talks || []).map((t) => `<li>${escapeHtml(t)}</li>`).join("");
+      $("#competitions").innerHTML = (state.data.competitions || []).map((c) => `<li>${escapeHtml(c)}</li>`).join("");
+    }
+
+    function formatStars(n) {
+      if (n >= 10000) return (n / 1000).toFixed(0) + "k";
+      if (n >= 1000) return (n / 1000).toFixed(1) + "k";
+      return String(n);
+    }
+
+    async function fetchStarsCached(repo, owner, ttlMs) {
+      owner = owner || "kootenpv";
+      ttlMs = ttlMs || 60 * 60 * 1000;
+      const key = `gh-stars:${owner}/${repo}`;
+      try {
+        const hit = JSON.parse(localStorage.getItem(key) || "null");
+        if (hit && Date.now() - hit.t < ttlMs) return hit.n;
+      } catch (_) {}
+      const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      const n = json.stargazers_count;
+      try { localStorage.setItem(key, JSON.stringify({ t: Date.now(), n })); } catch (_) {}
+      return n;
+    }
+
+    function refreshGithubStars() {
+      const rows = document.querySelectorAll(".os-row[data-repo]");
+      rows.forEach(async (row) => {
+        const repo = row.getAttribute("data-repo");
+        const owner = row.getAttribute("data-owner") || "kootenpv";
+        try {
+          const n = await fetchStarsCached(repo, owner);
+          row.querySelector(".stars").textContent = `★ ${formatStars(n)}`;
+        } catch (_) {}
+      });
+    }
+
+    function render() {
+      renderFlavorPresets();
+      renderTagFilters();
+      renderJobs();
+      renderSkills();
+      renderLanguages();
+      renderEducation();
+    }
+
+    function attachSectionToggles() {
+      document.querySelectorAll(".cv-section").forEach((sec, i) => {
+        const h2 = sec.querySelector("h2");
+        if (!h2 || h2.querySelector(".section-toggle")) return;
+        const slug = (h2.textContent || `s-${i}`)
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-|-$/g, "");
+        const key = `section-included:${slug}`;
+        const stored = localStorage.getItem(key);
+        const included = stored === null ? true : stored === "1";
+
+        const label = document.createElement("label");
+        label.className = "section-toggle no-print";
+        label.title = "Include this section in the PDF export";
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.checked = included;
+        cb.addEventListener("change", () => {
+          sec.classList.toggle("section-hidden", !cb.checked);
+          localStorage.setItem(key, cb.checked ? "1" : "0");
+        });
+        label.appendChild(cb);
+        h2.prepend(label);
+        sec.classList.toggle("section-hidden", !included);
+      });
+    }
+
+    function wireControls() {
+      $("#search").addEventListener("input", (e) => {
+        state.searchTerm = e.target.value.toLowerCase().trim();
+        render();
+      });
+      $("#optAuto").addEventListener("change", render);
+      $("#optHighlight").addEventListener("change", render);
+      $("#optShowExcluded").addEventListener("change", render);
+      $("#printBtn").addEventListener("click", () => window.print());
+      $("#clearBtn").addEventListener("click", () => {
+        state.selectedTags.clear();
+        state.manualInclude.clear();
+        state.manualExclude.clear();
+        state.activeFlavor = null;
+        $("#search").value = "";
+        state.searchTerm = "";
+        $("#role").textContent = state.data.header.default_role;
+        render();
+      });
+      $("#includeAllBtn").addEventListener("click", () => {
+        state.manualExclude.clear();
+        state.data.jobs.forEach((j) => state.manualInclude.add(j.id));
+        render();
+      });
+      $("#excludeAllBtn").addEventListener("click", () => {
+        state.manualInclude.clear();
+        state.data.jobs.forEach((j) => state.manualExclude.add(j.id));
+        render();
+      });
+    }
+
+    async function boot() {
+      try {
+        const res = await fetch(dataUrl, { cache: "no-cache" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        state.data = await res.json();
+      } catch (err) {
+        $("#loadError").textContent = `Failed to load ${dataUrl}: ${err.message}.`;
+        return;
+      }
+      renderHeader();
+      renderStatic();
+      wireControls();
+      attachSectionToggles();
+      render();
+    }
+
+    boot();
+  })();
+</script>
