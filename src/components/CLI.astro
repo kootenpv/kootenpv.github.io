@@ -1259,6 +1259,12 @@ const claudeSystemPrompt = readFileSync(
             mtime: M_RECEIPT,
             getContent: function () { return RECEIPT_HOLDER.text; },
           },
+          "quote.txt": {
+            type: "file",
+            skin: ["windows", "linux"],
+            mtime: new Date("2019-08-14T10:00:00"),
+            content: '"Quoting and being quoted both make you appear more impressive"\n- Pascal van Kooten, 2019\n',
+          },
           // Windows-only: a fake Desktop with a fake game executable.
           "Desktop": {
             type: "dir",
@@ -1392,6 +1398,18 @@ const claudeSystemPrompt = readFileSync(
         }
         return "/" + stack.join("/");
       }
+      function matchesScope(scope, current) {
+        if (Array.isArray(scope)) return scope.includes(current);
+        return scope === current;
+      }
+      function flavorAllows(node, currentFlavor) {
+        if (node.flavor && !matchesScope(node.flavor, currentFlavor)) return false;
+        if (node.skin) {
+          const currentSkin = (wrap && wrap.dataset.os) || "";
+          if (!matchesScope(node.skin, currentSkin)) return false;
+        }
+        return true;
+      }
       function resolve(path) {
         const abs = normalize(path);
         if (abs === "/") return ROOT;
@@ -1402,7 +1420,7 @@ const claudeSystemPrompt = readFileSync(
           const child = node.children[p];
           if (!child) return null;
           // Hide nodes scoped to a different flavor.
-          if (child.flavor && child.flavor !== flavor) return null;
+          if (!flavorAllows(child, flavor)) return null;
           node = child;
         }
         return node;
@@ -1677,8 +1695,7 @@ const claudeSystemPrompt = readFileSync(
             return { html: '<span class="term-file">' + escapeHTML(target) + "</span>" };
           }
           let names = Object.keys(node.children).filter((n) => {
-            const c = node.children[n];
-            return !c.flavor || c.flavor === flavor;
+            return flavorAllows(node.children[n], flavor);
           });
           if (!opts.a) names = names.filter((n) => !n.startsWith("."));
           // sort: alpha by default; -t = mtime desc; -r reverses final order
@@ -2063,7 +2080,7 @@ const claudeSystemPrompt = readFileSync(
                   const c = dir.children[n];
                   return n.toLowerCase() === want
                     && c.type === "file"
-                    && (!c.flavor || c.flavor === flavor)
+                    && flavorAllows(c, flavor)
                     && typeof c.exec === "function";
                 });
                 if (match) {
